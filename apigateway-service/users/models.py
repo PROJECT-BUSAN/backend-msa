@@ -6,8 +6,6 @@ from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 from django.utils.deconstruct import deconstructible
 
-from boards.models import Post, Category, Comment, Reply
-
 
 @deconstructible
 class UnicodeUsernameValidator(validators.RegexValidator):
