@@ -6,7 +6,7 @@ read newbranch
 git checkout --orphan $newbranch
 git rm --cached -r .
 
-find . \! \( -type d -name .git -prune \) \! -name make-branch.sh -exec rm -rf {} \;
+find . \! \( -type d -name .git -prune \) -exec rm -rf {} \;
 
 echo "Delete unnecessary function files ..."
 
@@ -21,5 +21,3 @@ git merge $newbranch --allow-unrelated-histories
 git push origin dev
 
 git switch $newbranch
-
-rm make-branch.sh
