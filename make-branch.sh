@@ -21,3 +21,5 @@ git merge $newbranch --allow-unrelated-histories
 git push origin dev
 
 git switch $newbranch
+
+rm make-branch.sh
