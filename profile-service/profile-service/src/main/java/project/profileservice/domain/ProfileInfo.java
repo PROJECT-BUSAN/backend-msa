@@ -1,13 +1,15 @@
 package project.profileservice.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
+@Getter @Setter
 public class ProfileInfo {
 
     @Id @GeneratedValue
@@ -15,7 +17,6 @@ public class ProfileInfo {
     private Long id;
     private Long user_id;
     private int strick;
-
 
     @OneToMany
     @JoinColumn(name = "profile_id")
