@@ -13,11 +13,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProfileInfoRepository {
 
-    @PersistenceContext
     private final EntityManager em;
 
     @Transactional
     public void save(ProfileInfo profileInfo) {
+        System.out.println("profileInfo = " + profileInfo.getId());
         em.persist(profileInfo);
     }
 

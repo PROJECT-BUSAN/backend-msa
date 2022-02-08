@@ -20,4 +20,5 @@ public class Badge {
     @OneToMany(mappedBy = "badge")
     private List<ProfileBadge> profileBadges = new ArrayList<ProfileBadge>();
 
+
 }

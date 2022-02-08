@@ -21,4 +21,21 @@ public class ProfileInfo {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "profileInfo")
     private List<ProfileBadge> profileBadges = new ArrayList<ProfileBadge>();
 
+
+    /**
+     * 연관관계 메서드
+     */
+    public void addProfileBadge(ProfileBadge profileBadge) {
+        this.profileBadges.add(profileBadge);
+        profileBadge.setProfileInfo(this);
+    }
+
+    /**
+     * profileBadges 추가 메서드
+     */
+    public void createProfileInfo(ProfileBadge... profileBadges) {
+        for (ProfileBadge profileBadge : profileBadges) {
+            this.addProfileBadge(profileBadge);
+        }
+    }
 }
