@@ -18,8 +18,7 @@ public class ProfileInfo {
     private Long user_id;
     private int strick;
 
-    @OneToMany
-    @JoinColumn(name = "profile_id")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "profileInfo")
     private List<ProfileBadge> profileBadges = new ArrayList<ProfileBadge>();
 
 }
