@@ -37,6 +37,7 @@ SECRET_KEY = 'django-insecure-ndhi2hjc5pe+0j-(t9jhyq7)lxvq*=-xvi^hb2sf_ry_pqa4q3
 INSTALLED_APPS = [
     'gateway',
     'users',
+    'auth',
     
     'django.contrib.admin',
     'django.contrib.auth',
@@ -68,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.middleware.APIGateway',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -167,4 +169,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+APIGATEWAY_INNER_FUNCTION = [
+    "/api/v1/users",
+    "/api/v1/auth",
+]
 
