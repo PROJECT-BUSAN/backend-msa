@@ -28,9 +28,6 @@ public class AddProfileInfoTest {
     @Autowired
     ProfileInfoService profileInfoService;
 
-    @Autowired
-    private ProfileInfoRepository profileInfoRepository;
-
     @Test
     public void profileInfo_생성() {
         //given

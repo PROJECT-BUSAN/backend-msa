@@ -17,7 +17,6 @@ public class ProfileInfoRepository {
 
     @Transactional
     public void save(ProfileInfo profileInfo) {
-        System.out.println("profileInfo = " + profileInfo.getId());
         em.persist(profileInfo);
     }
 
