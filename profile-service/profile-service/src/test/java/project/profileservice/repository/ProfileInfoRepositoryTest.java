@@ -38,7 +38,4 @@ public class ProfileInfoRepositoryTest {
         //then
         Assertions.assertEquals(profileInfo.getStrick(), findProfileInfo.getStrick());
     }
-
-
-
 }

@@ -1,4 +1,4 @@
-package project.profileservice.service;
+package project.profileservice.service.profileinfo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +11,7 @@ import project.profileservice.domain.Badge;
 import project.profileservice.domain.ProfileBadge;
 import project.profileservice.domain.ProfileInfo;
 import project.profileservice.repository.ProfileInfoRepository;
+import project.profileservice.service.ProfileInfoService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,7 +20,7 @@ import javax.persistence.PersistenceContext;
 @SpringBootTest
 @Transactional
 @Rollback(value = false)
-public class ProfileInfoServiceTest {
+public class AddProfileInfoTest {
 
     @PersistenceContext
     EntityManager em;
