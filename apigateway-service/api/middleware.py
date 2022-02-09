@@ -7,16 +7,6 @@ from django.conf import settings
 class APIGateway:
     def __init__(self, get_response):
         self.get_response = get_response
-
-    # def __call__(self, request):
-    #     response = None
-    #     if hasattr(self, 'process_request'):
-    #         response = self.process_request(request)
-    #     print("response : ", response)
-    #     print("get response : ", self.get_response(request))
-    #     response = response or self.get_response(request)
-        
-    #     return response
     
     def __call__(self, request):
         if hasattr(self, 'process_request'):
