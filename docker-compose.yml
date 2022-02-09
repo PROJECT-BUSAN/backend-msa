@@ -1,0 +1,65 @@
+version: "3.3"
+services:
+  apigateway-service:
+    image: apigateway
+    volumes:
+      - /Users/hyunwoo/Desktop/Dev/prod/backend-msa/apigateway-service:/home/ubuntu/backend-msa/apigateway-service
+    ports:
+      - 8000:8000
+    environment:
+      - PYTHONUNBUFFERED=1
+    entrypoint: ["bash", "-c"]
+    restart: always
+    command: 
+      - |
+        python manage.py makemigrations --noinput
+        python manage.py migrate --noinput 
+        python manage.py runserver 0.0.0.0:8000 
+    networks:
+      - test
+        
+  profile-service:
+    image: apigateway
+    volumes:
+      - /Users/hyunwoo/Desktop/Dev/local/backend-msa/profile-service:/home/ubuntu/backend-msa/profile-service
+    ports:
+      - 8080:8080
+    entrypoint: ["java", "-jar"]
+    restart: always
+    command: 
+      - |
+        profile-service-0.0.1-SNAPSHOT.jar
+    networks:
+      - test
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 30000:15672
+    restart: always
+    networks:
+      - test
+      
+  celery_worker:
+    image: apigateway
+    volumes:
+      - /Users/hyunwoo/Desktop/Dev/prod/backend-msa/apigateway-service:/home/ubuntu/backend-msa/apigateway-service
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - apigateway-service
+      - rabbitmq
+      
+    networks:
+      - test
+    restart: always
+    entrypoint: ["bash", "-c"]
+    command: 
+      - |
+        celery -A config worker -l info
+
+networks:
+  test:
+    external: true
+
