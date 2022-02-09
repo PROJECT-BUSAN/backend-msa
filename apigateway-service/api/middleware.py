@@ -26,8 +26,8 @@ class APIGateway:
         
         path = request.path
         path = path.split('/')[1:]
-        print(f"path : {path}")
-        print(self.get_response)
+        # print(f"path : {path}")
+        # print(self.get_response)
         response = self.get_response(request)
 
         # 뷰가 호출된 뒤에 실행될 코드들
