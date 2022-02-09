@@ -37,5 +37,5 @@ class APIGateway:
     def process_request(self, request):
         user_agent = request.META.get('HTTP_USER_AGENT')
 
-        host = request.get_host()
+        # host = request.get_host()
         
