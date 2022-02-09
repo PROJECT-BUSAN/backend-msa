@@ -1,9 +1,11 @@
-
+import json
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from gateway.models import Api
+from gateway.tasks import send_request
+
 
 
 class Gateway(APIView):
@@ -13,7 +15,11 @@ class Gateway(APIView):
         if len(path) < 2:
             return Response('bad request', status=status.HTTP_400_BAD_REQUEST)
         
-        apimodel = Api.objects.filter(up=path[3])
+        # dangerous logic
+        # EX : /api/v1/users...
+        path = '/' + path[1] + path[2] + path[3]
+        
+        apimodel = Api.objects.filter(upstream_path=path)
         if apimodel.count() != 1:
             return Response('bad request', status=status.HTTP_400_BAD_REQUEST)
         
@@ -21,12 +27,19 @@ class Gateway(APIView):
         if not valid:
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         
-        response = apimodel[0].send_request(request)
-        if response.headers.get('Content-Type', '').lower() == 'application/json':
-            data = response.json()
-        else:
-            data = response.content
-        return Response(data=data, status=response.status_code)
+        response = send_request.delay(request, apimodel)
+        response_data = response.get()
+        
+        # if response.headers.get('Content-Type', '').lower() == 'application/json':
+        #     data = response.json()
+        # else:
+        #     data = response.content
+        
+        context = {
+            "data": response_data
+        }
+        
+        return Response(data=context, status=response.status_code)
     
     
     def get(self, request, *args, **kwargs):

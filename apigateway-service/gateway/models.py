@@ -9,7 +9,6 @@ from rest_framework import HTTP_HEADER_ENCODING
 
 from api.mixins import SafeJWTAuthentication, AdministratorAuthentication
 
-
 User = get_user_model()
 
 SAFE_METHODS = ('GET', 'HEAD', 'OPTIONS')
@@ -96,7 +95,9 @@ class Api(models.Model):
             headers['content-type'] = 'application/json; charset=utf-8'
         else:
             data = request.data
-
+        
+        
+        
         return method_map[method](url, headers=headers, data=data, files=request.FILES)
 
     def __unicode__(self):

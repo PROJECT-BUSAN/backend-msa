@@ -10,22 +10,21 @@ class APIGateway:
     
     def __call__(self, request):
         if hasattr(self, 'process_request'):
-            self.process_request(request)
+            request = self.process_request(request)
                 
         print(request.path_info)
               
-        flag = False
-        for func in settings.APIGATEWAY_INNER_FUNCTION:
-            if request.path.startswith(func):
-                flag = True
-                break
+        # flag = False
+        # for func in settings.APIGATEWAY_INNER_FUNCTION:
+        #     if request.path.startswith(func):
+        #         flag = True
+        #         break
         
-        if not flag:
-            request.path_info = "api/gateway"
+        # if not flag:
+        #     request.path_info = "api/gateway"
         
-        
-        path = request.path
-        path = path.split('/')[1:]
+        # path = request.path
+        # path = path.split('/')[1:]
         # print(f"path : {path}")
         # print(self.get_response)
         response = self.get_response(request)
@@ -35,7 +34,14 @@ class APIGateway:
         return response
     
     def process_request(self, request):
-        user_agent = request.META.get('HTTP_USER_AGENT')
-
-        # host = request.get_host()
+        flag = False
+        for func in settings.APIGATEWAY_INNER_FUNCTION:
+            if request.path.startswith(func):
+                flag = True
+                break
+        
+        if not flag:
+            request.path_info = "api/gateway"
+        
+        return request
         

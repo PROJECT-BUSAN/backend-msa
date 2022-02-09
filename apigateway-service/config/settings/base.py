@@ -25,11 +25,10 @@ environ.Env.read_env(
     env_file=os.path.join(BASE_DIR, '.env')
 )
 
-SECRET_KEY = env.str('SECRET_KEY')
-REFRESH_TOKEN_SECRET = env.str('REFRESH_TOKEN_SECRET')
+# SECRET_KEY = env.str('SECRET_KEY')
+# REFRESH_TOKEN_SECRET = env.str('REFRESH_TOKEN_SECRET')
 
 
-SECRET_KEY = 'django-insecure-ndhi2hjc5pe+0j-(t9jhyq7)lxvq*=-xvi^hb2sf_ry_pqa4q3'
 
 
 # Application definition
@@ -37,7 +36,9 @@ SECRET_KEY = 'django-insecure-ndhi2hjc5pe+0j-(t9jhyq7)lxvq*=-xvi^hb2sf_ry_pqa4q3
 INSTALLED_APPS = [
     'gateway',
     'users',
-    'auth',
+    # 'auth',
+    
+    'django_celery_results',
     
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,7 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # api 명세
-    'swagger',
+    # 'swagger',
     'drf_yasg',
     
     # debug toolbar
