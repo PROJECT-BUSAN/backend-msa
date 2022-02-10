@@ -1,4 +1,4 @@
-package project.profileservice.domain.profileinfo;
+package project.profileservice.domain.profile;
 
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;

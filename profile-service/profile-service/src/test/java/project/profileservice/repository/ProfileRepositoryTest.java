@@ -9,6 +9,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import project.profileservice.domain.ProfileBadge;
 import project.profileservice.domain.Profile;
 
+import java.util.List;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class ProfileRepositoryTest {
@@ -32,5 +34,50 @@ public class ProfileRepositoryTest {
 
         //then
         Assertions.assertEquals(profile.getStrick(), findProfile.getStrick());
+    }
+
+    @Test
+    public void findOne_ByProfileId_Test() {
+
+        //given
+        Profile profile = new Profile();
+
+        //when
+        profileRepository.save(profile);
+        Profile findProfile = profileRepository.findOne_ByProfileId(profile.getId());
+
+        //then
+        Assertions.assertEquals(findProfile.getId(), profile.getId());
+    }
+
+    @Test
+    public void findOne_ByUserId_Test() {
+        //given
+        Profile profile = new Profile();
+        profile.setUser_id(2L);
+        profileRepository.save(profile);
+
+        //when
+        Profile findProfile = profileRepository.findOne_ByUserId(profile.getUser_id()).get(0);
+
+        //then
+        Assertions.assertEquals(findProfile.getId(), profile.getId());
+
+    }
+
+    @Test
+    public void findAll_Test() {
+
+        //given
+        Profile profile1 = new Profile();
+        Profile profile2 = new Profile();
+        profileRepository.save(profile1);
+        profileRepository.save(profile2);
+
+        //when
+        List<Profile> findProfiles = profileRepository.findAll();
+
+        //then
+        Assertions.assertEquals(findProfiles.size(), 4);
     }
 }

@@ -13,8 +13,6 @@ import project.profileservice.repository.BadgeRepository;
 import project.profileservice.repository.ProfileRepository;
 import project.profileservice.service.ProfileService;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,14 +57,14 @@ public class MemberApiController {
         private Long profile_id;
         private Long user_id;
         private int strick;
-        private List<Long> profileBadges_id = new ArrayList<>();
+        private List<Long> badges_id = new ArrayList<>();
 
         private void CreateTestProfile(Profile profile) {
             this.profile_id = profile.getId();
             this.user_id = profile.getUser_id();
             this.strick = profile.getStrick();
             for(ProfileBadge profileBadge : profile.getProfileBadges()) {
-                profileBadges_id.add(profileBadge.getId());
+                badges_id.add(profileBadge.getBadge().getId());
             }
         }
     }
