@@ -29,7 +29,7 @@ public class ProfileService {
         //ProfileBadge 생성
         ProfileBadge profileBadge = ProfileBadge.CreateProfileBadge(badge);
 
-        //profileInfo 생성
+        //profile 생성
         profile.AddProfileBadge(profileBadge);
         profileRepository.save(profile);
         return profile.getId();
