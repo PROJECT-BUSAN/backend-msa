@@ -1,7 +1,5 @@
 #!/bin/bash
 
-./profile-service/profile-service/image-build.sh
+docker build -t apigateway -f ./apigateway-service
 
-./apigateway-service/image-build.sh
-
-
+docker build -t profile-service -f ./profile-service/profile-service
