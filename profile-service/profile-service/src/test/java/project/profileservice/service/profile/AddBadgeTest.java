@@ -39,21 +39,21 @@ public class AddBadgeTest {
 //
 //    }
 
-    @Test
-    public void addBadgeTest() {
-        //given
-        Profile profile = createProfile();
-        Badge badge = createBadge("새싹", "www.naver.com");
+    // @Test
+    // public void addBadgeTest() {
+    //     //given
+    //     Profile profile = createProfile();
+    //     Badge badge = createBadge("새싹", "www.naver.com");
 
-        //when
-        Long profileInfoId = profileService.addBadge(profile.getId(), badge.getId());
-        Profile getProfile = em.find(Profile.class, profileInfoId);
+    //     //when
+    //     Long profileInfoId = profileService.addBadge(profile.getId(), badge.getId());
+    //     Profile getProfile = em.find(Profile.class, profileInfoId);
 
-        //then
-        for(ProfileBadge hasProfileBadge : getProfile.getProfileBadges()) {
-            System.out.println("hasProfileBadge.getBadge().getName() = " + hasProfileBadge.getBadge().getName());
-        }
-    }
+    //     //then
+    //     for(ProfileBadge hasProfileBadge : getProfile.getProfileBadges()) {
+    //         System.out.println("hasProfileBadge.getBadge().getName() = " + hasProfileBadge.getBadge().getName());
+    //     }
+    // }
 
     private Profile createProfile() {
         Profile profile = new Profile();
