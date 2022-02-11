@@ -1,6 +1,7 @@
-package project.profileservice.service.profileinfo;
+package project.profileservice.repository;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,50 +9,45 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import project.profileservice.domain.Badge;
-import project.profileservice.domain.ProfileBadge;
 import project.profileservice.domain.Profile;
+import project.profileservice.domain.ProfileBadge;
 import project.profileservice.service.ProfileService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
 @Rollback(value = false)
-public class AddProfileTest {
+public class ProfileBadgeRepositoryTest {
 
     @PersistenceContext
     EntityManager em;
 
     @Autowired
-    ProfileService profileService;
+    private ProfileBadgeRepository profileBadgeRepository;
 
-//    @Test
-//    public void profile_생성() {
-//        //given
-//        Badge badge = createBadge("새싹", "www.naver.com");
-//
-//        //when
-//        Long profile_id = profileService.addProfile(2L, badge.getId());
-//        System.out.println("profile_id = " + profile_id);
-//        //then
-//
-//    }
+    @Autowired
+    private ProfileService profileService;
 
     @Test
-    public void addProfileTest() {
+    public void findAllByUserId_Test() {
         //given
         Profile profile = createProfile();
-        Badge badge = createBadge("새싹", "www.naver.com");
+        Badge badge1 = createBadge("새싹", "www.naver.com");
+        Badge badge2 = createBadge("불", "www.google.com");
+
+        profileService.addBadge(profile.getId(), badge1.getId());
+        profileService.addBadge(profile.getId(), badge2.getId());
 
         //when
-        Long profileInfoId = profileService.addProfile(profile.getId(), badge.getId());
-        Profile getProfile = em.find(Profile.class, profileInfoId);
+        List<ProfileBadge> findProfileBadges = profileBadgeRepository.findAllByUserId(profile.getId());
 
         //then
-        for(ProfileBadge hasProfileBadge : getProfile.getProfileBadges()) {
-            System.out.println("hasProfileBadge.getBadge().getName() = " + hasProfileBadge.getBadge().getName());
+        for (ProfileBadge findProfileBadge : findProfileBadges) {
+            System.out.println("findProfileBadge.getBadge() = " + findProfileBadge.getBadge().getName());
         }
     }
 

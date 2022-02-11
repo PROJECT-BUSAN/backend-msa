@@ -20,8 +20,9 @@ public class ProfileService {
      * 비즈니스 로직
      * profile 추가
      */
+
     @Transactional
-    public Long addProfile(Long profile_id, Long badge_id) {
+    public Long addBadge(Long profile_id, Long badge_id) {
         //엔티티 조회
         Profile profile = profileRepository.findOne_ByProfileId(profile_id);
         Badge badge = badgeRepository.findOne(badge_id);

@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class MemberApiController {
+public class ProfileApiController {
 
     @Autowired
     private final ProfileService profileService;
@@ -44,8 +44,8 @@ public class MemberApiController {
         badgeRepository.save(badge1);
         badgeRepository.save(badge2);
 
-        profileService.addProfile(profile.getId(), badge1.getId());
-        profileService.addProfile(profile.getId(), badge2.getId());
+        profileService.addBadge(profile.getId(), badge1.getId());
+        profileService.addBadge(profile.getId(), badge2.getId());
 
         TestProfile testProfile = new TestProfile();
         testProfile.CreateTestProfile(profile);
