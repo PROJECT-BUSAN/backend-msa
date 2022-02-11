@@ -5,7 +5,7 @@ services:
   apigateway-service:
     image: apigateway
     volumes:
-      - ./apigateway/:/home/apigateway
+      - ./apigateway:/home/apigateway
     ports:
       - 8000:8000
     environment:
@@ -32,7 +32,7 @@ services:
   celery_worker:
     image: apigateway
     volumes:
-      - ./apigateway/:/home/apigateway
+      - ./apigateway:/home/apigateway
     environment:
       - PYTHONUNBUFFERED=1
     depends_on:
@@ -44,7 +44,7 @@ services:
     entrypoint: ["bash", "-c"]
     command: 
       - |
-        celery -A config worker -l info
+        DJANGO_SETTINGS_MODULE='config.settings.local' celery -A config worker -l info
   
   profile-service:
     image: profile-service
