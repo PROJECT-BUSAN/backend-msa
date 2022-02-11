@@ -30,30 +30,30 @@ public class ProfileApiController {
     @Autowired
     private final BadgeRepository badgeRepository;
 
-    @GetMapping("/api/v1/profile/{id}")
-    public TestProfile profileV1(@PathVariable("id") Long user_id) {
+    // @GetMapping("/api/v1/profile/{id}")
+    // public TestProfile profileV1(@PathVariable("id") Long user_id) {
 
-        Profile profile = new Profile();
-        profile.setUser_id(user_id); // user_id에 해당하는 Profile 가져온 상황을 가정
-        profile.setStrick(10);
+    //     Profile profile = new Profile();
+    //     profile.setUser_id(user_id); // user_id에 해당하는 Profile 가져온 상황을 가정
+    //     profile.setStrick(10);
 
-        profileRepository.save(profile);
+    //     profileRepository.save(profile);
 
-        Badge badge1 = new Badge();
-        badge1.setName("새싹");
-        Badge badge2 = new Badge();
-        badge2.setName("불");
-        // Badge가 2개 DB에 존재한다고 가정
-        badgeRepository.save(badge1);
-        badgeRepository.save(badge2);
+    //     Badge badge1 = new Badge();
+    //     badge1.setName("새싹");
+    //     Badge badge2 = new Badge();
+    //     badge2.setName("불");
+    //     // Badge가 2개 DB에 존재한다고 가정
+    //     badgeRepository.save(badge1);
+    //     badgeRepository.save(badge2);
 
-        profileService.addBadge(profile.getId(), badge1.getId());
-        profileService.addBadge(profile.getId(), badge2.getId());
+    //     profileService.addBadge(profile.getId(), badge1.getId());
+    //     profileService.addBadge(profile.getId(), badge2.getId());
 
-        TestProfile testProfile = new TestProfile();
-        testProfile.CreateTestProfile(profile);
-        return testProfile;
-    }
+    //     TestProfile testProfile = new TestProfile();
+    //     testProfile.CreateTestProfile(profile);
+    //     return testProfile;
+    // }
     
     @PostMapping("/api/v1/profile")
     public CreateProfileResponse createProfileV1(@RequestBody CreateProfileRequest request){
