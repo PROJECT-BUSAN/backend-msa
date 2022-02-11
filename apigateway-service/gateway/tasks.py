@@ -34,6 +34,5 @@ def send_request(request, obj:Api):
     
     response_content = response.content.decode('utf-8')
     response_data = json.loads(response_content)["data"]
-    
     return response_data
 

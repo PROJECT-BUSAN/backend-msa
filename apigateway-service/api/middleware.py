@@ -21,6 +21,8 @@ class APIGateway:
         if not flag:
             request.path_info = "/api/gateway"
         
+        print("path info : ", request.path_info)
+        print("origin path : ", request.path)
         # call view
         response = self.get_response(request)
 

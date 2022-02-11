@@ -7,6 +7,6 @@ app_name = 'gateway'
 
 
 urlpatterns = [
-    path('gateway', Gateway.as_view()),
+    path('', Gateway.as_view()),
     
 ]
