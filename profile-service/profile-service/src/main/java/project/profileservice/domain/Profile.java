@@ -22,9 +22,6 @@ public class Profile {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile")
     private List<ProfileBadge> profileBadges = new ArrayList<ProfileBadge>();
 
-    public Profile() {
-        
-    }
 
     /**
      * 연관관계 메서드

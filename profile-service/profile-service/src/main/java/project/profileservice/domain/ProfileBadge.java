@@ -36,4 +36,3 @@ public class ProfileBadge {
         return profileBadge;
     }
 }
-
