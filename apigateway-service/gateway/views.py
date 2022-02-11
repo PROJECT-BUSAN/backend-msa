@@ -9,9 +9,14 @@ from gateway.tasks import send_request
 
 
 class Gateway(APIView):
+    authentication_classes = ()
+    permission_classes = ()
     
     def operation(self, request, *args, **kwargs):
-        path = request.path_info.split('/')
+        
+        print("In gateway request path : ", request.path)
+        path = request.path.split('/')
+        
         if len(path) < 2:
             return Response('bad request', status=status.HTTP_400_BAD_REQUEST)
         
