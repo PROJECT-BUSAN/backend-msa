@@ -17,6 +17,7 @@ public class ProfileBadge {
     @JoinColumn(name = "badge_id")
     private Badge badge;
 
+
     public void setProfile(Profile profile) {
         this.profile = profile;
     }

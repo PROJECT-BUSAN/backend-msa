@@ -16,12 +16,25 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final BadgeRepository badgeRepository;
 
+    @Transactional
+    public Long createProfile(Long user_id) {
+        Profile profile = new Profile();
+        profile.setUser_id(user_id);
+        profile.setStrick(1);
+        profileRepository.save(profile);
+        
+        return user_id;
+    }
+
+    
     /**
      * 비즈니스 로직
      * profile 추가
      */
+    
+
     @Transactional
-    public Long addProfile(Long profile_id, Long badge_id) {
+    public Long addBadge(Long profile_id, Long badge_id) {
         //엔티티 조회
         Profile profile = profileRepository.findOne_ByProfileId(profile_id);
         Badge badge = badgeRepository.findOne(badge_id);
@@ -29,7 +42,7 @@ public class ProfileService {
         //ProfileBadge 생성
         ProfileBadge profileBadge = ProfileBadge.CreateProfileBadge(badge);
 
-        //profileInfo 생성
+        //profile 생성
         profile.AddProfileBadge(profileBadge);
         profileRepository.save(profile);
         return profile.getId();
