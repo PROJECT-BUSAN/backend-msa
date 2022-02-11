@@ -29,8 +29,6 @@ environ.Env.read_env(
 # REFRESH_TOKEN_SECRET = env.str('REFRESH_TOKEN_SECRET')
 
 
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -171,8 +169,28 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+CELERY_BROKER_URL = "amqp://rabbitmq:5672"
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TIMEZONE = "Asia/Seoul"
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH = 200
+# CELERY_ACCEPT_CONTENT = ["application/json"]
+# CELERY_BROKER_URL = 'redis://redis_server:6379/1'
+# CELERY_RESULT_BACKEND = 'redis://redis_server:6379/1'
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://redis_server:6379/1',  # redis_server: docker container이름
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
+
+
 APIGATEWAY_INNER_FUNCTION = [
+    "/admin",
     "/api/v1/users",
     "/api/v1/auth",
 ]
-
