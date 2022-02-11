@@ -22,12 +22,17 @@ public class ProfileRepository {
     public Profile findOne_ByProfileId(Long id) {
         return em.find(Profile.class, id);
     }
-
-    public Profile findOne_ByUserId(Long id) {
-        return em.find(Profile.class, 1L);
+    public Profile findOne(Long user_id) {
+        return em.find(Profile.class, user_id);
+    }
+    
+    public List<Profile> findOne_ByUserId(Long id) {
+        return em.createQuery("select p from Profile p where p.user_id = : user_id", Profile.class)
+                .setParameter("user_id", id)
+                .getResultList();
     }
 
     public List<Profile> findAll() {
-        return em.createQuery("select p from profile m", Profile.class).getResultList();
+        return em.createQuery("select p from Profile p", Profile.class).getResultList();
     }
 }
