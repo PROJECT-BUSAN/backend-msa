@@ -1,7 +1,7 @@
 #!/bin/bash
 
-docker build -t profile ./profile-service/profile-service/
-echo "profile image build success!\n"
+./profile-service/profile-service/image-build.sh
 
-docker build -t apigateway ./apigateway-service/
-echo "apigateway image build success!\n"
+./apigateway-service/image-build.sh
+
+
