@@ -49,7 +49,7 @@ services:
   profile-service:
     image: profile-service
     volumes:
-      - .:/home/spring
+      - ./profile-service/profile-service:/home/spring
     ports:
       - 8080:8080
     environment:
