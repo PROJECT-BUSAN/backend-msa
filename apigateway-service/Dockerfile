@@ -1,8 +1,8 @@
 FROM python:3.9.0
 
-COPY ./ /home/ubuntu/backend-msa/apiagteway
+COPY ./ /home/apiagteway
 
-WORKDIR /home/ubuntu/backend-msa/apiagteway
+WORKDIR /home/apiagteway
 
 RUN apt-get upgrade && pip3 install --upgrade pip
 

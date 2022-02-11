@@ -1,0 +1,39 @@
+version: "3.3"
+services:
+  apigateway-service:
+    image: apigateway
+    volumes:
+      - ./:/home/apigateway
+    ports:
+      - 8000:8000
+    environment:
+      - PYTHONUNBUFFERED=1
+    entrypoint: ["bash", "-c"]
+    restart: always
+    command: 
+      - |
+        python manage.py makemigrations --noinput
+        python manage.py migrate --noinput 
+        python manage.py runserver 0.0.0.0:8000 
+    networks:
+      - test
+      
+  celery_worker:
+    image: apigateway
+    volumes:
+      - ./:/home/apigateway
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - apigateway-service
+      - rabbitmq
+    networks:
+      - test
+    restart: always
+    entrypoint: ["bash", "-c"]
+    command: 
+      - |
+        celery -A config worker -l info
+networks:
+  test:
+    external: true
