@@ -13,14 +13,13 @@ class Gateway(APIView):
     permission_classes = ()
     
     def operation(self, request, *args, **kwargs):
-        
-        print("In gateway request path : ", request.path)
+        upstream_path = request.path
         path = request.path.split('/')
         
         if len(path) < 2:
             return Response('Bad request Path', status=status.HTTP_400_BAD_REQUEST)
         
-        # dangerous logic
+        # ** Most Dangerous Code **
         # EX : /api/v1/users...
         path = '/' + path[1] + "/" + path[2] + "/" + path[3]
         
@@ -28,11 +27,19 @@ class Gateway(APIView):
         if apimodel.count() != 1:
             return Response('No Reserved API. Please Register API Host and Path you are Using', status=status.HTTP_400_BAD_REQUEST)
         
-        valid, msg = apimodel.first().check_auth_perm(request)
+        apimodel = apimodel.first()
+        valid, msg = apimodel.check_auth_perm(request)
         if not valid:
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         
-        response = send_request.delay(request, apimodel)
+        request = {
+            "method": request.method,
+            "data": request.data,
+            "content-type": request.content_type,
+            "files": request.FILES,
+        }
+        
+        response = send_request.delay(request, apimodel.upstream_host, upstream_path)
         response_data = response.get()
         
         # if response.headers.get('Content-Type', '').lower() == 'application/json':
@@ -40,11 +47,13 @@ class Gateway(APIView):
         # else:
         #     data = response.content
         
-        context = {
-            "data": response_data
+        data = {
+            "data": response_data,
         }
+        context = []
+        context.append(response_data)
         
-        return Response(data=context, status=response.status_code)
+        return Response(data=context)
     
     
     def get(self, request, *args, **kwargs):
