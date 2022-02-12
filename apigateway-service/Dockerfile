@@ -1,8 +1,8 @@
 FROM python:3.9.0
 
-COPY ./ /home/apiagteway
+COPY ./ /home/apigateway
 
-WORKDIR /home/apiagteway
+WORKDIR /home/apigateway
 
 RUN apt-get upgrade && pip3 install --upgrade pip
 
