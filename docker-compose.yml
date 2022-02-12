@@ -16,6 +16,7 @@ services:
       - |
         python manage.py makemigrations --noinput --settings=config.settings.local
         python manage.py migrate --noinput --settings=config.settings.local
+        python manage.py loaddata initdata --settings=config.settings.local
         python manage.py runserver 0.0.0.0:8000 --settings=config.settings.local
     networks:
       - test
