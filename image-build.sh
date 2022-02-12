@@ -1,9 +1,5 @@
 #!/bin/bash
 
-cd ./apigateway-service
-docker build -t apigateway  .
-cd ..
+docker build -t apigateway  ./apigateway-service/
 
-cd ./profile-service/profile-service
-docker build -t profile-service  .
-cd ../..
+docker build -t profile-service  ./profile-service/profile-service/

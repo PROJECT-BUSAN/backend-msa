@@ -5,7 +5,7 @@ services:
   apigateway-service:
     image: apigateway
     volumes:
-      - ${PWD}/apigateway-service:/home/apigateway
+      - ./apigateway-service:/home/apigateway
     ports:
       - 8000:8000
     environment:
@@ -32,7 +32,7 @@ services:
   celery_worker:
     image: apigateway
     volumes:
-      - ${PWD}/apigateway-service:/home/apigateway
+      - ./apigateway-service:/home/apigateway
     environment:
       - PYTHONUNBUFFERED=1
     depends_on:
@@ -49,7 +49,7 @@ services:
   profile-service:
     image: profile-service
     volumes:
-      - ${PWD}/profile-service/profile-service:/home/spring
+      - ./profile-service/profile-service:/home/spring
     ports:
       - 8080:8080
     environment:
