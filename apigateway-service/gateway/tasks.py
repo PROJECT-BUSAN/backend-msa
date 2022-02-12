@@ -11,7 +11,7 @@ def send_request(request, obj:Api):
     headers = {}
     headers['Host'] = 'apigateway-service'
 
-    url = obj.upstream_host + obj.upstream_path
+    url = "http://" + obj.upstream_host + obj.upstream_path
     method = request.method.lower()
     method_map = {
         'get': requests.get,
@@ -33,6 +33,6 @@ def send_request(request, obj:Api):
     response = method_map[method](url, headers=headers, data=data, files=request.FILES)
     
     response_content = response.content.decode('utf-8')
-    response_data = json.loads(response_content)["data"]
+    response_data = json.loads(response_content)
     return response_data
 

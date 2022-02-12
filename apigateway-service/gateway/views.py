@@ -18,15 +18,15 @@ class Gateway(APIView):
         path = request.path.split('/')
         
         if len(path) < 2:
-            return Response('bad request', status=status.HTTP_400_BAD_REQUEST)
+            return Response('Bad request Path', status=status.HTTP_400_BAD_REQUEST)
         
         # dangerous logic
         # EX : /api/v1/users...
-        path = '/' + path[1] + path[2] + path[3]
+        path = '/' + path[1] + "/" + path[2] + "/" + path[3]
         
         apimodel = Api.objects.filter(upstream_path=path)
         if apimodel.count() != 1:
-            return Response('bad request', status=status.HTTP_400_BAD_REQUEST)
+            return Response('No Reserved API. Please Register API Host and Path you are Using', status=status.HTTP_400_BAD_REQUEST)
         
         valid, msg = apimodel.first().check_auth_perm(request)
         if not valid:
