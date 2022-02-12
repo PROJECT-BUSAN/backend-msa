@@ -12,24 +12,23 @@ import project.profileservice.repository.ProfileRepository;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class AddProfileBadgeTest {
+public class InsertProfileBadgeTest {
 
     @Autowired
     ProfileRepository profileRepository;
 
     @Test
-    public void AddProfileBadge_Test() {
+    public void InsertProfileBadge_Test() {
         //given
         Profile profile = new Profile();
-        ProfileBadge profileBadge1 = new ProfileBadge();
-        ProfileBadge profileBadge2 = new ProfileBadge();
+        ProfileBadge profileBadge = new ProfileBadge();
 
         //when
-        profile.AddProfileBadge(profileBadge1, profileBadge2);
+        profile.InsertProfileBadge(profileBadge);
+        profileRepository.save(profile);
+        Profile findProfile = profileRepository.findOne_ByProfileId(profile.getId());
 
         //then
-        for(ProfileBadge profileBadge : profile.getProfileBadges()) {
-            Assertions.assertEquals(profileBadge.getProfile().getId(), profile.getId());
-        }
+        Assertions.assertEquals(findProfile.getId(), profile.getId());
     }
 }

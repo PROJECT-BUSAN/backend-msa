@@ -2,64 +2,82 @@ import requests, json
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth import get_user_model
 
 from rest_framework.authentication import get_authorization_header, BasicAuthentication
 from rest_framework import HTTP_HEADER_ENCODING
 
+from api.mixins import SafeJWTAuthentication, AdministratorAuthentication
+
+User = get_user_model()
+
+SAFE_METHODS = ('GET', 'HEAD', 'OPTIONS')
 
 
 class Api(models.Model):
-    PLUGIN_CHOICE_LIST  = (
-        (0, _('Remote auth')),
-        (1, _('Basic auth')),
-        (2, _('Key auth')),
-        (3, _('Server auth'))
+    AUTH_CHOICE_LIST  = (
+        (0, _('public auth')),
+        (1, _('api auth')),
+        (2, _('superuser auth')),
     )
-    name = models.CharField(max_length=128, unique=True)
-    request_path = models.CharField(max_length=255)
-    upstream_url = models.CharField(max_length=255)
-    plugin = models.IntegerField(choices=PLUGIN_CHOICE_LIST, default=0)
+    name = models.CharField(max_length=128)
+    description = models.TextField(default="", max_length=500)
+    upstream_path = models.CharField(max_length=255)
+    upstream_host = models.CharField(max_length=255)
+    plugin = models.IntegerField(choices=AUTH_CHOICE_LIST, default=0)
+    created = models.DateField(auto_now_add=True)
 
-    def check_plugin(self, request):
+    def check_auth_perm(self, request):
+        
         if self.plugin == 0:
             return True, ''
             
         elif self.plugin == 1:
-            auth = BasicAuthentication()
+            auth = SafeJWTAuthentication()
             try:
-                user, password = auth.authenticate(request)
+                user, temp = auth.authenticate(request)
             except:
                 return False, 'Authentication credentials were not provided'
 
-            if self.consumers.filter(user=user):
-                return True, ''
-            else:
-                return False, 'permission not allowed'
-        elif self.plugin == 2:
-            apikey = request.META.get('HTTP_APIKEY')
-            consumers = self.consumers.all()
-            for consumer in consumers:
-                if apikey == consumer.apikey:
+            if User.objects.filter(pk=user.id).exists():
+                if self.has_permission(user, request.method):
                     return True, ''
-            return False, 'apikey need'
-        elif self.plugin == 3:
-            consumer = self.consumers.all()
-            if not consumer:
-                return False, 'consumer need'
-            request.META['HTTP_AUTHORIZATION'] = requests.auth._basic_auth_str(consumer[0].user.username, consumer[0].apikey)
-            return True, ''
+                else:
+                    return False, 'permission not allowed'
+            else:
+                return False, 'No user detected'
+            
+        elif self.plugin == 2:
+            auth = AdministratorAuthentication()
+            try:
+                user, temp = auth.authenticate(request)
+            except:
+                return False, 'Authentication credentials were not provided'
+
+            if User.objects.filter(pk=user.id).exists():
+                if self.has_permission(user, request.method):
+                    return True, ''
+                else:
+                    return False, 'permission not allowed'
+            else:
+                return False, 'No user detected'
+        
         else:
             raise NotImplementedError("plugin %d not implemented" % self.plugin)
-
+    
+    def has_permission(self, user, method):
+        # IsAuthenticatedOrReadOnly
+        return bool(
+            method in SAFE_METHODS or
+            user and
+            user.is_authenticated
+        )
+    
     def send_request(self, request):
         headers = {}
-        if self.plugin != 1 and request.META.get('HTTP_AUTHORIZATION'):
-            headers['authorization'] = request.META.get('HTTP_AUTHORIZATION')
-        # headers['content-type'] = request.content_type
+        headers['Host'] = 'apigateway-service'
 
-        strip = '/service' + self.request_path
-        full_path = request.get_full_path()[len(strip):]
-        url = self.upstream_url + full_path
+        url = self.upstream_host +self.upstream_path
         method = request.method.lower()
         method_map = {
             'get': requests.get,
@@ -74,10 +92,12 @@ class Api(models.Model):
         
         if request.content_type and request.content_type.lower()=='application/json':
             data = json.dumps(request.data)
-            headers['content-type'] = request.content_type
+            headers['content-type'] = 'application/json; charset=utf-8'
         else:
             data = request.data
-
+        
+        
+        
         return method_map[method](url, headers=headers, data=data, files=request.FILES)
 
     def __unicode__(self):

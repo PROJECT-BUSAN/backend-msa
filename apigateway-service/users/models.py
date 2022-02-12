@@ -56,7 +56,6 @@ class UserManager(BaseUserManager):
         )
         user.set_password(password)
         user.full_clean()
-        user.is_admin = True
         user.is_superuser = True
         user.is_staff = True
         user.save()

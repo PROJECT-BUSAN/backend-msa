@@ -25,11 +25,8 @@ environ.Env.read_env(
     env_file=os.path.join(BASE_DIR, '.env')
 )
 
-SECRET_KEY = env.str('SECRET_KEY')
-REFRESH_TOKEN_SECRET = env.str('REFRESH_TOKEN_SECRET')
-
-
-SECRET_KEY = 'django-insecure-ndhi2hjc5pe+0j-(t9jhyq7)lxvq*=-xvi^hb2sf_ry_pqa4q3'
+# SECRET_KEY = env.str('SECRET_KEY')
+# REFRESH_TOKEN_SECRET = env.str('REFRESH_TOKEN_SECRET')
 
 
 # Application definition
@@ -37,6 +34,9 @@ SECRET_KEY = 'django-insecure-ndhi2hjc5pe+0j-(t9jhyq7)lxvq*=-xvi^hb2sf_ry_pqa4q3
 INSTALLED_APPS = [
     'gateway',
     'users',
+    # 'auth',
+    
+    'django_celery_results',
     
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # api 명세
-    'swagger',
+    # 'swagger',
     'drf_yasg',
     
     # debug toolbar
@@ -68,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.middleware.APIGateway',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -168,3 +169,28 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+CELERY_BROKER_URL = "amqp://rabbitmq:5672"
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TIMEZONE = "Asia/Seoul"
+CELERY_TASK_SERIALIZER = "json"
+# CELERY_RESULT_SERIALIZER = "json"
+DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH = 200
+# CELERY_ACCEPT_CONTENT = ["application/json"]
+# CELERY_BROKER_URL = 'redis://redis_server:6379/1'
+# CELERY_RESULT_BACKEND = 'redis://redis_server:6379/1'
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://redis_server:6379/1',  # redis_server: docker container이름
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
+
+
+APIGATEWAY_INNER_FUNCTION = [
+    "/admin",
+    "/api/v1/users",
+    "/api/v1/auth",
+]

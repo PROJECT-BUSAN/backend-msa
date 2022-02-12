@@ -26,6 +26,6 @@ public class BadgeRepository {
     }
 
     public List<Badge> findAll() {
-        return em.createQuery("select b from badge b", Badge.class).getResultList();
+        return em.createQuery("select b from Badge b", Badge.class).getResultList();
     }
 }
