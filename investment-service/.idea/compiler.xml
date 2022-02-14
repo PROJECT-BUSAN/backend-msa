@@ -11,5 +11,9 @@
         <module name="investment-service.investment-service.main" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="investment-service.investment-service.main~1" target="11" />
+      <module name="investment-service.investment-service.test~1" target="11" />
+    </bytecodeTargetLevel>
   </component>
 </project>
