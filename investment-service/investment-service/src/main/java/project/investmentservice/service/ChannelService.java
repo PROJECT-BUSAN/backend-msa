@@ -49,7 +49,7 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 입장
      */
-    public boolean participantChannel(String channelId, Long userId, Long userPoint) {
+    public void participantChannel(String channelId, Long userId, Long userPoint) {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
 
         Channel findChannel = findOneChannel(channelId);
@@ -57,12 +57,12 @@ public class ChannelService {
             //channel을 생성할때의 제한 인원이 현재 channel에 있는 인원보다 클때 -> channel 입장 비용 확인
             if(findChannel.getEntryFee() <= userPoint) {
                 //userPoint는 게임이 시작할때 차감하는걸로
-                return findChannel.addUser(userId);
+                System.out.println("findChannel = " + findChannel.getId());
+                findChannel.addUser(userId);
+                channelRedisRepository.save(findChannel);
             }
         }
-        return false;
     }
-
 
     /**
      * 비즈니스 로직
@@ -71,6 +71,7 @@ public class ChannelService {
     public void exitChannel(String channelId, Long userId) {
         Channel findChannel = findOneChannel(channelId);
         findChannel.removeUser(userId);
+        channelRedisRepository.save(findChannel);
     }
 
 }

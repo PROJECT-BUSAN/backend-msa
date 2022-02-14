@@ -30,17 +30,16 @@ public class Channel {
         this.numOfParticipants = numOfParticipants;
         this.entryFee = entryFee;
         this.users.add(managerId);
-        this.readyState.add(false);
+        this.readyState.add(true);
         this.seedMoney.add(entryFee);
         this.pointPsum = entryFee;
     }
 
-    public boolean addUser(Long userId) {
+    public void addUser(Long userId) {
         this.users.add(userId);
         this.readyState.add(false);
         this.seedMoney.add(this.entryFee);
         this.pointPsum += this.entryFee;
-        return true;
     }
 
     public void removeUser(Long userId) {

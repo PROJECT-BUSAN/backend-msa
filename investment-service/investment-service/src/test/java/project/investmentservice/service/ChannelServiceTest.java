@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import project.investmentservice.domain.Channel;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
@@ -30,7 +32,7 @@ public class ChannelServiceTest {
     }
 
     @Test
-    public void findChannel_Test() {
+    public void findOneChannel_Test() {
         //given
         Channel channel = channelService.createChannel(1L, 10, 1000L);
 
@@ -57,4 +59,35 @@ public class ChannelServiceTest {
         }
     }
 
+    @Test
+    public void participantChannel_Test() {
+        //given
+        Channel channel = channelService.createChannel(1L, 10, 1000L);
+
+        //when
+        channelService.participantChannel(channel.getId(), 2L, 2000L);
+        Channel findChannel = channelService.findOneChannel(channel.getId());
+
+        //then
+        assertEquals(findChannel.getUsers().size(), 2);
+    }
+
+    @Test
+    public void exitChannel_Test() {
+        //given
+        Channel channel = channelService.createChannel(1L, 10, 1000L);
+        channelService.participantChannel(channel.getId(), 2L, 2000L);
+        channelService.participantChannel(channel.getId(), 3L, 2000L);
+
+        //when
+        channelService.exitChannel(channel.getId(), 2L);
+        Channel findChannel = channelService.findOneChannel(channel.getId());
+        List<Long> users = findChannel.getUsers();
+
+        //then
+        assertEquals(findChannel.getUsers().size(), 2);
+        for (Long user : users) {
+            System.out.println("user = " + user);
+        }
+    }
 }
