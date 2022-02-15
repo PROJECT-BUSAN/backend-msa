@@ -1,12 +1,12 @@
 package project.investmentservice.service;
 
 import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import project.investmentservice.domain.Channel;
+import project.investmentservice.domain.User;
 
 import java.util.List;
 
@@ -29,6 +29,17 @@ public class ChannelServiceTest {
         //then
         assertEquals(channel.getUsers().size(), 1);
         assertEquals(channel.getPointPsum(), 1000L);
+    }
+
+    @Test
+    public void deleteChannel_Test() {
+        //given
+        Channel channel = channelService.createChannel(1L, 10, 1000L);
+
+        //when
+        channelService.deleteChannel(channel.getId());
+
+        //then
     }
 
     @Test
@@ -82,12 +93,12 @@ public class ChannelServiceTest {
         //when
         channelService.exitChannel(channel.getId(), 2L);
         Channel findChannel = channelService.findOneChannel(channel.getId());
-        List<Long> users = findChannel.getUsers();
+        List<User> users = findChannel.getUsers();
 
         //then
         assertEquals(findChannel.getUsers().size(), 2);
-        for (Long user : users) {
-            System.out.println("user = " + user);
+        for (User user : users) {
+            System.out.println("user = " + user.getReady());
         }
     }
 }
