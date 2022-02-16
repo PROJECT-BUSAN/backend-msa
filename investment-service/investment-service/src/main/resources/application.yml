@@ -22,6 +22,9 @@ spring:
   #  org.hibernate.type: trace
   session:
     storage-type: redis
+
+  profiles:
+    active: local
   redis:
     host: 127.0.0.1
     port: 6379

@@ -23,10 +23,18 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
+    implementation 'javax.servlet:jstl'
 	implementation 'junit:junit:4.13.1'
 
 	// spring에서 redis에 대한 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	//embedded-redis
+	implementation group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
 	// spring에서 redis를 session storage로 사용하기 위한 의존성
 	implementation 'org.springframework.session:spring-session-data-redis'
 
