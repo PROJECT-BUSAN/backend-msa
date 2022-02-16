@@ -17,16 +17,6 @@ public class ProfileBadge {
     @JoinColumn(name = "badge_id")
     private Badge badge;
 
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
-    }
-
-    public void setBadge(Badge badge) {
-        this.badge = badge;
-        badge.getProfileBadges().add(this);
-    }
-
     /**
      * 생성 메서드
      */

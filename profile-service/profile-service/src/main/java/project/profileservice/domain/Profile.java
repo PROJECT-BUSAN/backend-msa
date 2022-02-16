@@ -17,28 +17,48 @@ public class Profile {
     @Column(name = "profile_id")
     private Long id;
     private Long user_id;
-    private int strick;
+    private int nowStrick;
+    private int maxStrick;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile")
     private List<ProfileBadge> profileBadges = new ArrayList<ProfileBadge>();
 
-    /**
-     * 연관관계 메서드
-     */
-    // DI Profile -> ProfileBadge
-    public void InsertProfileBadge(ProfileBadge profileBadge) {
-        this.profileBadges.add(profileBadge);
-        profileBadge.setProfile(this);
-    }
-
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile")
+    private List<Attendance> attendances = new ArrayList<Attendance>();
+    
+    
     /**
      * profileBadges 추가 메서드
      */
+    public void addProfileBadge(ProfileBadge profileBadge) {
+        this.profileBadges.add(profileBadge);
+    }
 
-    // Profile에 ProfileBadge 추가
-    public void AddProfileBadge(ProfileBadge... profileBadges) {
-        for (ProfileBadge profileBadge : profileBadges) {
-            this.InsertProfileBadge(profileBadge);
-        }
+    /**
+     * Attendance 추가 메서드
+     */
+    public void addAttendance(Attendance attendance) {
+        this.attendances.add(attendance);
+    }
+
+    /**
+     * 연속출석일수를 1로 리셋한다.
+     */
+    public void nowStrickReset() {
+        this.nowStrick = 1;
+    }
+
+    /**
+     * 연속출석일수를 1 증가시킨다.
+     */
+    public void nowStrickUp() {
+        this.nowStrick += 1;
+    }
+
+    /**
+     * 최대 연속출석일수를 갱신한다.
+     */
+    public void maxStrickUpdate() {
+        this.maxStrick = Math.max(this.maxStrick, this.nowStrick);
     }
 }

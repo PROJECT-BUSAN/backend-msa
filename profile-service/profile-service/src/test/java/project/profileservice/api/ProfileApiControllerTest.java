@@ -75,7 +75,8 @@ public class ProfileApiControllerTest extends BaseControllerTest {
     private void createProfile(Long user_id) {
         Profile profile = new Profile();
         profile.setUser_id(user_id);
-        profile.setStrick(1);
+        profile.setNowStrick(1);
+        profile.setMaxStrick(1);
         profileRepository.save(profile);
     }
 

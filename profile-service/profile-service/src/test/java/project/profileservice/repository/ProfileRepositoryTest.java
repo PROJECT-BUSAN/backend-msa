@@ -25,7 +25,7 @@ public class ProfileRepositoryTest {
 
         Profile profile = new Profile();
         profile.setUser_id(1L);
-        profile.setStrick(10);
+        profile.setNowStrick(10);
 //        profile.AddProfileBadge(profileBadge);
 
         //when
@@ -33,7 +33,7 @@ public class ProfileRepositoryTest {
         Profile findProfile = profileRepository.findOne(1L);
 
         //then
-        Assertions.assertEquals(profile.getStrick(), findProfile.getStrick());
+        Assertions.assertEquals(profile.getId(), findProfile.getId());
     }
 
     @Test
@@ -67,7 +67,6 @@ public class ProfileRepositoryTest {
 
     @Test
     public void findAll_Test() {
-
         //given
         Profile profile1 = new Profile();
         Profile profile2 = new Profile();

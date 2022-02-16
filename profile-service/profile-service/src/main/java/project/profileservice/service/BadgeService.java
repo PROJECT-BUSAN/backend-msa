@@ -15,17 +15,33 @@ public class BadgeService {
 
     private final BadgeRepository badgeRepository;
 
-    // Id에 맞는 뱃지 가져오기
+    /**
+     * id에 맞는 뱃지를 가져온다.
+     * @param badge_id
+     * @return
+     */
     public Badge findOne(Long badge_id) {
         return badgeRepository.findOne(badge_id);
     }
     
-    // 현재 저장된 모든 뱃지 가져오기
+    
+    /**
+     * 현재 저장된 모든 뱃지를 가져온다.
+     * @return
+     */
     public List<Badge> findAllBadge() {
         return badgeRepository.findAll();
     }
 
-    // 새로운 뱃지 생성
+    
+
+    /**
+     * 새로운 뱃지를 생성한다.
+     * (관리자의 권한이 필요하다)
+     * @param name
+     * @param image_url
+     * @return
+     */
     @Transactional
     public Long create(String name, String image_url) {
         Badge badge = new Badge();
@@ -35,7 +51,11 @@ public class BadgeService {
         return badge.getId();
     }
 
-    // 뱃지 수정
+    /**
+     * 뱃지 정보를 수정한다.
+     * @param badge_id
+     * @param badgeDto
+     */
     @Transactional
     public void update(Long badge_id, UpdateBadgeDto badgeDto) {
         Badge badge = badgeRepository.findOne(badge_id);
@@ -43,7 +63,10 @@ public class BadgeService {
         badge.setImage_url(badgeDto.getImage_url());
     }
 
-    // 뱃지 삭제
+    /**
+     * 저장된 뱃지를 삭제한다.
+     * @param badge_id
+     */
     @Transactional
     public void delete(Long badge_id) {
         badgeRepository.deleteById(badge_id);
