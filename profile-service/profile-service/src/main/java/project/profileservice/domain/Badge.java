@@ -20,5 +20,11 @@ public class Badge {
     @OneToMany(mappedBy = "badge")
     private List<ProfileBadge> profileBadges = new ArrayList<ProfileBadge>();
 
-
+    
+    /**
+     * profileBadges 추가 메서드
+     */
+    public void addProfileBadge(ProfileBadge profileBadge) {
+        this.profileBadges.add(profileBadge);
+    }
 }
