@@ -32,7 +32,7 @@ public class ChannelService {
      * Channel 삭제
      * Channel은 방장이 나갈때 닫을 수있음.
      */
-    public void deleteChannel(Long channelId) {
+    public void deleteChannel(String channelId) {
         //채널 찾기
         Channel findChannel = findOneChannel(channelId);
 
@@ -44,7 +44,7 @@ public class ChannelService {
      * 비즈니스 로직
      * ChannelOne 찾기
      */
-    public Channel findOneChannel(Long channelId) {
+    public Channel findOneChannel(String channelId) {
         Channel findChannel = channelRedisRepository.findById(channelId).get();
         return findChannel;
     }
@@ -62,7 +62,7 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 입장
      */
-    public void participantChannel(Long channelId, Long userId, Long userPoint) {
+    public void participantChannel(String channelId, Long userId, Long userPoint) {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
 
         Channel findChannel = findOneChannel(channelId);
@@ -81,7 +81,7 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 퇴장
      */
-    public void exitChannel(Long channelId, Long userId) {
+    public void exitChannel(String channelId, Long userId) {
         Channel findChannel = findOneChannel(channelId);
         findChannel.removeUser(userId);
         channelRedisRepository.save(findChannel);

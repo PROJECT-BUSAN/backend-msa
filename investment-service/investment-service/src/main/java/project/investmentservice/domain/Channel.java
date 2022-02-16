@@ -16,33 +16,38 @@ import java.util.List;
 public class Channel {
 
     @Id @GeneratedValue
-    private Long id;
+    private String id;
     private Long channelNum;
     private int numOfParticipants;
     private Long entryFee;
-    private List<User> users = new ArrayList<>();
+    private List<Long> users = new ArrayList<>();
+    private List<Boolean> readyState = new ArrayList<>();
+    private List<Long> seedMoney = new ArrayList<>();
     private Long pointPsum;
-
 
     public Channel(Long channelNum, int numOfParticipants, Long entryFee, Long managerId) {
         this.channelNum = channelNum;
         this.numOfParticipants = numOfParticipants;
         this.entryFee = entryFee;
-        User user = new User(managerId, true, entryFee);
-        this.users.add(user);
+        this.users.add(managerId);
+        this.readyState.add(true);
+        this.seedMoney.add(entryFee);
         this.pointPsum = entryFee;
     }
 
     public void addUser(Long userId) {
-        User user = new User(userId, false, entryFee);
-        this.users.add(user);
+        this.users.add(userId);
+        this.readyState.add(false);
+        this.seedMoney.add(this.entryFee);
         this.pointPsum += this.entryFee;
     }
 
     public void removeUser(Long userId) {
         for(int i=0; i<users.size(); i++) {
-            if(users.get(i).getId() == userId) {
+            if(users.get(i) == userId) {
                 users.remove(i);
+                readyState.remove(i);
+                seedMoney.remove(i);
                 this.pointPsum -= this.entryFee;
                 break;
             }
