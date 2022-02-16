@@ -25,4 +25,3 @@ public class ProfileBadge {
         this.profile = profile;
     }
 }
-
