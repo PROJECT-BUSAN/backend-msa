@@ -26,7 +26,7 @@ public class ProfileService {
         return profileRepository.findOne(user_id);
     }
 
-    // 모든 프로필 가져오기(관리자 페이지가 생긴다면 쓰일 듯하다)
+    // 모든 유저의 프로필 가져오기(관리자 페이지가 생긴다면 쓰일 듯하다)
     public List<Profile> findAll() {
         return profileRepository.findAll();
     }

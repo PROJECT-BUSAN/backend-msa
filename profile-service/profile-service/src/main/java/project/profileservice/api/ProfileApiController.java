@@ -30,9 +30,7 @@ public class ProfileApiController {
     
     @PostMapping("")
     public CreateProfileResponse createProfileV1(@RequestBody @Valid CreateProfileRequest request){
-        System.out.println("START============");
         Long user_id = profileService.create(request.getUser_id());
-        System.out.println("END==============");
         return new CreateProfileResponse(user_id);
     }
     
@@ -70,14 +68,13 @@ public class ProfileApiController {
     static class BadgeDto {
         private Long id;
         private String name;
+        private String image_url;
 
         public BadgeDto(Badge badge) {
             this.id = badge.getId();;
             this.name = badge.getName();
             this.image_url = badge.getImage_url();
         }
-
-        private String image_url;
     }
     
     @Data

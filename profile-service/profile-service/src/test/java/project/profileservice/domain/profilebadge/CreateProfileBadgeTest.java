@@ -16,15 +16,16 @@ public class CreateProfileBadgeTest {
     @Test
     public void CreateProfileBadge_Test() {
         //given
-//        Badge badge = new Badge();
-//        badge.setName("새싹");
-//
-//        //when
-//        ProfileBadge profileBadge = ProfileBadge.CreateProfileBadge(badge);
-//
-//        //then
-//        Assertions.assertEquals(profileBadge.getBadge().getName(), badge.getName());
-//        Assertions.assertEquals(badge.getProfileBadges().get(0).getId(), profileBadge.getId());
+        Badge badge = new Badge();
+        badge.setName("새싹");
+        Profile profile new 
+
+        //when
+        ProfileBadge profileBadge = ProfileBadge.CreateProfileBadge(badge);
+
+        //then
+        Assertions.assertEquals(profileBadge.getBadge().getName(), badge.getName());
+        Assertions.assertEquals(badge.getProfileBadges().get(0).getId(), profileBadge.getId());
     }
 
 }
