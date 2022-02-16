@@ -26,7 +26,7 @@ public class InsertProfileBadgeTest {
         //when
         profile.InsertProfileBadge(profileBadge);
         profileRepository.save(profile);
-        Profile findProfile = profileRepository.findOne_ByProfileId(profile.getId());
+        Profile findProfile = profileRepository.findOne(profile.getId());
 
         //then
         Assertions.assertEquals(findProfile.getId(), profile.getId());

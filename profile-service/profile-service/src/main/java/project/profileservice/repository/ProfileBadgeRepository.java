@@ -15,8 +15,13 @@ public class ProfileBadgeRepository {
     @PersistenceContext
     private final EntityManager em;
 
+    public void save(ProfileBadge profileBadge) {
+        em.persist(profileBadge);
+    }
+    
     public List<ProfileBadge> findAllByUserId(Long id) {
-        return em.createQuery("select p from ProfileBadge p where p.profile_id =: profile_id", ProfileBadge.class)
-                .setParameter("profile_id", id).getResultList();
+        return em.createQuery("select p from ProfileBadge p where p.id =: profile_id", ProfileBadge.class)
+                .setParameter("profile_id", id)
+                .getResultList();
     }
 }

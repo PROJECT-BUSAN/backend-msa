@@ -10,15 +10,20 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
 public class BadgeRepository {
 
     @PersistenceContext
-    private final EntityManager em;
+    private EntityManager em;
 
     @Transactional
     public void save(Badge badge) {
         em.persist(badge);
+    }
+
+    @Transactional
+    public void deleteById(Long badge_id) {
+        Badge badge = findOne(badge_id);
+        em.remove(badge);
     }
 
     public Badge findOne(Long id) {

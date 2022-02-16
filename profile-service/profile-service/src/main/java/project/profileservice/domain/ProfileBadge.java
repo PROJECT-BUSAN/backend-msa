@@ -30,10 +30,9 @@ public class ProfileBadge {
     /**
      * 생성 메서드
      */
-    public static ProfileBadge CreateProfileBadge(Badge badge) {
-        ProfileBadge profileBadge = new ProfileBadge();
-        profileBadge.setBadge(badge);
-        return profileBadge;
+    public void CreateProfileBadge(Profile profile, Badge badge) {
+        this.badge = badge;
+        this.profile = profile;
     }
 }
 

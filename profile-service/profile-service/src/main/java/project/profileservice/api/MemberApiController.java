@@ -21,23 +21,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberApiController {
 
-    @Autowired
     private final ProfileService profileService;
-    @Autowired
     private final ProfileRepository profileRepository;
 
     @PersistenceContext
     EntityManager em;
 
-    @GetMapping("/api/v1/profile/{id}")
-    public TestProfile profileV1(@PathVariable("id") Long user_id) {
-        TestProfile testProfile = new TestProfile();
-
-        testProfile.setId(1L);
-        testProfile.setStrick(10);
-
-        return testProfile;
-    }
+//    @GetMapping("/api/v1/profile/{id}")
+//    public TestProfile profileV1(@PathVariable("id") Long user_id) {
+//        TestProfile testProfile = new TestProfile();
+//
+//        testProfile.setId(1L);
+//        testProfile.setStrick(10);
+//
+//        return testProfile;
+//    }
 
     @Data
     static class TestProfile {
