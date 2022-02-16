@@ -27,6 +27,11 @@ public class ChannelService {
         return channel;
     }
 
+    /**
+     * 비즈니스 로직
+     * Channel 삭제
+     * Channel은 방장이 나갈때 닫을 수있음.
+     */
     public void deleteChannel(Long channelId) {
         //채널 찾기
         Channel findChannel = findOneChannel(channelId);
