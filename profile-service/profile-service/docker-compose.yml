@@ -1,27 +1,28 @@
 version: "3.3"
 services:
-  profile-service:
-    image: profile-service
-    volumes:
-      - .:/home/spring
-    ports:
-      - 8080:8080
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://profile-database:3306/profile-db?useUnicode=true&serverTimezone=Asia/Seoul
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: 1234
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      SPRING_DATASOURCE_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
-    depends_on:
-      - profile-database
-    restart: always
-    networks:
-      - test
-    entrypoint: ["bash", "-c"]
-    command:
-      - |
-        ./gradlew build
-        ./gradlew bootRun
+#  profile-service:
+#    image: profile-service
+#    volumes:
+#      - .:/home/spring
+#    ports:
+#      - 8080:8080
+#      - 8090:8090
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://profile-database:3306/profile-db?useUnicode=true&serverTimezone=Asia/Seoul
+#      SPRING_DATASOURCE_USERNAME: user
+#      SPRING_DATASOURCE_PASSWORD: 1234
+#      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+#      SPRING_DATASOURCE_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
+#    depends_on:
+#      - profile-database
+#    restart: always
+#    networks:
+#      - test
+#    entrypoint: ["bash", "-c"]
+#    command:
+#      - |
+#        ./gradlew build
+#        ./gradlew bootRun
 
   profile-database:
     image: mysql:5.7

@@ -38,10 +38,7 @@ public class ProfileBadgeRepositoryTest {
         Profile profile = createProfile();
         Badge badge1 = createBadge("새싹", "www.naver.com");
         Badge badge2 = createBadge("불", "www.google.com");
-
-        profileService.addBadge(profile.getId(), badge1.getId());
-        profileService.addBadge(profile.getId(), badge2.getId());
-
+        
         //when
         List<ProfileBadge> findProfileBadges = profileBadgeRepository.findAllByUserId(profile.getId());
 
@@ -51,10 +48,30 @@ public class ProfileBadgeRepositoryTest {
         }
     }
 
+    @Test
+    public void save_Test() {
+        //given
+        Profile profile = createProfile();
+        Badge badge1 = createBadge("새싹", "www.naver.com");
+        Badge badge2 = createBadge("불", "www.google.com");
+
+        //when
+        ProfileBadge profileBadge = new ProfileBadge();
+        profileBadge.CreateProfileBadge(profile, badge1);
+        profileBadge.CreateProfileBadge(profile, badge2);
+        profileBadgeRepository.save(profileBadge);
+        
+        //then
+        List<ProfileBadge> profileBadgeList = profileBadgeRepository.findAllByUserId(2L);
+        Assertions.assertEquals(profileBadgeList.size(), 2);
+    }
+
     private Profile createProfile() {
         Profile profile = new Profile();
         profile.setUser_id(2L);
-        profile.setStrick(10);
+        profile.setNowStrick(10);
+        profile.setMaxStrick(15);
+        
         em.persist(profile);
         return profile;
     }

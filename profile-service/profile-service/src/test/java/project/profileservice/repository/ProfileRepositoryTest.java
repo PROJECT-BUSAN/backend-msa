@@ -25,15 +25,15 @@ public class ProfileRepositoryTest {
 
         Profile profile = new Profile();
         profile.setUser_id(1L);
-        profile.setStrick(10);
-        profile.AddProfileBadge(profileBadge);
+        profile.setNowStrick(10);
+//        profile.AddProfileBadge(profileBadge);
 
         //when
         profileRepository.save(profile);
-        Profile findProfile = profileRepository.findOne_ByProfileId(1L);
+        Profile findProfile = profileRepository.findOne(1L);
 
         //then
-        Assertions.assertEquals(profile.getStrick(), findProfile.getStrick());
+        Assertions.assertEquals(profile.getId(), findProfile.getId());
     }
 
     @Test
@@ -44,7 +44,7 @@ public class ProfileRepositoryTest {
 
         //when
         profileRepository.save(profile);
-        Profile findProfile = profileRepository.findOne_ByProfileId(profile.getId());
+        Profile findProfile = profileRepository.findOne(profile.getId());
 
         //then
         Assertions.assertEquals(findProfile.getId(), profile.getId());
@@ -58,7 +58,7 @@ public class ProfileRepositoryTest {
         profileRepository.save(profile);
 
         //when
-        Profile findProfile = profileRepository.findOne_ByUserId(profile.getUser_id()).get(0);
+        Profile findProfile = profileRepository.findOne(profile.getUser_id());
 
         //then
         Assertions.assertEquals(findProfile.getId(), profile.getId());
@@ -67,7 +67,6 @@ public class ProfileRepositoryTest {
 
     @Test
     public void findAll_Test() {
-
         //given
         Profile profile1 = new Profile();
         Profile profile2 = new Profile();

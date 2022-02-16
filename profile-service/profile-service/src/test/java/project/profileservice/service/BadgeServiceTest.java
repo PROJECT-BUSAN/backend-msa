@@ -1,4 +1,4 @@
-package project.profileservice.service.profileinfo;
+package project.profileservice.service;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +19,7 @@ import javax.persistence.PersistenceContext;
 @SpringBootTest
 @Transactional
 @Rollback(value = false)
-public class AddProfileTest {
+public class BadgeServiceTest {
 
     @PersistenceContext
     EntityManager em;
@@ -40,13 +40,13 @@ public class AddProfileTest {
 //    }
 
     // @Test
-    // public void addProfileTest() {
+    // public void addBadgeTest() {
     //     //given
     //     Profile profile = createProfile();
     //     Badge badge = createBadge("새싹", "www.naver.com");
 
     //     //when
-    //     Long profileInfoId = profileService.addProfile(profile.getId(), badge.getId());
+    //     Long profileInfoId = profileService.addBadge(profile.getId(), badge.getId());
     //     Profile getProfile = em.find(Profile.class, profileInfoId);
 
     //     //then
@@ -58,7 +58,9 @@ public class AddProfileTest {
     private Profile createProfile() {
         Profile profile = new Profile();
         profile.setUser_id(2L);
-        profile.setStrick(10);
+        profile.setNowStrick(10);
+        profile.setMaxStrick(15);
+        
         em.persist(profile);
         return profile;
     }
