@@ -28,7 +28,6 @@ public class ChatRoomRepository {
 
     @PostConstruct
     private void init() {
-        // 여기부터 경로가 잘못됨 ㅅㅂ.. SerializationException 공부필요
         opsHashChatRoom = redisTemplate.opsForHash();
         System.out.println("1 = " + 1);
         topics = new HashMap<>();
