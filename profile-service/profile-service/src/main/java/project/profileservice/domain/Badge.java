@@ -17,7 +17,7 @@ public class Badge {
     private String name;
     private String image_url;
 
-    @OneToMany(mappedBy = "badge")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "badge")
     private List<ProfileBadge> profileBadges = new ArrayList<ProfileBadge>();
 
     
