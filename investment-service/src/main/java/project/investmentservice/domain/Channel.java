@@ -9,28 +9,33 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter @Setter
 @RequiredArgsConstructor
-@RedisHash(value = "channelId", timeToLive = 1000)
+@RedisHash(value = "CHANNEL", timeToLive = 1000)
 public class Channel {
 
-    @Id @GeneratedValue
-    private Long id;
+    private String id;
     private Long channelNum;
-    private int numOfParticipants;
+    private Long channelName;
+    private int LimitOfParticipants;
     private Long entryFee;
     private List<User> users = new ArrayList<>();
     private Long pointPsum;
 
 
-    public Channel(Long channelNum, int numOfParticipants, Long entryFee, Long managerId) {
-        this.channelNum = channelNum;
-        this.numOfParticipants = numOfParticipants;
-        this.entryFee = entryFee;
-        User user = new User(managerId, true, entryFee);
-        this.users.add(user);
-        this.pointPsum = entryFee;
+    public static Channel create(String channelName, Long channelNum, int LimitOfParticipants, Long entryFee, Long hostId) {
+        // 채널 정보 생성 + host 추가
+        Channel channel = new Channel();
+        channel.id = UUID.randomUUID().toString();
+        channel.channelNum = channelNum;
+        channel.LimitOfParticipants = LimitOfParticipants;
+        channel.entryFee = entryFee;
+        User user = new User(hostId, true, entryFee);
+        channel.users.add(user);
+        channel.pointPsum = entryFee;
+        return channel;
     }
 
     public void addUser(Long userId) {

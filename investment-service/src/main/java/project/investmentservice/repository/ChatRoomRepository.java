@@ -15,9 +15,9 @@ import java.util.*;
 @RequiredArgsConstructor
 @Repository
 public class ChatRoomRepository {
-    // 채팅방(topic)에 발행되는 메시지를 처리할 Listner
-    private final RedisMessageListenerContainer redisMessageListener;
-    // 구독 처리 서비스
+    // 채팅방(topic)에 발행되는 메시지를 처리할 Listner를 저장하는 container
+    private final RedisMessageListenerContainer redisMessageListenerContainer;
+    // 구독 처리 서비스, 딱 한개만 존재 ListenerContainer가 사용
     private final RedisSubscriber redisSubscriber;
     // Redis
     private static final String CHAT_ROOMS = "CHAT_ROOM";
@@ -29,12 +29,10 @@ public class ChatRoomRepository {
     @PostConstruct
     private void init() {
         opsHashChatRoom = redisTemplate.opsForHash();
-        System.out.println("1 = " + 1);
         topics = new HashMap<>();
     }
 
     public List<ChatRoom> findAllRoom() {
-        System.out.println("2 = " + 2);
         return opsHashChatRoom.values(CHAT_ROOMS);
     }
 
@@ -56,9 +54,11 @@ public class ChatRoomRepository {
      */
     public void enterChatRoom(String roomId) {
         ChannelTopic topic = topics.get(roomId);
+        System.out.println("topic = " + roomId);
+        System.out.println("topic = " + topic);
         if (topic == null) {
             topic = new ChannelTopic(roomId);
-            redisMessageListener.addMessageListener(redisSubscriber, topic);
+            redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);
             topics.put(roomId, topic);
         }
     }

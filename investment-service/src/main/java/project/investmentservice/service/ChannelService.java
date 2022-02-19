@@ -18,9 +18,9 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 추가
      */
-    public Channel createChannel(Long managerId, int numOfParticipants, Long entryFee) {
+    public Channel createChannel(String channelName, int LimitOfParticipants, Long entryFee, Long hostId) {
         //채널 객체 생성
-        Channel channel = new Channel(channelNum++, numOfParticipants, entryFee, managerId);
+        Channel channel = Channel.create(channelName, channelNum++, LimitOfParticipants, entryFee, hostId);
 
         //채널 저장
         channelRedisRepository.save(channel);
@@ -32,7 +32,7 @@ public class ChannelService {
      * Channel 삭제
      * Channel은 방장이 나갈때 닫을 수있음.
      */
-    public void deleteChannel(Long channelId) {
+    public void deleteChannel(String channelId) {
         //채널 찾기
         Channel findChannel = findOneChannel(channelId);
 
@@ -44,7 +44,7 @@ public class ChannelService {
      * 비즈니스 로직
      * ChannelOne 찾기
      */
-    public Channel findOneChannel(Long channelId) {
+    public Channel findOneChannel(String channelId) {
         Channel findChannel = channelRedisRepository.findById(channelId).get();
         return findChannel;
     }
@@ -62,11 +62,11 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 입장
      */
-    public void participantChannel(Long channelId, Long userId, Long userPoint) {
+    public void participantChannel(String channelId, Long userId, Long userPoint) {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
 
         Channel findChannel = findOneChannel(channelId);
-        if(findChannel.getNumOfParticipants() > findChannel.getUsers().size()) {
+        if(findChannel.getLimitOfParticipants() > findChannel.getUsers().size()) {
             //channel을 생성할때의 제한 인원이 현재 channel에 있는 인원보다 클때 -> channel 입장 비용 확인
             if(findChannel.getEntryFee() <= userPoint) {
                 //userPoint는 게임이 시작할때 차감하는걸로
@@ -81,7 +81,7 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 퇴장
      */
-    public void exitChannel(Long channelId, Long userId) {
+    public void exitChannel(String channelId, Long userId) {
         Channel findChannel = findOneChannel(channelId);
         findChannel.removeUser(userId);
         channelRedisRepository.save(findChannel);
