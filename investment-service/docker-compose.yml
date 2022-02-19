@@ -42,7 +42,7 @@ services:
   investment-redis:
     image: redis:6.2.6
     ports:
-      - 63790:6379
+      - 6379:6379
     networks:
       - test
     command: [ "redis-server", "--protected-mode", "no" ]
