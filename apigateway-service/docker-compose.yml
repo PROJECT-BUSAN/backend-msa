@@ -1,0 +1,49 @@
+version: "3.3"
+services:
+  apigateway-service:
+    image: apigateway
+    volumes:
+      - .:/home/apigateway
+    ports:
+      - 8000:8000
+    environment:
+      - PYTHONUNBUFFERED=1
+    entrypoint: ["bash", "-c"]
+    restart: always
+    command: 
+      - |
+        python manage.py makemigrations --noinput --settings=config.settings.local
+        python manage.py migrate --noinput --settings=config.settings.local
+        python manage.py loaddata initdata --settings=config.settings.local
+        python manage.py runserver 0.0.0.0:8000 --settings=config.settings.local
+    networks:
+      - test
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 30000:15672
+    restart: always
+    networks:
+      - test
+  
+  celery_worker:
+    image: apigateway
+    volumes:
+      - .:/home/apigateway
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - apigateway-service
+      - rabbitmq
+    networks:
+      - test
+    restart: always
+    entrypoint: ["bash", "-c"]
+    command: 
+      - |
+        DJANGO_SETTINGS_MODULE='config.settings.local' celery -A config worker -l info
+networks:
+  test:
+    external: true
