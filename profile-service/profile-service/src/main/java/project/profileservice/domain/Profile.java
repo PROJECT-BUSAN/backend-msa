@@ -2,6 +2,7 @@ package project.profileservice.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import project.profileservice.exception.NotEnoughPointException;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class Profile {
     private Long user_id;
     private int nowStrick;
     private int maxStrick;
+    private Long point;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile")
     private List<ProfileBadge> profileBadges = new ArrayList<ProfileBadge>();
@@ -60,5 +62,16 @@ public class Profile {
      */
     public void maxStrickUpdate() {
         this.maxStrick = Math.max(this.maxStrick, this.nowStrick);
+    }
+
+    /**
+     * point를 업데이트 한다.
+     */
+    public void updatePoint(Long point) {
+        Long restPoint = this.point + point;
+        if (restPoint < 0) {
+            throw new NotEnoughPointException("Cannot update point");
+        }
+        this.point = restPoint;
     }
 }

@@ -1,5 +1,6 @@
 package project.profileservice.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import project.profileservice.domain.Badge;
 import project.profileservice.domain.Profile;
 import project.profileservice.repository.BadgeRepository;
 import project.profileservice.repository.ProfileRepository;
+import project.profileservice.service.BadgeService;
+import project.profileservice.service.ProfileService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,9 +24,9 @@ import static project.profileservice.api.ProfileApiController.*;
 public class ProfileApiControllerTest extends BaseControllerTest {
 
     @Autowired
-    private ProfileRepository profileRepository;
+    private ProfileService profileService;
     @Autowired
-    private BadgeRepository badgeRepository;
+    private BadgeService badgeService;
 
     @Test
     public void 프로필생성API() throws Exception {
@@ -59,11 +62,12 @@ public class ProfileApiControllerTest extends BaseControllerTest {
     @Test
     public void 뱃지획득API() throws Exception{
         // given
-        createProfile(1L);
-        createBadge("BADGE");
-        
+        Long profileId = createProfile(1L);
+        Long badgeId = createBadge("BADGE");
+
         // when
-        ResultActions resultActions = this.mockMvc.perform(post("/api/v1/profile/1/badge/1")
+        ResultActions resultActions = this.mockMvc.perform(
+                post("/api/v1/profile/" + profileId + "/badge/" + badgeId)
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -72,18 +76,31 @@ public class ProfileApiControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("message").value("획득 성공"));
     }
 
-    private void createProfile(Long user_id) {
-        Profile profile = new Profile();
-        profile.setUser_id(user_id);
-        profile.setNowStrick(1);
-        profile.setMaxStrick(1);
-        profileRepository.save(profile);
+    @Test
+    public void 포인트업데이트API() throws Exception{
+        // given
+        Long profileId = createProfile(1L);
+        UpdatePointRequest updatePointRequest = new UpdatePointRequest();
+        updatePointRequest.setPoint(-500000L);
+        // when
+        ResultActions resultActions = this.mockMvc.perform(
+                post("/api/v1/profile/" + profileId + "/point")
+                        .content(new ObjectMapper().writeValueAsString(updatePointRequest))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("point").value("500000"));
+    }
+    
+    
+
+    private Long createProfile(Long user_id) {
+        return profileService.create(user_id);
     }
 
-    private void createBadge(String name) {
-        Badge badge = new Badge();
-        badge.setImage_url("https://...");
-        badge.setName(name);
-        badgeRepository.save(badge);
+    private Long createBadge(String name) {
+        return badgeService.create(name, "https://...");
     }
 }
