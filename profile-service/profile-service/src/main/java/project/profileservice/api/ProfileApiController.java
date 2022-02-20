@@ -69,6 +69,14 @@ public class ProfileApiController {
         return new Message("획득 성공");
     }
 
+    @PostMapping("{user_id}/point")
+    public UpdatePointResponse ProfileUpdatePoint(@PathVariable("user_id") Long user_id,
+                                                  @RequestBody UpdatePointRequest request) {
+
+        Long updatePoint = profileService.updatePoint(user_id, request.getPoint());
+        return new UpdatePointResponse(user_id, updatePoint);
+    }
+
 
     @Data
     @AllArgsConstructor
@@ -86,6 +94,19 @@ public class ProfileApiController {
     @AllArgsConstructor
     static class CreateProfileResponse {
         private Long user_id;
+    }
+
+    @Data
+    static class UpdatePointRequest {
+        @NotNull
+        private Long point;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class UpdatePointResponse {
+        private Long user_id;
+        private Long point;
     }
 
     static class BadgeDto {
@@ -106,6 +127,7 @@ public class ProfileApiController {
         private Long user_id;
         private int nowStrick;
         private int maxStrick;
+        private Long point;
         private List<BadgeDto> badges = new ArrayList<>();
 
         public ProfileResponse(Profile profile) {
@@ -113,6 +135,7 @@ public class ProfileApiController {
             this.user_id = profile.getUser_id();
             this.nowStrick = profile.getNowStrick();
             this.maxStrick = profile.getMaxStrick();
+            this.point = profile.getPoint();
             for(ProfileBadge profileBadge : profile.getProfileBadges()) {
                 badges.add(new BadgeDto(profileBadge.getBadge()));
             }

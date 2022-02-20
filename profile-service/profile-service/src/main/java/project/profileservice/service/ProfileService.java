@@ -54,6 +54,7 @@ public class ProfileService {
         profile.setUser_id(user_id);
         profile.setMaxStrick(1);
         profile.setNowStrick(1);
+        profile.setPoint(1000000L);
         
         // Attendance 생성
         Attendance attendance = new Attendance();
@@ -63,15 +64,10 @@ public class ProfileService {
         // profile에 attendance 추가
         profile.addAttendance(attendance);
         
-        // Point 생성
-        // Point 컨테이너로 Request를 보내야함.
-        
         // Attendance 저장
         attendanceRepository.save(attendance);
         // Profile 저장
         profileRepository.save(profile);
-        // Point 저장
-        
 
         return profile.getUser_id();
     }
@@ -112,5 +108,17 @@ public class ProfileService {
         badge.addProfileBadge(profileBadge);
         profileBadgeRepository.save(profileBadge);
     }
-    
+
+    /**
+     * Point 업데이트
+     * @param user_id
+     * @param point
+     * @return
+     */
+    @Transactional
+    public Long updatePoint(Long user_id, Long point) {
+        Profile profile = profileRepository.findOne(user_id);
+        profile.updatePoint(point);
+        return profile.getPoint();
+    }
 }
