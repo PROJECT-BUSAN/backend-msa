@@ -23,6 +23,7 @@ git merge $newbranch --allow-unrelated-histories
 git push origin dev
 
 git switch $newbranch
+chmod +x ./make-branch.sh
 echo " =========================================="
 echo "| Start developing on your new branch now! |"
 echo " =========================================="
