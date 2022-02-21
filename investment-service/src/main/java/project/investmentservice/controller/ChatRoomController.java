@@ -33,16 +33,28 @@ public class ChatRoomController {
     public ChatRoom createRoom(@RequestParam String name) {
         return chatRoomRepository.createChatRoom(name);
     }
+
+    // 채팅방 삭제
+    @DeleteMapping("/room/delete/{roomId}")
+    public String deleteRoom(@PathVariable String roomId) {
+        chatRoomRepository.deleteChatRoom(roomId);
+        return "chat/room";
+    }
+
     // 채팅방 입장 화면
     @GetMapping("/room/enter/{roomId}")
     public String roomDetail(Model model, @PathVariable String roomId) {
         model.addAttribute("roomId", roomId);
         return "/chat/roomdetail";
     }
+
     // 특정 채팅방 조회
     @GetMapping("/room/{roomId}")
     @ResponseBody
     public ChatRoom roomInfo(@PathVariable String roomId) {
         return chatRoomRepository.findRoomById(roomId);
     }
+
+
+
 }

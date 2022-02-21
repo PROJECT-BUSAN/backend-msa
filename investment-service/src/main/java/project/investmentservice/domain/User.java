@@ -6,13 +6,19 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class User {
+
+    // User 준비 상태
+    public enum ReadyType {
+        READY, CANCEL;
+    }
     private Long id;
-    private Boolean ready;
+    private ReadyType readyType;
     private Long seedMoney;
 
-    public User(Long id, Boolean ready, Long seedMoney) {
+
+    public User(Long id, Long seedMoney) {
         this.id = id;
-        this.ready = ready;
+        this.readyType = ReadyType.CANCEL;
         this.seedMoney = seedMoney;
     }
 }

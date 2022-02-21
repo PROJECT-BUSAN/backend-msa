@@ -13,7 +13,6 @@ import java.util.UUID;
 
 @Getter @Setter
 @RequiredArgsConstructor
-@RedisHash(value = "CHANNEL")
 public class Channel {
 
     private String id;
@@ -32,14 +31,14 @@ public class Channel {
         channel.channelNum = channelNum;
         channel.LimitOfParticipants = LimitOfParticipants;
         channel.entryFee = entryFee;
-        User user = new User(hostId, true, entryFee);
+        User user = new User(hostId, entryFee);
         channel.users.add(user);
         channel.pointPsum = entryFee;
         return channel;
     }
 
     public void addUser(Long userId) {
-        User user = new User(userId, false, entryFee);
+        User user = new User(userId, entryFee);
         this.users.add(user);
         this.pointPsum += this.entryFee;
     }

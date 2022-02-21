@@ -22,7 +22,7 @@ public class ChannelServiceTest {
     @Test
     public void createChannel_Test() {
         //given
-        Channel channel = channelService.createChannel(1L, 10, 1000L);
+        Channel channel = channelService.createChannel("new", 10, 10L, 1L);
 
         //when
 
@@ -34,7 +34,7 @@ public class ChannelServiceTest {
     @Test
     public void deleteChannel_Test() {
         //given
-        Channel channel = channelService.createChannel(1L, 10, 1000L);
+        Channel channel = channelService.createChannel("new", 10, 10L, 1L);
 
         //when
         channelService.deleteChannel(channel.getId());
@@ -45,7 +45,8 @@ public class ChannelServiceTest {
     @Test
     public void findOneChannel_Test() {
         //given
-        Channel channel = channelService.createChannel(1L, 10, 1000L);
+        Channel channel = channelService.createChannel("new", 10, 10L, 1L);
+
 
         //when
         Channel findChannel = channelService.findOneChannel(channel.getId());
@@ -73,7 +74,7 @@ public class ChannelServiceTest {
     @Test
     public void participantChannel_Test() {
         //given
-        Channel channel = channelService.createChannel(1L, 10, 1000L);
+        Channel channel = channelService.createChannel("new", 10, 10L, 1L);
 
         //when
         channelService.participantChannel(channel.getId(), 2L, 2000L);
@@ -86,7 +87,8 @@ public class ChannelServiceTest {
     @Test
     public void exitChannel_Test() {
         //given
-        Channel channel = channelService.createChannel(1L, 10, 1000L);
+        Channel channel = channelService.createChannel("new", 10, 10L, 1L);
+
         channelService.participantChannel(channel.getId(), 2L, 2000L);
         channelService.participantChannel(channel.getId(), 3L, 2000L);
 

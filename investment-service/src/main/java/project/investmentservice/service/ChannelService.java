@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import project.investmentservice.domain.Channel;
-import project.investmentservice.repository.ChannelRedisRepository;
+import project.investmentservice.repository.ChannelRepository;
 
 @Service
 @RequiredArgsConstructor
 public class ChannelService {
 
     @Autowired
-    private ChannelRedisRepository channelRedisRepository;
+    private ChannelRepository channelRepository;
     private Long channelNum = 1L;
 
     /**
@@ -23,7 +23,7 @@ public class ChannelService {
         Channel channel = Channel.create(channelName, channelNum++, LimitOfParticipants, entryFee, hostId);
 
         //채널 저장
-        channelRedisRepository.save(channel);
+        channelRepository.createChannel(channel);
         return channel;
     }
 
@@ -37,7 +37,7 @@ public class ChannelService {
         Channel findChannel = findOneChannel(channelId);
 
         //채널 삭제
-        channelRedisRepository.delete(findChannel);
+        channelRepository.deleteChannel(findChannel);
     }
 
     /**
@@ -45,7 +45,7 @@ public class ChannelService {
      * ChannelOne 찾기
      */
     public Channel findOneChannel(String channelId) {
-        Channel findChannel = channelRedisRepository.findById(channelId).get();
+        Channel findChannel = channelRepository.findChannelById(channelId);
         return findChannel;
     }
 
@@ -54,7 +54,7 @@ public class ChannelService {
      * ChannelAll 찾기
      */
     public Iterable<Channel> findAllChannel() {
-        return channelRedisRepository.findAll();
+        return channelRepository.findAllChannel();
     }
 
 
@@ -70,9 +70,8 @@ public class ChannelService {
             //channel을 생성할때의 제한 인원이 현재 channel에 있는 인원보다 클때 -> channel 입장 비용 확인
             if(findChannel.getEntryFee() <= userPoint) {
                 //userPoint는 게임이 시작할때 차감하는걸로
-                System.out.println("findChannel = " + findChannel.getId());
                 findChannel.addUser(userId);
-                channelRedisRepository.save(findChannel);
+                channelRepository.enterChannel(channelId);
             }
         }
     }
@@ -82,9 +81,8 @@ public class ChannelService {
      * Channel 퇴장
      */
     public void exitChannel(String channelId, Long userId) {
-        Channel findChannel = findOneChannel(channelId);
-        findChannel.removeUser(userId);
-        channelRedisRepository.save(findChannel);
+        channelRepository.exitChannel(channelId, userId);
     }
+
 
 }

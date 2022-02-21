@@ -50,6 +50,18 @@ public class ChatRoomRepository {
     }
 
     /**
+     * 채팅방 삭제 : redis hash에서 채팅방 삭제
+     */
+    public ChatRoom deleteChatRoom(String roomId) {
+        ChatRoom findChatRoom = findRoomById(roomId);
+        ChannelTopic findTopic = topics.get(roomId);
+        opsHashChatRoom.delete(CHAT_ROOMS, roomId);
+        redisMessageListenerContainer.removeMessageListener(redisSubscriber, findTopic);
+        topics.remove(roomId);
+        return findChatRoom;
+    }
+
+    /**
      * 채팅방 입장 : redis에 topic을 만들고 pub/sub 통신을 하기 위해 리스너를 설정한다.
      */
     public void enterChatRoom(String roomId) {
@@ -60,6 +72,14 @@ public class ChatRoomRepository {
             topics.put(roomId, topic);
         }
     }
+
+    /**
+     * 채팅방 퇴장 : User가 channel에서 퇴장
+     */
+    public void exitChatRoom() {
+        
+    }
+
 
     public ChannelTopic getTopic(String roomId) {
         return topics.get(roomId);
