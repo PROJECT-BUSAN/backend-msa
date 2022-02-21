@@ -54,8 +54,6 @@ public class ChatRoomRepository {
      */
     public void enterChatRoom(String roomId) {
         ChannelTopic topic = topics.get(roomId);
-        System.out.println("topic = " + roomId);
-        System.out.println("topic = " + topic);
         if (topic == null) {
             topic = new ChannelTopic(roomId);
             redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);

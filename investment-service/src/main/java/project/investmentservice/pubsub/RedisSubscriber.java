@@ -27,9 +27,7 @@ public class RedisSubscriber implements MessageListener {
     public void onMessage(Message message, byte[] pattern) {
         try {
             // redis에서 발행된 데이터를 받아 deserialize
-            System.out.println("message = " + message);
             String publishMessage = (String) redisTemplate.getStringSerializer().deserialize(message.getBody());
-            System.out.println("publishMessage = " + publishMessage);
             // ChatMessage 객채로 맵핑
             ChatMessage roomMessage = objectMapper.readValue(publishMessage, ChatMessage.class);
             // Websocket 구독자에게 채팅 메시지 Send

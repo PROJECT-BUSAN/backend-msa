@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Getter @Setter
 @RequiredArgsConstructor
-@RedisHash(value = "CHANNEL", timeToLive = 1000)
+@RedisHash(value = "CHANNEL")
 public class Channel {
 
     private String id;
