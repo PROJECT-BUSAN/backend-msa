@@ -2,8 +2,9 @@ package project.investmentservice.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-@Getter
+@Getter @Setter
 @RequiredArgsConstructor
 public class User {
 
@@ -11,13 +12,11 @@ public class User {
     public enum ReadyType {
         READY, CANCEL;
     }
-    private Long id;
     private ReadyType readyType;
     private Long seedMoney;
 
 
-    public User(Long id, Long seedMoney) {
-        this.id = id;
+    public User(Long seedMoney) {
         this.readyType = ReadyType.CANCEL;
         this.seedMoney = seedMoney;
     }

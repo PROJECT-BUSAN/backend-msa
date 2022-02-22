@@ -3,13 +3,7 @@ package project.investmentservice.domain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.redis.core.RedisHash;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter @Setter
 @RequiredArgsConstructor
@@ -20,8 +14,9 @@ public class Channel {
     private Long channelName;
     private int LimitOfParticipants;
     private Long entryFee;
-    private List<User> users = new ArrayList<>();
+    private Map<Long, User> users = new HashMap<>();
     private Long pointPsum;
+    private Long hostId;
 
 
     public static Channel create(String channelName, Long channelNum, int LimitOfParticipants, Long entryFee, Long hostId) {
@@ -31,25 +26,20 @@ public class Channel {
         channel.channelNum = channelNum;
         channel.LimitOfParticipants = LimitOfParticipants;
         channel.entryFee = entryFee;
-        User user = new User(hostId, entryFee);
-        channel.users.add(user);
+        User user = new User(entryFee);
+        channel.users.put(hostId, user);
         channel.pointPsum = entryFee;
         return channel;
     }
 
-    public void addUser(Long userId) {
-        User user = new User(userId, entryFee);
-        this.users.add(user);
+    public User addUser(Long userId) {
+        User user = new User(entryFee);
+        this.users.put(userId, user);
         this.pointPsum += this.entryFee;
+        return user;
     }
 
     public void removeUser(Long userId) {
-        for(int i=0; i<users.size(); i++) {
-            if(users.get(i).getId() == userId) {
-                users.remove(i);
-                this.pointPsum -= this.entryFee;
-                break;
-            }
-        }
+        users.remove(userId);
     }
 }

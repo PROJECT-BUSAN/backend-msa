@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
-import project.investmentservice.domain.ChatMessage;
+import project.investmentservice.domain.dto.ServerMessage;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,13 +27,14 @@ public class RedisSubscriber implements MessageListener {
     public void onMessage(Message message, byte[] pattern) {
         try {
             // redis에서 발행된 데이터를 받아 deserialize
-            System.out.println("sub message = " + message);
 
             String publishMessage = (String) redisTemplate.getStringSerializer().deserialize(message.getBody());
-            // ChatMessage 객채로 맵핑
-            ChatMessage roomMessage = objectMapper.readValue(publishMessage, ChatMessage.class);
+
+            // ServerMessage 객채로 맵핑
+            ServerMessage serverMessage = objectMapper.readValue(publishMessage, ServerMessage.class);
+
             // Websocket 구독자에게 채팅 메시지 Send
-            messagingTemplate.convertAndSend("/sub/chat/room/" + roomMessage.getRoomId(), roomMessage);
+            messagingTemplate.convertAndSend("/sub/game/channel/" + serverMessage.getChannelId(), serverMessage);
         } catch (Exception e) {
             log.error(e.getMessage());
         }

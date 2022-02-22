@@ -58,11 +58,11 @@ public class ChannelRepository {
      * 채널 삭제 : redis hash에서 채널 삭제
      * host만 삭제가능
      */
-    public void deleteChannel(Channel channel) {
-        ChannelTopic topic = topics.get(channel.getId());
+    public void deleteChannel(String channelId) {
+        ChannelTopic topic = topics.get(channelId);
         redisMessageListenerContainer.removeMessageListener(redisSubscriber, topic);
-        opsHashChannel.delete(CHANNEL, channel.getId());
-        topics.remove(channel.getId());
+        opsHashChannel.delete(CHANNEL, channelId);
+        topics.remove(channelId);
     }
 
     /**
@@ -75,14 +75,6 @@ public class ChannelRepository {
             redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);
             topics.put(channelId, topic);
         }
-    }
-
-    /**
-     * 채팅방 퇴장 : topic에서 Listener 제거
-     */
-    public void exitChannel(String channelId, Long userId) {
-        ChannelTopic topic = topics.get(channelId);
-        System.out.println("topic = " + topic);
     }
 
     public ChannelTopic getTopic(String channelId) {

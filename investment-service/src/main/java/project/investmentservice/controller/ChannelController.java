@@ -32,6 +32,13 @@ public class ChannelController {
         return channelService.createChannel(name, LimitOfParticipants, entryFee, hostId);
     }
 
+    //채팅방 삭제
+    @DeleteMapping("/channel/delete{channelId}")
+    public String deleteChannel(@PathVariable String channelId) {
+        channelService.deleteChannel(channelId);
+        return "game/channel";
+    }
+
     // 채널 입장
     @GetMapping("/channel/enter/{channelId}")
     public String channelDetail(Model model, @PathVariable String channelId) {
