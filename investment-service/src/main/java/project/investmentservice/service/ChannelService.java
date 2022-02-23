@@ -7,6 +7,11 @@ import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.repository.ChannelRepository;
 
+import java.util.List;
+
+import static project.investmentservice.domain.User.ReadyType.CANCEL;
+import static project.investmentservice.domain.User.ReadyType.READY;
+
 @Service
 @RequiredArgsConstructor
 public class ChannelService {
@@ -34,7 +39,8 @@ public class ChannelService {
      * Channel은 방장이 나갈때 닫을 수있음.
      */
     public void deleteChannel(String channelId) {
-        channelRepository.deleteChannel(channelId);
+        Channel findChannel = channelRepository.findChannelById(channelId);
+        channelRepository.deleteChannel(findChannel);
     }
 
     /**
@@ -50,7 +56,8 @@ public class ChannelService {
      * 비즈니스 로직
      * ChannelAll 찾기
      */
-    public Iterable<Channel> findAllChannel() {
+    public List<Channel> findAllChannel() {
+
         return channelRepository.findAllChannel();
     }
 
@@ -65,12 +72,13 @@ public class ChannelService {
 
         Channel findChannel = findOneChannel(channelId);
         if(findChannel.getLimitOfParticipants() > findChannel.getUsers().size()) {
+
             //channel을 생성할때의 제한 인원이 현재 channel에 있는 인원보다 클때 -> channel 입장 비용 확인
             if(findChannel.getEntryFee() <= userPoint) {
-                //userPoint는 게임이 시작할때 차감하는걸로
 
-                findChannel.addUser(userId);
-                channelRepository.enterChannel(channelId);
+                //userPoint는 게임이 시작할때 차감하는걸로
+                findChannel.getUsers().put(userId, new User(userPoint));
+                channelRepository.updateChannel(findChannel);
                 return true;
             }
             else {
@@ -91,6 +99,7 @@ public class ChannelService {
     public Channel exitChannel(String channelId, Long userId) {
         Channel findChannel = findOneChannel(channelId);
         findChannel.getUsers().remove(userId);
+        channelRepository.updateChannel(findChannel);
         return findChannel;
     }
 
@@ -100,7 +109,8 @@ public class ChannelService {
      */
     public Channel setReady(String channelId, Long userId) {
         Channel findChannel = findOneChannel(channelId);
-        findChannel.getUsers().get(userId).setReadyType(User.ReadyType.READY);
+        findChannel.getUsers().get(userId).setReadyType(READY);
+        channelRepository.updateChannel(findChannel);
         return findChannel;
     }
 
@@ -110,7 +120,8 @@ public class ChannelService {
      */
     public Channel cancelReady(String channelId, Long userId) {
         Channel findChannel = findOneChannel(channelId);
-        findChannel.getUsers().get(userId).setReadyType(User.ReadyType.CANCEL);
+        findChannel.getUsers().get(userId).setReadyType(CANCEL);
+        channelRepository.updateChannel(findChannel);
         return findChannel;
     }
 
@@ -122,7 +133,7 @@ public class ChannelService {
         Channel findChannel = findOneChannel(channelId);
         for(Long Key : findChannel.getUsers().keySet()) {
             if(Key == findChannel.getHostId()) continue;
-            if(findChannel.getUsers().get(Key).getReadyType() == User.ReadyType.CANCEL) return false;
+            if(findChannel.getUsers().get(Key).getReadyType() == CANCEL) return false;
         }
         return true;
     }

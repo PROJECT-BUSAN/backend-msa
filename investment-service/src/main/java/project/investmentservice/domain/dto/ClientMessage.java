@@ -16,5 +16,9 @@ public class ClientMessage {
     private String channelId;
     private Long senderId;
 
-
+    public ClientMessage(MessageType type, String channelId, Long senderId) {
+        this.type = type;
+        this.channelId = channelId;
+        this.senderId = senderId;
+    }
 }

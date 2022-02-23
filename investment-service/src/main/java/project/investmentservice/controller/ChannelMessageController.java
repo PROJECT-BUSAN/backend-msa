@@ -90,6 +90,5 @@ public class ChannelMessageController {
             ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers(), null);
             redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
         }
-
     }
 }

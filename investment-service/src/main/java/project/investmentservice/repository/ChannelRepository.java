@@ -32,10 +32,47 @@ public class ChannelRepository {
     //채널에 메시지를 발행하기 위한 redis topic 정보. 서버별로 채널에 매치되는 topic 정보를 Map에 넣어 channelId로 찾을 수있게 한다.
     private Map<String, ChannelTopic> topics;
 
+
+    // 초깃값 설정. Test code에서도 자동으로 실행됨
     @PostConstruct
     private void init() {
         opsHashChannel = redisTemplate.opsForHash();
         topics = new HashMap<>();
+    }
+
+    /**
+     * 채널 생성 : 서버간 채널 공유를 위해 redis hash에 채널 저장
+     *         : redis에 topic을 만들고 pub/sub 통신을 하기 위해 리스너를 설정.
+     */
+    public Channel createChannel(Channel channel) {
+        opsHashChannel.put(CHANNEL, channel.getId(), channel);
+        ChannelTopic topic = topics.get(channel.getId());
+        if(topic == null) {
+            topic = new ChannelTopic(channel.getId());
+            redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);
+            topics.put(channel.getId(), topic);
+        }
+        return channel;
+    }
+
+    /**
+     * 채널 삭제 : redis hash에서 채널 삭제
+     * host만 삭제가능
+     */
+    public void deleteChannel(Channel channel) {
+        ChannelTopic topic = topics.get(channel.getId());
+        redisMessageListenerContainer.removeMessageListener(redisSubscriber, topic);
+        opsHashChannel.delete(CHANNEL, channel.getId());
+        topics.remove(channel.getId());
+    }
+
+    /**
+     * 채널 정보 변경
+     * 채널에 새로운 인원 Enter or Exit한 결과를 다시 저장
+     */
+    public Channel updateChannel(Channel channel) {
+        opsHashChannel.put(CHANNEL, channel.getId(), channel);
+        return findChannelById(channel.getId());
     }
 
     public List<Channel> findAllChannel() {
@@ -46,36 +83,6 @@ public class ChannelRepository {
         return opsHashChannel.get(CHANNEL, id);
     }
 
-    /**
-     * 채널 생성 : 서버간 채널 공유를 위해 redis hash에 채널 저장
-     */
-    public Channel createChannel(Channel channel) {
-        opsHashChannel.put(CHANNEL, channel.getId(), channel);
-        return channel;
-    }
-
-    /**
-     * 채널 삭제 : redis hash에서 채널 삭제
-     * host만 삭제가능
-     */
-    public void deleteChannel(String channelId) {
-        ChannelTopic topic = topics.get(channelId);
-        redisMessageListenerContainer.removeMessageListener(redisSubscriber, topic);
-        opsHashChannel.delete(CHANNEL, channelId);
-        topics.remove(channelId);
-    }
-
-    /**
-     * 채팅방 입장 : redis에 topic을 만들고 pub/sub 통신을 하기 위해 리스너를 설정.
-     */
-    public void enterChannel(String channelId) {
-        ChannelTopic topic = topics.get(channelId);
-        if(topic == null) {
-            topic = new ChannelTopic(channelId);
-            redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);
-            topics.put(channelId, topic);
-        }
-    }
 
     public ChannelTopic getTopic(String channelId) {
         return topics.get(channelId);
