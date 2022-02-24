@@ -9,6 +9,7 @@ import project.investmentservice.domain.dto.ServerMessage;
 @RequiredArgsConstructor
 @Service
 public class RedisPublisher {
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     public void publish(ChannelTopic topic, ServerMessage message) {

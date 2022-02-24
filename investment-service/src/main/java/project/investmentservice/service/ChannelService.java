@@ -12,8 +12,8 @@ import java.util.List;
 import static project.investmentservice.domain.User.ReadyType.CANCEL;
 import static project.investmentservice.domain.User.ReadyType.READY;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class ChannelService {
 
     @Autowired
@@ -66,7 +66,7 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 입장
      */
-    public boolean enterChannel(String channelId, Long userId) {
+    public int enterChannel(String channelId, Long userId) {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
         Long userPoint = 1000L;
 
@@ -75,20 +75,19 @@ public class ChannelService {
 
             //channel을 생성할때의 제한 인원이 현재 channel에 있는 인원보다 클때 -> channel 입장 비용 확인
             if(findChannel.getEntryFee() <= userPoint) {
-
                 //userPoint는 게임이 시작할때 차감하는걸로
                 findChannel.getUsers().put(userId, new User(userPoint));
                 channelRepository.updateChannel(findChannel);
-                return true;
+                return 0;
             }
             else {
                 //포인트 부족
-                return false;
+                return 1;
             }
         }
         else {
             // 인원 가득참.
-            return false;
+            return 2;
         }
     }
 

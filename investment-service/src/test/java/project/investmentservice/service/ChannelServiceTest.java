@@ -84,13 +84,13 @@ public class ChannelServiceTest {
         Channel channel2 = channelService.createChannel("enterChannel", 10, 900L, 2L);
 
         //when
-        boolean flag1 = channelService.enterChannel(channel1.getId(), 1L);
-        boolean flag2 = channelService.enterChannel(channel2.getId(), 3L);
+        int flag1 = channelService.enterChannel(channel1.getId(), 1L);
+        int flag2 = channelService.enterChannel(channel2.getId(), 3L);
         Channel findChannel = channelService.findOneChannel(channel2.getId());
 
         //then
-        assertEquals(flag1, false);
-        assertEquals(flag2, true);
+        assertEquals(flag1, 0);
+        assertEquals(flag2, 1);
         assertEquals(findChannel.getUsers().size(), 2);
 
     }
@@ -99,7 +99,7 @@ public class ChannelServiceTest {
     public void exitChannel() {
         //given
         Channel channel = channelService.createChannel("exitChannel", 10, 900L, 2L);
-        boolean flag = channelService.enterChannel(channel.getId(), 1L);
+        channelService.enterChannel(channel.getId(), 1L);
         int beforeUserCount = channelService.findOneChannel(channel.getId()).getUsers().size();
 
         //when

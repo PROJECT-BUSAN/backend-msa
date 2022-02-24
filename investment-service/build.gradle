@@ -31,6 +31,7 @@ dependencies {
 	implementation group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
 	// spring에서 redis를 session storage로 사용하기 위한 의존성
 	implementation 'org.springframework.session:spring-session-data-redis'
+	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 
 	implementation 'org.springframework.boot:spring-boot-starter-freemarker'
 	implementation 'org.springframework.boot:spring-boot-devtools'

@@ -1,6 +1,7 @@
 package project.investmentservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import project.investmentservice.domain.Channel;
@@ -17,9 +18,12 @@ import static project.investmentservice.domain.dto.ClientMessage.MessageType.*;
 @Controller
 public class ChannelMessageController {
 
-    private final RedisPublisher redisPublisher;
+    @Autowired
     private final ChannelRepository channelRepository;
+    @Autowired
     private final ChannelService channelService;
+    @Autowired
+    private final RedisPublisher redisPublisher;
 
     /**
      * websocket "/pub/game/message"로 들어오는 메시징을 처리한다.
@@ -36,9 +40,9 @@ public class ChannelMessageController {
     public void message(ClientMessage clientMessage) {
         // 채널 ENTER TYPE
         if (ENTER.equals(clientMessage.getType())) {
-            boolean EnterResult = channelService.enterChannel(clientMessage.getChannelId(), clientMessage.getSenderId());
+            int EnterResult = channelService.enterChannel(clientMessage.getChannelId(), clientMessage.getSenderId());
             // 채널 입장 성공
-            if(EnterResult == true) {
+            if(EnterResult == 0) {
                 Channel channel = channelService.findOneChannel(clientMessage.getChannelId());
                 ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
                 redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
