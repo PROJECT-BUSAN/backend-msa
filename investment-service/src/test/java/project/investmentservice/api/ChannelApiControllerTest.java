@@ -1,6 +1,7 @@
 package project.investmentservice.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
@@ -19,26 +20,43 @@ import static project.investmentservice.api.ChannelApiController.EnterChannelRes
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import project.investmentservice.api.ChannelApiController.CreateChannelRequest;
 import project.investmentservice.api.ChannelApiController.EnterChannelRequest;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.service.ChannelService;
 
 
-@RunWith(SpringRunner.class)
+
 @Disabled
+@Transactional
 @SpringBootTest
+@RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 public class ChannelApiControllerTest {
 
-    @Autowired
+    @Autowired 
     private MockMvc mockMvc;
+    
     @Autowired
     private ObjectMapper objectMapper;
+    
     @Autowired
     private ChannelService channelService;
+
+    @Autowired
+    private WebApplicationContext ctx;
+    
+    @Before
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
+                .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
+                .build();
+    }
 
     @Test
     public void 모든채널반환API() throws Exception {
@@ -68,6 +86,7 @@ public class ChannelApiControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("channelName").value("test채널"));
     }
+    
 
     @Test
     public void 채널입장API() throws Exception {
