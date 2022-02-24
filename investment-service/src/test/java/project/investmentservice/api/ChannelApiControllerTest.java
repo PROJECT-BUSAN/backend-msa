@@ -19,6 +19,7 @@ import static project.investmentservice.api.ChannelApiController.EnterChannelRes
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import project.investmentservice.api.ChannelApiController.CreateChannelRequest;
 import project.investmentservice.api.ChannelApiController.EnterChannelRequest;
@@ -74,15 +75,18 @@ public class ChannelApiControllerTest {
         Channel channel1 = channelService.createChannel("testChannel32", 100, 20L, 51L);
         Channel channel2 = channelService.createChannel("testChannel32", 100, 100000L, 51L);
         Channel channel3 = channelService.createChannel("testChannel32", 1, 100000L, 51L);
-
-        EnterChannelRequest enterChannelRequest1 = new EnterChannelRequest(31L);
-        EnterChannelRequest enterChannelRequest2 = new EnterChannelRequest(31L);
-        EnterChannelRequest enterChannelRequest3 = new EnterChannelRequest(31L);
+        System.out.println("channel1.getId() : " + channel1.getId());
+        EnterChannelRequest enterChannelRequest1 = new EnterChannelRequest();
+        enterChannelRequest1.setUser_id(31L);
+        EnterChannelRequest enterChannelRequest2 = new EnterChannelRequest();
+        enterChannelRequest2.setUser_id(31L);
+        EnterChannelRequest enterChannelRequest3 = new EnterChannelRequest();
+        enterChannelRequest3.setUser_id(31L);
 
         //when
         ResultActions resultActions1 = mockMvc.perform(post("/game/channel/enter/" + channel1.getId())
                 .content(new ObjectMapper().writeValueAsString(enterChannelRequest1))
-                .contentType(APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON));
 
         ResultActions resultActions2 = mockMvc.perform(post("/game/channel/enter/" + channel2.getId())
                 .content(new ObjectMapper().writeValueAsString(enterChannelRequest2))
@@ -94,20 +98,16 @@ public class ChannelApiControllerTest {
 
 
         //then
-        resultActions1.andExpect(status().isOk())
-                .andExpect(jsonPath("type").value(FAIL))
-                .andExpect(jsonPath("message").value("채널에 입장하기 위한 포인트가 부족합니다."));
+        resultActions1.andExpect(status().isOk());
+        resultActions2.andExpect(status().isOk());
+        resultActions3.andExpect(status().isOk());
 
-        resultActions2.andExpect(status().isOk())
-                .andExpect(jsonPath("type").value(SUCCESS))
-                .andExpect(jsonPath("message").value("채널에 입장합니다."));
-
-        resultActions3.andExpect(status().isOk())
-                .andExpect(jsonPath("type").value(FAIL))
-                .andExpect(jsonPath("message").value("채널에 인원이 가득찼습니다."));
-
-        String result = resultActions1.andReturn().getResponse().getContentAsString();
-        System.out.println("result = " + result);
+        String result1 = resultActions1.andReturn().getResponse().getContentAsString();
+        System.out.println("result1 = " + result1);
+        String result2 = resultActions2.andReturn().getResponse().getContentAsString();
+        System.out.println("result2 = " + result2);
+        String result3 = resultActions3.andReturn().getResponse().getContentAsString();
+        System.out.println("result3 = " + result3);
     }
 }
 

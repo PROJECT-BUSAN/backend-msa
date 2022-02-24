@@ -94,7 +94,6 @@ public class ChannelApiController {
     }
 
     @Data
-    @AllArgsConstructor
     public static class EnterChannelRequest {
         @NotNull
         private Long user_id;
