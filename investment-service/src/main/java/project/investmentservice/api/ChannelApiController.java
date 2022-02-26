@@ -11,6 +11,8 @@ import project.investmentservice.service.ChannelService;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.FAIL;
 import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.SUCCESS;
@@ -40,14 +42,12 @@ public class ChannelApiController {
     @PostMapping("/channel")
     public CreateChannelResponse createChannel(@RequestBody @Valid CreateChannelRequest request) {
         Channel channel = channelService.createChannel(request.getName(), request.getLimitOfParticipants(), request.getEntryFee(), request.getUserId());
-        System.out.println("channel.getId() = " + channel.getId());
         return new CreateChannelResponse(channel.getId(), channel.getChannelNum(), channel.getChannelName());
     }
 
     // 채널 입장
     @PostMapping("/channel/enter/{channelId}")
     public EnterChannelResponse enterChannel(@PathVariable("channelId") String channelId, @RequestBody @Valid EnterChannelRequest request) {
-        System.out.println("channelId = " + channelId);
         int result = channelService.enterChannel(channelId, request.getUser_id());
         if(result == 0) {
             return new EnterChannelResponse(SUCCESS, "채널에 입장합니다.");
@@ -62,6 +62,25 @@ public class ChannelApiController {
         else {
             return new EnterChannelResponse(FAIL, "Server Error 500.");
         }
+    }
+
+    //게임 시작
+    @PostMapping("/channel/start/{channelId}")
+    public void startChannel(@PathVariable("channelId") String channelId) {
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            int idx = 0;
+            @Override
+            public void run() {
+                if(idx < 60) {
+                    System.out.println(" = publish" + channelId);
+                }
+                else {
+                    timer.cancel();
+                }
+            }
+        };
+        timer.schedule(timerTask, 0, 10000);
     }
 
     @Data

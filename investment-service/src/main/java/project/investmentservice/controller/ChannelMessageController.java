@@ -75,8 +75,8 @@ public class ChannelMessageController {
                 //모든인원 ready 상태 확인
                 if(channelService.checkReadyState(clientMessage.getChannelId())) {
                     ServerMessage serverMessage = new ServerMessage(START, clientMessage.getChannelId(), channel.getUsers(), "게임화면으로 넘어갑니다.");
-                    redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
 
+                    redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
                 }
                 else {
                     ServerMessage serverMessage = new ServerMessage(NOTICE, clientMessage.getChannelId(), channel.getUsers(), "모든 참가자가 준비를 완료해야 합니다.");

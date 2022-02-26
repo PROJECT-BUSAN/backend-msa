@@ -94,7 +94,6 @@ public class ChannelApiControllerTest {
         Channel channel1 = channelService.createChannel("testChannel32", 100, 20L, 51L);
         Channel channel2 = channelService.createChannel("testChannel32", 100, 100000L, 51L);
         Channel channel3 = channelService.createChannel("testChannel32", 1, 100000L, 51L);
-        System.out.println("channel1.getId() : " + channel1.getId());
         EnterChannelRequest enterChannelRequest1 = new EnterChannelRequest();
         enterChannelRequest1.setUser_id(31L);
         EnterChannelRequest enterChannelRequest2 = new EnterChannelRequest();
