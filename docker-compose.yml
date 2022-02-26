@@ -129,6 +129,8 @@ services:
       - 8001:8001
     environment:
       - PYTHONUNBUFFERED=1
+    depends_on:
+      - investment-database
     entrypoint: ["bash", "-c"]
     restart: always
     command: 
