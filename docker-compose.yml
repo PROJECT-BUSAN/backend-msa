@@ -3,7 +3,7 @@
 version: "3.3"
 services:
   apigateway-service:
-    image: apigateway-service
+    image: apigateway
     volumes:
       - ./apigateway-service:/home/apigateway
     ports:
@@ -97,8 +97,13 @@ services:
       SPRING_DATASOURCE_PASSWORD: 1234
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_DATASOURCE_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
+      SPRING_SESSION_STORAGE_TYPE: redis
+      SPRING_REDIS_HOST: investment-redis
+      SPRING_REDIS_PORT: 6379
+      
     depends_on:
       - investment-database
+      - investment-redis
     restart: always
     networks:
       - test
@@ -131,7 +136,7 @@ services:
     command: [ "redis-server", "--protected-mode", "no" ]
   
   crawling-service:
-    image: crawling-service
+    image: crawling
     volumes:
       - ./crawling-service:/home/crawling
     ports:
@@ -139,7 +144,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     depends_on:
-      - investment-database
+      - investment-service
     entrypoint: ["bash", "-c"]
     restart: always
     command: 
