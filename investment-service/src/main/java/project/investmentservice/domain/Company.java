@@ -21,6 +21,6 @@ public class Company {
     private String stock_code;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "company")
-    private List<StockInfo> profileBadges = new ArrayList<StockInfo>();
+    private List<StockInfo> stockInfos = new ArrayList<StockInfo>();
     
 }
