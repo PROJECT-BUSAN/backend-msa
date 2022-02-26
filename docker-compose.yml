@@ -16,8 +16,9 @@ services:
       - |
         python manage.py makemigrations --noinput --settings=config.settings.local
         python manage.py migrate --noinput --settings=config.settings.local
-        python manage.py loaddata initdata --settings=config.settings.local
         python manage.py runserver 0.0.0.0:8000 --settings=config.settings.local
+    # python manage.py loaddata initdata --settings=config.settings.local
+    
     networks:
       - test
   
@@ -120,6 +121,14 @@ services:
     networks:
       - test
     command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+  
+  investment-redis:
+    image: redis:6.2.6
+    ports:
+      - 6379:6379
+    networks:
+      - test
+    command: [ "redis-server", "--protected-mode", "no" ]
   
   crawling-service:
     image: crawling-service

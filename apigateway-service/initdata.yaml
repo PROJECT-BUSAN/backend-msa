@@ -16,4 +16,21 @@
     upstream_path: /api/v1/profile
     upstream_host: profile-service:8080
     plugin: 0
-  
+
+- model: gateway.Api
+  pk: 2
+  fields:
+    name: crawlingV1
+    description: 크롤링 gateway
+    upstream_path: /api/v1/crawling
+    upstream_host: crawling-service:8081
+    plugin: 0
+
+- model: gateway.Api
+  pk: 3
+  fields:
+    name: investmentV1
+    description: 모의투자게임 gateway
+    upstream_path: /api/v1/investment
+    upstream_host: investment-service:8080
+    plugin: 0
