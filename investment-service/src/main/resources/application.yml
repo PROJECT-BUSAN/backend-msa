@@ -1,4 +1,5 @@
 spring:
+  port: 8080
   datasource:
   #     url: jdbc:h2:tcp://localhost/~/profile
   #     username: sa
@@ -21,7 +22,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
