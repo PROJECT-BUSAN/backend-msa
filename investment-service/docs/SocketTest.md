@@ -21,16 +21,15 @@ docker pull mysql:5.7
 docker pull redis:6.2.6
 ```
 
-
-> `investment-setvice 폴더로 이동 후` 아래 스크립트 파일을 실행시킵니다.
-
-
 ```
-./MakeContainer.sh
+docker build -t investment-service .
 ```
 
-#### gradle을 설정하는데 시간이 좀 걸립니다. 
-#### 스크립트 파일 내부의 명령어를 하나씩 실행해도 무방합니다. 하나씩 실행할 경우 실행 로그를 볼 수 있습니다.(윈도우만 해당)
+```
+docker-compose up
+```
+
+#### gradle을 설정하는데 시간이 좀 걸립니다.
 
 
 <hr>
