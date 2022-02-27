@@ -38,7 +38,6 @@ import static project.investmentservice.domain.dto.ServerMessage.MessageType.REN
 @RequestMapping("/api/v1/investment")
 public class ChannelApiController {
 
-    @Autowired
     private final ChannelService channelService;
     private final RedisPublisher redisPublisher;
     private final ChannelRepository channelRepository;
@@ -78,20 +77,22 @@ public class ChannelApiController {
         }
     }
 
-    //게임 시작
+    // 게임 시작
     @PostMapping("/channel/start/{channelId}")
-    public void startChannel(@PathVariable("channelId") String channelId) {
-        Channel channel = channelService.findOneChannel(channelId);
+    public EnterChannelResponse startChannel(@PathVariable("channelId") String channelId) {
         
         // 채널의 유저가 모두 ready 상태인지 확인 -> checkReadyState 함수쓰셈 만들어놨다.
-        // ...
+        if (!channelService.checkReadyState(channelId)) {
+            return new EnterChannelResponse(FAIL, "게임을 시작할 수 없습니다.");
+        }
 
+        Channel channel = channelService.findOneChannel(channelId);
         HashSet<Long> companyIds = companyService.selectInGameCompany(2);
-        
+
         for(Long cid: companyIds){
             stockInfoService.periodStockInfo(cid);
         }
-        
+
         Timer timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             int idx = 0;
@@ -100,7 +101,7 @@ public class ChannelApiController {
                 if(idx < 60) {
                     ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
                     redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
-                    System.out.println(" = publish" + channelId);
+                    idx++;
                 }
                 else {
                     timer.cancel();
@@ -108,6 +109,8 @@ public class ChannelApiController {
             }
         };
         timer.schedule(timerTask, 0, 10000);
+        
+        
     }
 
     @Data
@@ -117,7 +120,6 @@ public class ChannelApiController {
     }
 
     @Data
-    @AllArgsConstructor
     public static class CreateChannelRequest {
         @NotNull
         private String name;

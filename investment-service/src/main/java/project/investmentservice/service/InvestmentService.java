@@ -7,13 +7,19 @@ import project.investmentservice.api.InvestmentApiController.StockRequest;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
+import project.investmentservice.domain.dto.ServerMessage;
 import project.investmentservice.repository.ChannelRepository;
+
+import java.util.HashSet;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static project.investmentservice.domain.dto.ServerMessage.MessageType.RENEWAL;
 
 @RequiredArgsConstructor
 @Service
 public class InvestmentService {
-
-    @Autowired
+    
     private final ChannelRepository channelRepository;
 
     /**
@@ -22,23 +28,35 @@ public class InvestmentService {
      */
     public boolean purchaseStock(String channelId, StockRequest request) {
         Channel findChannel = channelRepository.findChannelById(channelId);
-
+        User user = findChannel.getUsers().get(request.getUserId());
+        
+        // 구매를 원하는 종목의 가격, 수량
         double requestPrice = request.getPrice();
         Long requestQuantity = request.getQuantity();
-        double userSeedMoney = findChannel.getUsers().get(request.getUserId()).getSeedMoney();
+        
+        // 현재 유저의 시드머니
+        double userSeedMoney = user.getSeedMoney();
 
-        if(findChannel.getUsers().get(request.getUserId()).getSeedMoney() < requestPrice * requestQuantity) {
+        // 원하는 만큼의 주식을 살 수 없다면 false 리턴
+        if(userSeedMoney < requestPrice * requestQuantity) {
             return false;
         }
         else {
-            findChannel.getUsers().get(request.getUserId()).setSeedMoney(userSeedMoney - (requestPrice * requestQuantity));
-            if(findChannel.getUsers().get(request.getUserId()).getCompanies().containsKey(request.getCompanyId()) == false) {
-                findChannel.getUsers().get(request.getUserId()).addCompany(request.getCompanyId());
+            // 구매 가격만큼 유저의 시드머니를 감소시킴
+            user.setSeedMoney(userSeedMoney - (requestPrice * requestQuantity));
+            
+            // 유저의 보유 종목을 추가함
+            if(user.getCompanies().containsKey(request.getCompanyId()) == false) {
+                user.addCompany(request.getCompanyId());
             }
-            Long newQuantity = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity() + request.getQuantity();
-            double newTotalPrice = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getTotalPrice() + (request.getPrice() * request.getQuantity());
 
-            findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).renewalStock((newTotalPrice / (double)newQuantity), newQuantity, newTotalPrice);
+            UsersStock usersStock = user.getCompanies().get(request.getCompanyId());
+            
+            // 유저가 보유한 종목의 보유 수량과 값을 업데이트
+            Long newQuantity = usersStock.getQuantity() + request.getQuantity();
+            double newTotalPrice = usersStock.getTotalPrice() + (request.getPrice() * request.getQuantity());
+
+            usersStock.renewalStock((newTotalPrice / (double)newQuantity), newQuantity, newTotalPrice);
             channelRepository.updateChannel(findChannel);
             return true;
         }
@@ -53,9 +71,9 @@ public class InvestmentService {
 
         double requestPrice = request.getPrice();
         Long requestQuantity = request.getQuantity();
-
-        double userSeedMoney = findChannel.getUsers().get(request.getUserId()).getSeedMoney();
-        double averagePrice = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getAveragePrice();
+        User user = findChannel.getUsers().get(request.getUserId());
+        double userSeedMoney = user.getSeedMoney();
+        double averagePrice = user.getCompanies().get(request.getCompanyId()).getAveragePrice();
         Long quantity = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity();
         double totalPrice = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getTotalPrice();
 
