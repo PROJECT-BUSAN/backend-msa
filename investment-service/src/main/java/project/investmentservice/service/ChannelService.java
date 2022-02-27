@@ -24,7 +24,7 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 추가
      */
-    public Channel createChannel(String channelName, int LimitOfParticipants, Long entryFee, Long hostId) {
+    public Channel createChannel(String channelName, int LimitOfParticipants, double entryFee, Long hostId) {
         //채널 객체 생성
         Channel channel = Channel.create(channelName, channelNum++, LimitOfParticipants, entryFee, hostId);
 

@@ -10,6 +10,8 @@ import java.io.Serializable;
 @Setter
 public class UsersStock implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private double averagePrice;
     private Long quantity;
     private double totalPrice;

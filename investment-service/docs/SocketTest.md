@@ -26,6 +26,7 @@ docker pull redis:6.2.6
 
 > socket의 connection url은 "/ws-stomp" 입니다.
 
+
 * /pub/game/message : type, channelId, senderId 를 보내준다. key값 동일
     > type 종류 : ENTER, EXIT, READY, CANCEL
  <br>

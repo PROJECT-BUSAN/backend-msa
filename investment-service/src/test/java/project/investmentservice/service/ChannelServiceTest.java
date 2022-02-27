@@ -28,7 +28,7 @@ public class ChannelServiceTest {
         int beforeChannelCount = channelService.findAllChannel().size();
 
         //when
-        channelService.createChannel("createChannel", 10, 10000L, 2L);
+        channelService.createChannel("createChannel", 10, 10000.0, 2L);
         int afterChannelCount = channelService.findAllChannel().size();
 
         //then
@@ -39,7 +39,7 @@ public class ChannelServiceTest {
     public void deleteChannel() {
         //given
         int beforeChannelCount = channelService.findAllChannel().size();
-        Channel channel = channelService.createChannel("deleteChannel", 10, 10000L, 2L);
+        Channel channel = channelService.createChannel("deleteChannel", 10, 10000.0, 2L);
 
         //when
         channelService.deleteChannel(channel.getId());
@@ -66,7 +66,7 @@ public class ChannelServiceTest {
     public void findAllChannel() {
         //given
         int beforeChannelCount = channelService.findAllChannel().size();
-        channelService.createChannel("createChannel", 10, 10000L, 2L);
+        channelService.createChannel("createChannel", 10, 10000.0, 2L);
 
 
         //when
@@ -80,8 +80,8 @@ public class ChannelServiceTest {
     @Test
     public void enterChannel() {
         //given
-        Channel channel1 = channelService.createChannel("enterChannel", 10, 10000L, 2L);
-        Channel channel2 = channelService.createChannel("enterChannel", 10, 900L, 2L);
+        Channel channel1 = channelService.createChannel("enterChannel", 10, 10000.0, 2L);
+        Channel channel2 = channelService.createChannel("enterChannel", 10, 900.0, 2L);
 
         //when
         int flag1 = channelService.enterChannel(channel1.getId(), 1L);
@@ -89,8 +89,8 @@ public class ChannelServiceTest {
         Channel findChannel = channelService.findOneChannel(channel2.getId());
 
         //then
-        assertEquals(flag1, 0);
-        assertEquals(flag2, 1);
+        assertEquals(flag1, 1);
+        assertEquals(flag2, 0);
         assertEquals(findChannel.getUsers().size(), 2);
 
     }

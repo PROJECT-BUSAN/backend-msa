@@ -39,7 +39,7 @@ import static project.investmentservice.domain.dto.ServerMessage.MessageType.REN
 public class ChannelApiController {
 
     @Autowired
-    private ChannelService channelService;
+    private final ChannelService channelService;
     private final RedisPublisher redisPublisher;
     private final ChannelRepository channelRepository;
     private final StockInfoService stockInfoService;
@@ -83,7 +83,7 @@ public class ChannelApiController {
     public void startChannel(@PathVariable("channelId") String channelId) {
         Channel channel = channelService.findOneChannel(channelId);
         
-        // 채널의 유저가 모두 ready 상태인지 확인
+        // 채널의 유저가 모두 ready 상태인지 확인 -> checkReadyState 함수쓰셈 만들어놨다.
         // ...
 
         HashSet<Long> companyIds = companyService.selectInGameCompany(2);
@@ -98,7 +98,7 @@ public class ChannelApiController {
             @Override
             public void run() {
                 if(idx < 60) {
-                    StockInfoMessage stockInfoMessage = new StockInfoMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
+                    ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
                     redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
                     System.out.println(" = publish" + channelId);
                 }

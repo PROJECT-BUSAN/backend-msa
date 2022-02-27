@@ -45,7 +45,7 @@ public class InvestmentApiController {
             
             double averagePrice = usersStock.getAveragePrice();
             Long quantity = usersStock.getQuantity();
-            Long seedMoney = user.getSeedMoney();
+            double seedMoney = user.getSeedMoney();
 
             return new PurchaseStockResponse(SUCCESS, averagePrice, quantity, seedMoney);
         }

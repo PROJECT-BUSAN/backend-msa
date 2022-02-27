@@ -61,10 +61,10 @@ public class ChannelApiControllerTest {
     @Test
     public void 모든채널반환API() throws Exception {
         //given
+        CreateChannelRequest createChannelRequest = new CreateChannelRequest("test채널", 10, 1000L, 31L);
 
         //when
-        ResultActions resultActions = mockMvc.perform(get("/game/channels")
-                .contentType(APPLICATION_JSON));
+        ResultActions resultActions = mockMvc.perform(get("/api/v1/investment/channel"));
 
         //then
         resultActions.andExpect(status().isOk());
@@ -78,7 +78,7 @@ public class ChannelApiControllerTest {
         CreateChannelRequest createChannelRequest = new CreateChannelRequest("test채널", 10, 1000L, 31L);
 
         //when
-        ResultActions resultActions = mockMvc.perform(post("/game/channel")
+        ResultActions resultActions = mockMvc.perform(post("/api/v1/investment/channel")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createChannelRequest)));
 
@@ -102,15 +102,15 @@ public class ChannelApiControllerTest {
         enterChannelRequest3.setUser_id(31L);
 
         //when
-        ResultActions resultActions1 = mockMvc.perform(post("/game/channel/enter/" + channel1.getId())
+        ResultActions resultActions1 = mockMvc.perform(post("/api/v1/investment/channel/enter/" + channel1.getId())
                 .content(new ObjectMapper().writeValueAsString(enterChannelRequest1))
                 .contentType(MediaType.APPLICATION_JSON));
 
-        ResultActions resultActions2 = mockMvc.perform(post("/game/channel/enter/" + channel2.getId())
+        ResultActions resultActions2 = mockMvc.perform(post("/api/v1/investment/channel/enter/" + channel2.getId())
                 .content(new ObjectMapper().writeValueAsString(enterChannelRequest2))
                 .contentType(APPLICATION_JSON));
 
-        ResultActions resultActions3 = mockMvc.perform(post("/game/channel/enter/" + channel3.getId())
+        ResultActions resultActions3 = mockMvc.perform(post("/api/v1/investment/channel/enter/" + channel3.getId())
                 .content(new ObjectMapper().writeValueAsString(enterChannelRequest3))
                 .contentType(APPLICATION_JSON));
 

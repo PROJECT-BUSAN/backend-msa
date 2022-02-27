@@ -11,14 +11,16 @@ import java.util.Map;
 @Getter @Setter
 public class User implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     // User 준비 상태
     public enum ReadyType {
         READY, CANCEL;
     }
     private ReadyType readyType;
-    private Long initialSeedMoney;
-    private Long seedMoney;
-    private Map<Long, UsersStock> companies = new HashMap();
+//    private Long initialSeedMoney;
+    private double seedMoney;
+    private Map<Long, UsersStock> companies;
 
     public User(double seedMoney) {
         this.readyType = ReadyType.CANCEL;
@@ -29,9 +31,9 @@ public class User implements Serializable {
     /**
      * 현재 유저의 수익률을 반환한다.
      */
-    public double getStockYield() {
-        return (seedMoney - initialSeedMoney) * 100.0 / initialSeedMoney;
-    }
+//    public double getStockYield() {
+//        return (seedMoney - initialSeedMoney) * 100.0 / initialSeedMoney;
+//    }
     
     
     public void addCompany(Long companyId) {
