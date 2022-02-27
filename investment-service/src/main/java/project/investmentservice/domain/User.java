@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter @Setter
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class User implements Serializable {
     }
     private ReadyType readyType;
     private Long seedMoney;
-
+    private Map<Long, UsersStock> companies = new HashMap();
 
     public User(Long seedMoney) {
         this.readyType = ReadyType.CANCEL;
