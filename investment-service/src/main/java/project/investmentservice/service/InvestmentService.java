@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import project.investmentservice.api.InvestmentApiController.StockRequest;
 import project.investmentservice.domain.Channel;
+import project.investmentservice.domain.User;
+import project.investmentservice.domain.UsersStock;
 import project.investmentservice.repository.ChannelRepository;
 
 @RequiredArgsConstructor
@@ -23,17 +25,19 @@ public class InvestmentService {
 
         Long requestCost = request.getCost();
         Long requestQuantity = request.getQuantity();
-        Long userSeedMoney = findChannel.getUsers().get(request.getUserId()).getSeedMoney();
+        User user = findChannel.getUsers().get(request.getUserId());
+        Long userSeedMoney = user.getSeedMoney();
+        UsersStock userCompanyStock = user.getCompanies().get(request.getCompanyId());
 
-        if(findChannel.getUsers().get(request.getUserId()).getSeedMoney() < requestCost * requestQuantity) {
+        if(userSeedMoney < requestCost * requestQuantity) {
             return false;
         }
         else {
-            findChannel.getUsers().get(request.getUserId()).setSeedMoney(userSeedMoney - (requestCost * requestQuantity));
-            Long newQuantity = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity() + request.getQuantity();
-            Long newPrefixSum = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getPrefixSum() + (request.getCost() * request.getQuantity());
+            user.setSeedMoney(userSeedMoney - (requestCost * requestQuantity));
+            Long newQuantity = userCompanyStock.getQuantity() + request.getQuantity();
+            Long newPrefixSum = userCompanyStock.getPrefixSum() + (request.getCost() * request.getQuantity());
 
-            findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).renewalStock(((double)newPrefixSum / (double) newQuantity), newQuantity, newPrefixSum);
+            userCompanyStock.renewalStock(((double)newPrefixSum / (double) newQuantity), newQuantity, newPrefixSum);
             channelRepository.updateChannel(findChannel);
             return true;
         }

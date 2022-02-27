@@ -8,7 +8,6 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class UsersStock implements Serializable {
 
     private double averagePrice;
