@@ -15,7 +15,7 @@ services:
       SPRING_SESSION_STORAGE_TYPE: redis
       SPRING_REDIS_HOST: investment-redis
       SPRING_REDIS_PORT: 6379
-      
+
     depends_on:
       - investment-database
       - investment-redis
@@ -31,7 +31,7 @@ services:
   investment-database:
     image: mysql:5.7
     ports:
-      - 33061:3306
+      - 33060:3306
     environment:
       MYSQL_DATABASE: investment-db
       MYSQL_USER: user

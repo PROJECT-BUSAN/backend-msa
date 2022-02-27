@@ -27,7 +27,21 @@ docker pull redis:6.2.6
 > socket의 connection url은 "/ws-stomp" 입니다.
 
 
-* /pub/game/message : type, channelId, senderId 를 보내준다. key값 동일
+* /pub/game/message : type, channelId, senderId 를 보내준다.
     > type 종류 : ENTER, EXIT, READY, CANCEL
+    ```
+    {
+        "type": ENTER,
+        "channelId": {채널 입장 시 알 수 있는 채널의 id값}
+        "senderId": {유저의 id값}
+    }
+    ```
  <br>
 * /sub/game/channel/{channel_id}" : 게임에 입장 시, 방(채널)의 메시지를 구독하는 url
+
+<hr>
+
+> api 명세서(미완성)
+```
+/api/v1/investment/swagger
+```

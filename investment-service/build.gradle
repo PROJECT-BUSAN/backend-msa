@@ -31,7 +31,7 @@ dependencies {
 	implementation group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
 	// spring에서 redis를 session storage로 사용하기 위한 의존성
 	implementation 'org.springframework.session:spring-session-data-redis'
-	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+	
 
 	implementation ("org.webjars:bootstrap:3.3.7")
 	implementation ("org.webjars:jquery:3.4.1")
@@ -49,6 +49,11 @@ dependencies {
 
 	implementation 'javax.servlet:jstl'
 	implementation 'junit:junit:4.13.1'
+	
+	// swagger 설정
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+	
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'mysql:mysql-connector-java'
