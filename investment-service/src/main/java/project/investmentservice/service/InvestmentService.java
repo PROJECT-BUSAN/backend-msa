@@ -34,10 +34,13 @@ public class InvestmentService {
         }
         else {
             user.setSeedMoney(userSeedMoney - (requestCost * requestQuantity));
+            if(user.getCompanies().containsKey(request.getCompanyId()) == false) {
+                user.addCompany(request.getCompanyId());
+            }
             Long newQuantity = userCompanyStock.getQuantity() + request.getQuantity();
-            Long newPrefixSum = userCompanyStock.getPrefixSum() + (request.getCost() * request.getQuantity());
+            Long newTotalPrice = userCompanyStock.getTotalPrice() + (request.getCost() * request.getQuantity());
 
-            userCompanyStock.renewalStock(((double)newPrefixSum / (double) newQuantity), newQuantity, newPrefixSum);
+            userCompanyStock.renewalStock(((double)newTotalPrice / (double) newQuantity), newQuantity, newTotalPrice);
             channelRepository.updateChannel(findChannel);
             return true;
         }

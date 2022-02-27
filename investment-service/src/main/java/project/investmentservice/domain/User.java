@@ -31,4 +31,10 @@ public class User implements Serializable {
     public double getStockYield() {
         return (seedMoney - initialSeedMoney) * 100.0 / initialSeedMoney;
     }
+    
+    
+    public void addCompany(Long companyId) {
+        UsersStock usersStock = new UsersStock(0, 0L, 0L);
+        this.companies.put(companyId, usersStock);
+    }
 }

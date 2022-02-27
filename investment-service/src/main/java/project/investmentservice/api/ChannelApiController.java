@@ -6,16 +6,26 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Channel;
+import project.investmentservice.domain.StockInfo;
+import project.investmentservice.domain.dto.ServerMessage;
+import project.investmentservice.domain.dto.StockInfoMessage;
+import project.investmentservice.pubsub.RedisPublisher;
+import project.investmentservice.repository.ChannelRepository;
 import project.investmentservice.service.ChannelService;
+import project.investmentservice.service.CompanyService;
+import project.investmentservice.service.StockInfoService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.FAIL;
 import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.SUCCESS;
+import static project.investmentservice.domain.dto.ClientMessage.MessageType.ENTER;
+import static project.investmentservice.domain.dto.ServerMessage.MessageType.RENEWAL;
 
 /**
  *  채널 삭제는 소켓 message로 처리
@@ -25,14 +35,18 @@ import static project.investmentservice.api.ChannelApiController.EnterChannelRes
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/game")
+@RequestMapping("/api/v1/investment")
 public class ChannelApiController {
 
     @Autowired
     private ChannelService channelService;
+    private final RedisPublisher redisPublisher;
+    private final ChannelRepository channelRepository;
+    private final StockInfoService stockInfoService;
+    private final CompanyService companyService;
 
     //모든 채널 반환
-    @GetMapping("/channels")
+    @GetMapping("/channel")
     public AllChannelResponse channels() {
         List<Channel> channels = channelService.findAllChannel();
         return new AllChannelResponse(channels);
@@ -67,12 +81,25 @@ public class ChannelApiController {
     //게임 시작
     @PostMapping("/channel/start/{channelId}")
     public void startChannel(@PathVariable("channelId") String channelId) {
+        Channel channel = channelService.findOneChannel(channelId);
+        
+        // 채널의 유저가 모두 ready 상태인지 확인
+        // ...
+
+        HashSet<Long> companyIds = companyService.selectInGameCompany(2);
+        
+        for(Long cid: companyIds){
+            stockInfoService.periodStockInfo(cid);
+        }
+        
         Timer timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             int idx = 0;
             @Override
             public void run() {
                 if(idx < 60) {
+                    StockInfoMessage stockInfoMessage = new StockInfoMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
+                    redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
                     System.out.println(" = publish" + channelId);
                 }
                 else {

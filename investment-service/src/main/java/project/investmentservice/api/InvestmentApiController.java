@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
+import project.investmentservice.domain.dto.ServerMessage;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.service.InvestmentService;
 
@@ -18,6 +19,8 @@ import java.util.Map;
 
 import static project.investmentservice.api.InvestmentApiController.PurchaseStockResponse.returnType.FAIL;
 import static project.investmentservice.api.InvestmentApiController.PurchaseStockResponse.returnType.SUCCESS;
+import static project.investmentservice.domain.dto.ClientMessage.MessageType.ENTER;
+import static project.investmentservice.domain.dto.ServerMessage.MessageType.RENEWAL;
 
 @RequiredArgsConstructor
 @RestController
