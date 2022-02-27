@@ -17,16 +17,17 @@ public class User implements Serializable {
         READY, CANCEL;
     }
     private ReadyType readyType;
-    private Long seedMoney;
-    private Map<Long, UsersStock> companies = new HashMap();
+    private double seedMoney;
+    private Map<Long, UsersStock> companies;
 
-    public User(Long seedMoney) {
+    public User(double seedMoney) {
         this.readyType = ReadyType.CANCEL;
         this.seedMoney = seedMoney;
+        this.companies = new HashMap();
     }
 
     public void addCompany(Long companyId) {
-        UsersStock usersStock = new UsersStock(0, 0L, 0L);
+        UsersStock usersStock = new UsersStock(0, 0L, 0.0);
         this.companies.put(companyId, usersStock);
     }
 }

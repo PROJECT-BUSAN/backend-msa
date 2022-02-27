@@ -34,7 +34,7 @@ public class InvestmentApiController {
             Channel channel = channelService.findOneChannel(channelId);
             double averagePrice = channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getAveragePrice();
             Long quantity = channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity();
-            Long seedMoney = channel.getUsers().get(request.getUserId()).getSeedMoney();
+            double seedMoney = channel.getUsers().get(request.getUserId()).getSeedMoney();
 
             return new PurchaseStockResponse(SUCCESS, averagePrice, quantity, seedMoney);
         }
@@ -53,7 +53,7 @@ public class InvestmentApiController {
         @NotNull
         private Long companyId;
         @NotNull
-        private Long cost;
+        private Long price;
         @NotNull
         private Long quantity;
     }
@@ -69,7 +69,7 @@ public class InvestmentApiController {
         private returnType type;
         private double averagePrice;
         private Long quantity;
-        private Long seedMoney;
+        private double seedMoney;
     }
 
     @Data
@@ -77,7 +77,7 @@ public class InvestmentApiController {
     public static class SellStockResponse {
         private double averagePrice;
         private Long quantity;
-        private Long seedMoney;
+        private double seedMoney;
     }
 
 }
