@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter @Setter
-@RequiredArgsConstructor
 public class User implements Serializable {
 
     // User 준비 상태
@@ -17,8 +16,9 @@ public class User implements Serializable {
         READY, CANCEL;
     }
     private ReadyType readyType;
-    private double seedMoney;
-    private Map<Long, UsersStock> companies;
+    private Long initialSeedMoney;
+    private Long seedMoney;
+    private Map<Long, UsersStock> companies = new HashMap();
 
     public User(double seedMoney) {
         this.readyType = ReadyType.CANCEL;
@@ -26,6 +26,14 @@ public class User implements Serializable {
         this.companies = new HashMap();
     }
 
+    /**
+     * 현재 유저의 수익률을 반환한다.
+     */
+    public double getStockYield() {
+        return (seedMoney - initialSeedMoney) * 100.0 / initialSeedMoney;
+    }
+    
+    
     public void addCompany(Long companyId) {
         UsersStock usersStock = new UsersStock(0, 0L, 0.0);
         this.companies.put(companyId, usersStock);
