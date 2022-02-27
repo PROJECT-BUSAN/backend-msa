@@ -24,4 +24,9 @@ public class User implements Serializable {
         this.readyType = ReadyType.CANCEL;
         this.seedMoney = seedMoney;
     }
+
+    public void addCompany(Long companyId) {
+        UsersStock usersStock = new UsersStock(0, 0L, 0L);
+        this.companies.put(companyId, usersStock);
+    }
 }

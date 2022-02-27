@@ -30,6 +30,9 @@ public class InvestmentService {
         }
         else {
             findChannel.getUsers().get(request.getUserId()).setSeedMoney(userSeedMoney - (requestCost * requestQuantity));
+            if(findChannel.getUsers().get(request.getUserId()).getCompanies().containsKey(request.getCompanyId()) == false) {
+                findChannel.getUsers().get(request.getUserId()).addCompany(request.getCompanyId());
+            }
             Long newQuantity = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity() + request.getQuantity();
             Long newPrefixSum = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getPrefixSum() + (request.getCost() * request.getQuantity());
 

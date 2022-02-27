@@ -8,7 +8,6 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class UsersStock implements Serializable {
 
     private double averagePrice;
@@ -21,4 +20,9 @@ public class UsersStock implements Serializable {
         this.prefixSum = prefixSum;
     }
 
+    public UsersStock(double averagePrice, Long quantity, Long prefixSum) {
+        this.averagePrice = averagePrice;
+        this.quantity = quantity;
+        this.prefixSum = prefixSum;
+    }
 }
