@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
-import project.investmentservice.domain.dto.ServerMessage;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.service.InvestmentService;
 
@@ -19,6 +18,7 @@ import java.util.Map;
 
 import static project.investmentservice.api.InvestmentApiController.PurchaseStockResponse.returnType.FAIL;
 import static project.investmentservice.api.InvestmentApiController.PurchaseStockResponse.returnType.SUCCESS;
+import static project.investmentservice.api.InvestmentApiController.SellStockResponse.returnType;
 import static project.investmentservice.domain.dto.ClientMessage.MessageType.ENTER;
 import static project.investmentservice.domain.dto.ServerMessage.MessageType.RENEWAL;
 
@@ -37,7 +37,7 @@ public class InvestmentApiController {
     public PurchaseStockResponse purchaseStock(@PathVariable("channelId") String channelId, @RequestBody @Valid StockRequest request) {
         boolean flag = investmentService.purchaseStock(channelId, request);
         
-        if(!flag) return new PurchaseStockResponse(FAIL, 0, 0L, 0L);
+        if(!flag) return new PurchaseStockResponse(PurchaseStockResponse.returnType.FAIL, 0, 0L, 0L);
         else {
             Channel channel = channelService.findOneChannel(channelId);
             User user = channel.getUsers().get(request.getUserId());
@@ -53,8 +53,15 @@ public class InvestmentApiController {
 
     // 주식 판매
     @GetMapping("/sell/{channelId}")
-    public void sellStock(@PathVariable("channelId") String channelId, @RequestBody @Valid StockRequest request) {
-
+    public SellStockResponse sellStock(@PathVariable("channelId") String channelId, @RequestBody @Valid StockRequest request) {
+        boolean flag = investmentService.sellStock(channelId, request);
+        if(flag) {
+            Channel channel = channelService.findOneChannel(channelId);
+            return new SellStockResponse(returnType.SUCCESS, channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getAveragePrice(), channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity(), channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getTotalPrice());
+        }
+        else {
+            return new SellStockResponse(returnType.FAIL, 0.0, 0L, 0.0);
+        }
     }
 
     @Data
@@ -86,6 +93,10 @@ public class InvestmentApiController {
     @Data
     @AllArgsConstructor
     public static class SellStockResponse {
+        public enum returnType {
+            SUCCESS, FAIL
+        }
+        private returnType type;
         private double averagePrice;
         private Long quantity;
         private double seedMoney;
