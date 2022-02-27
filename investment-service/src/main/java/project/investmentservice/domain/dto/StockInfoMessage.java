@@ -1,20 +1,27 @@
 package project.investmentservice.domain.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Getter
-@Setter
-@AllArgsConstructor
 public class StockInfoMessage {
+
     private LocalDate date;
-    private float close;
-    private float open;
-    private float high;
-    private float low;
+    private double close;
+    private double open;
+    private double high;
+    private double low;
     private int volume;
     private Long company_id;
+
+    public StockInfoMessage(LocalDate date, double close, double open, double high, double low, int volume, Long company_id) {
+        this.date = date;
+        this.close = close;
+        this.open = open;
+        this.high = high;
+        this.low = low;
+        this.volume = volume;
+        this.company_id = company_id;
+    }
 }

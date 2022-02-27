@@ -15,4 +15,11 @@ public class CompanyRepository {
     public List<Company> findAll() {
         return em.createQuery("select c from Company c", Company.class).getResultList();
     }
+
+    public Company findOne(Long company_id) {
+        return em.createQuery("select c from Company c where c.id =: company_id"
+                , Company.class)
+                .setParameter("company_id", company_id)
+                .getSingleResult();
+    }
 }

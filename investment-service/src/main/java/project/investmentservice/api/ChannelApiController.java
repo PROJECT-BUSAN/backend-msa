@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Channel;
+import project.investmentservice.domain.Company;
 import project.investmentservice.domain.StockInfo;
 import project.investmentservice.domain.dto.ServerMessage;
 import project.investmentservice.domain.dto.StockInfoMessage;
@@ -17,10 +20,8 @@ import project.investmentservice.service.StockInfoService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.time.LocalDate;
+import java.util.*;
 
 import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.FAIL;
 import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.SUCCESS;
@@ -79,18 +80,22 @@ public class ChannelApiController {
 
     // 게임 시작
     @PostMapping("/channel/start/{channelId}")
-    public EnterChannelResponse startChannel(@PathVariable("channelId") String channelId) {
+    public ResponseEntity startChannel(@PathVariable("channelId") String channelId) {
         
         // 채널의 유저가 모두 ready 상태인지 확인 -> checkReadyState 함수쓰셈 만들어놨다.
         if (!channelService.checkReadyState(channelId)) {
-            return new EnterChannelResponse(FAIL, "게임을 시작할 수 없습니다.");
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
         Channel channel = channelService.findOneChannel(channelId);
+        
+        // 게임에서 사용할 기업을 랜덤으로 n개 가져온다.
         HashSet<Long> companyIds = companyService.selectInGameCompany(2);
-
+        
+        // 게임에서 사용할 n개의 기업에 대한 주가 정보를 저장하는 배열
+        List<List<StockInfo>> stockLists = new ArrayList<>();
         for(Long cid: companyIds){
-            stockInfoService.periodStockInfo(cid);
+            stockLists.add(stockInfoService.periodStockInfo(cid));
         }
 
         Timer timer = new Timer();
@@ -99,8 +104,20 @@ public class ChannelApiController {
             @Override
             public void run() {
                 if(idx < 60) {
-                    ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
-                    redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
+                    for(int i = 0; i < stockLists.size(); i++){
+                        StockInfo stockInfo = stockLists.get(i).get(idx);
+                        StockInfoMessage stockInfoMessage = new StockInfoMessage(
+                                stockInfo.getDate(),
+                                stockInfo.getClose(),
+                                stockInfo.getOpen(),
+                                stockInfo.getHigh(),
+                                stockInfo.getLow(),
+                                stockInfo.getVolume(),
+                                stockInfo.getCompany().getId()
+                        );
+                        redisPublisher.publishStock(channelRepository.getTopic(channelId), stockInfoMessage);
+                    }
+                    
                     idx++;
                 }
                 else {
@@ -110,7 +127,24 @@ public class ChannelApiController {
         };
         timer.schedule(timerTask, 0, 10000);
         
+        // 게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
+
+        int k = 0;
+        List<gameEndResponse> responseList = new ArrayList<>();
+        for(Long cid: companyIds){
+            Company company = companyService.findCompany(cid);
+            gameEndResponse gameEndResponse = new gameEndResponse(
+                    cid,
+                    company.getStock_name(),
+                    stockLists.get(k).get(0).getDate(),
+                    stockLists.get(k).get(59).getDate(),
+                    "게임이 종료됩니다."
+            );
+            responseList.add(gameEndResponse);
+            k++;
+        }
         
+        return new ResponseEntity(responseList, HttpStatus.BAD_REQUEST);
     }
 
     @Data
@@ -156,4 +190,16 @@ public class ChannelApiController {
         private returnType type;
         private String message;
     }
+
+    @Data
+    @AllArgsConstructor
+    public static class gameEndResponse {
+        // 게임에 사용된 기업의 이름, 주식 시작-종료 날짜
+        private Long company_id;
+        private String stockName;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private String message;
+    }
+    
 }

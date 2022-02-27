@@ -44,4 +44,8 @@ public class CompanyService {
         return companyIds;
     }
 
+    public Company findCompany(Long company_id) {
+        return companyRepository.findOne(company_id);
+    }
+
 }
