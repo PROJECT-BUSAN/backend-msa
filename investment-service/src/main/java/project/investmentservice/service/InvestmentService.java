@@ -68,25 +68,36 @@ public class InvestmentService {
      */
     public boolean sellStock(String channelId, StockRequest request) {
         Channel findChannel = channelRepository.findChannelById(channelId);
+        User user = findChannel.getUsers().get(request.getUserId());
 
+        // 매도 가격, 수량
         double requestPrice = request.getPrice();
         Long requestQuantity = request.getQuantity();
-        User user = findChannel.getUsers().get(request.getUserId());
+        
+        // 현재 유저의 시드머니, 평균 매수 가격
         double userSeedMoney = user.getSeedMoney();
         double averagePrice = user.getCompanies().get(request.getCompanyId()).getAveragePrice();
-        Long quantity = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity();
-        double totalPrice = findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getTotalPrice();
+        
+        // 현재 유저가 매도하려는 종목
+        UsersStock usersStock = user.getCompanies().get(request.getCompanyId());
 
+        // 현재 유저가 매도하려는 종목의 보유 수량
+        Long quantity = usersStock.getQuantity();
+        // 현재 유저가 매도하려는 종목의 총 가격
+        double totalPrice = usersStock.getTotalPrice();
+
+        // 매도 수량이 보유 수량보다 많다면 false 리턴
         if(requestQuantity > quantity) {
             return false;
         }
         else {
-            findChannel.getUsers().get(request.getUserId()).setSeedMoney((userSeedMoney + (requestPrice- averagePrice) * requestQuantity));
+            // (종목 가격 - 평균 구매 가격) * 매도 수량 = 시드머니 변동값
+            user.setSeedMoney((userSeedMoney + (requestPrice - averagePrice) * requestQuantity));
             if(quantity == requestQuantity) {
-                findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).renewalStock(0.0, 0L, 0.0);
+                usersStock.renewalStock(0.0, 0L, 0.0);
             }
             else {
-                findChannel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).renewalStock(averagePrice, quantity - requestQuantity, totalPrice-(requestPrice * requestQuantity));
+                usersStock.renewalStock(averagePrice, quantity - requestQuantity, totalPrice-(requestPrice * requestQuantity));
             }
             return true;
         }

@@ -33,7 +33,7 @@ public class CompanyService {
         
         HashSet<Long> companyIds = new HashSet<>();
 
-        while(companyIds.size() < 2){
+        while(companyIds.size() < num){
             Long comId = (long) (Math.random() * companySize) + 1L;
             if(stockInfoRepository.findStock(comId).size() < 60){
                 continue;
