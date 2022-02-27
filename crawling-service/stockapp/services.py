@@ -32,7 +32,6 @@ class Crawling:
             
             time.sleep(0.5)
             
-
     '''
     date 기준으로 코스피, 코스닥에 상장된 기업의 이름과 종목코드를 가져온다.
     '''
@@ -46,7 +45,6 @@ class Crawling:
                 stock_name=stock_name,
                 stock_code=stock_code
             )
-            
     
     def run(self):
         self.company(self.date)

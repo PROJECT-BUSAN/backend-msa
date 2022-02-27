@@ -16,4 +16,6 @@ class CrawlingView(APIView):
                 {"message":"Crawling Error. Crawling's run method need to check"}
                 , status=status.HTTP_503_SERVICE_UNAVAILABLE)
         
-        return Response(status=status.HTTP_200_OK)
+        return Response(
+                {"data":"Crawling Success"}
+                , status=status.HTTP_200_OK)
