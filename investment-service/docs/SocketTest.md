@@ -10,7 +10,6 @@
 STOMP 프로토콜을 사용합니다.
 
 > 먼저 mysql 과 redis 이미지를 받아야 합니다.<br>
-> 아래 코드를 순서대로 입력해서 이미지를 다운로드 해주세요.
 
 
 ```
@@ -19,6 +18,12 @@ docker pull mysql:5.7
 
 ```
 docker pull redis:6.2.6
+```
+
+> 아래 코드를 순서대로 입력해주세요
+
+```
+docker network create test
 ```
 
 ```
