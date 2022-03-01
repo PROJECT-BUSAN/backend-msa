@@ -21,10 +21,9 @@ public class CompanyApiController {
 
     /**
      * KOSPI, KOSDAQ에 상장된 기업 리스트를 모두 조회한다. 
-     * @return
      */
     @GetMapping("/company")
-    public List<CompanyResult> ProfileAllInfoV1() {
+    public List<CompanyResult> CompanyAllV1() {
         List<Company> companyList = companyService.findAll();
         List<CompanyResult> result = companyList.stream()
                 .map(c -> new CompanyResult(c))

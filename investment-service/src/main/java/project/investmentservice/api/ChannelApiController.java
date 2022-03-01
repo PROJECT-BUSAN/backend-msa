@@ -3,14 +3,22 @@ package project.investmentservice.api;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.investmentservice.domain.Channel;
+import project.investmentservice.domain.*;
+import project.investmentservice.domain.dto.StockInfoMessage;
+import project.investmentservice.pubsub.RedisPublisher;
+import project.investmentservice.repository.ChannelRepository;
 import project.investmentservice.service.ChannelService;
+import project.investmentservice.service.CompanyService;
+import project.investmentservice.service.InvestmentService;
+import project.investmentservice.service.StockInfoService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 
 import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.FAIL;
 import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.SUCCESS;
@@ -23,14 +31,18 @@ import static project.investmentservice.api.ChannelApiController.EnterChannelRes
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/game")
+@RequestMapping("/api/v1/investment")
 public class ChannelApiController {
 
-    @Autowired
-    private ChannelService channelService;
+    private final ChannelService channelService;
+    private final RedisPublisher redisPublisher;
+    private final ChannelRepository channelRepository;
+    private final StockInfoService stockInfoService;
+    private final CompanyService companyService;
+    private final InvestmentService investmentService;
 
     //모든 채널 반환
-    @GetMapping("/channels")
+    @GetMapping("/channel")
     public AllChannelResponse channels() {
         List<Channel> channels = channelService.findAllChannel();
         return new AllChannelResponse(channels);
@@ -40,14 +52,12 @@ public class ChannelApiController {
     @PostMapping("/channel")
     public CreateChannelResponse createChannel(@RequestBody @Valid CreateChannelRequest request) {
         Channel channel = channelService.createChannel(request.getName(), request.getLimitOfParticipants(), request.getEntryFee(), request.getUserId());
-        System.out.println("channel.getId() = " + channel.getId());
         return new CreateChannelResponse(channel.getId(), channel.getChannelNum(), channel.getChannelName());
     }
 
     // 채널 입장
     @PostMapping("/channel/enter/{channelId}")
     public EnterChannelResponse enterChannel(@PathVariable("channelId") String channelId, @RequestBody @Valid EnterChannelRequest request) {
-        System.out.println("channelId = " + channelId);
         int result = channelService.enterChannel(channelId, request.getUser_id());
         if(result == 0) {
             return new EnterChannelResponse(SUCCESS, "채널에 입장합니다.");
@@ -63,6 +73,96 @@ public class ChannelApiController {
             return new EnterChannelResponse(FAIL, "Server Error 500.");
         }
     }
+
+    // 게임 시작 및 종료
+    @PostMapping("/channel/start/{channelId}")
+    public ResponseEntity startChannel(@PathVariable("channelId") String channelId) {
+        
+        // 채널의 유저가 모두 ready 상태인지 확인 -> checkReadyState 함수쓰셈 만들어놨다.
+        if (!channelService.checkReadyState(channelId)) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        // 게임에서 사용할 기업을 랜덤으로 n개 가져온다.
+        HashSet<Long> companyIds = companyService.selectInGameCompany(2);
+        
+        // 게임에서 사용할 n개의 기업에 대한 주가 정보를 저장하는 배열
+        List<List<StockInfo>> stockLists = new ArrayList<>();
+        for(Long cid: companyIds){
+            stockLists.add(stockInfoService.getPeriodStockInfo(cid));
+        }
+
+        // <company_id, closePrice>
+        Map<Long, Double> closeValue = new HashMap<>();
+        
+        // 10초에 한 번씩 주가 정보를 전송한다.
+        // 주요 게임 로직을 담당한다.
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            int idx = 0;
+            @Override
+            public void run() {
+                if(idx < 60) {
+                    for(int i = 0; i < stockLists.size(); i++){
+                        StockInfo stockInfo = stockLists.get(i).get(idx);
+                        StockInfoMessage stockInfoMessage = new StockInfoMessage(
+                                stockInfo.getDate(),
+                                stockInfo.getClose(),
+                                stockInfo.getOpen(),
+                                stockInfo.getHigh(),
+                                stockInfo.getLow(),
+                                stockInfo.getVolume(),
+                                stockInfo.getCompany().getId()
+                        );
+                        redisPublisher.publishStock(channelRepository.getTopic(channelId), stockInfoMessage);
+                        closeValue.put(stockInfo.getCompany().getId(), stockInfo.getClose());
+                    }
+                    idx++;
+                }
+                else {
+                    timer.cancel();
+                }
+            }
+        };
+        timer.schedule(timerTask, 0, 10000);
+
+        
+        // 게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
+        Channel nowChannel = channelService.findOneChannel(channelId);
+        for (Long user_id : nowChannel.getUsers().keySet()) {
+            // 모든 유저를 탐색
+            User user = nowChannel.getUsers().get(user_id);
+            for (Long company_id : user.getCompanies().keySet()) {
+                // 유저가 가진 기업들을 탐색
+                UsersStock usersStock = user.getCompanies().get(company_id);
+                Long quantity = usersStock.getQuantity();
+                double sellPrice = closeValue.get(company_id);
+                
+                // sellStock의 인자로 Request를 받는게 범용성이 떨어지는 느낌을 받네용
+//                investmentService.sellStock(nowChannel.getId(), );
+            }
+        }
+        
+        
+        // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
+        int k = 0;
+        List<gameEndResponse> responseList = new ArrayList<>();
+        for(Long cid: companyIds){
+            Company company = companyService.findCompany(cid);
+            gameEndResponse gameEndResponse = new gameEndResponse(
+                    cid,
+                    company.getStock_name(),
+                    stockLists.get(k).get(0).getDate(),
+                    stockLists.get(k).get(59).getDate(),
+                    "게임이 종료됩니다."
+            );
+            responseList.add(gameEndResponse);
+            k++;
+        }
+        
+        return new ResponseEntity(responseList, HttpStatus.OK);
+    }
+    
 
     @Data
     @AllArgsConstructor
@@ -108,4 +208,16 @@ public class ChannelApiController {
         private returnType type;
         private String message;
     }
+
+    @Data
+    @AllArgsConstructor
+    public static class gameEndResponse {
+        // 게임에 사용된 기업의 이름, 주식 시작-종료 날짜
+        private Long company_id;
+        private String stockName;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private String message;
+    }
+    
 }

@@ -24,7 +24,7 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 추가
      */
-    public Channel createChannel(String channelName, int LimitOfParticipants, Long entryFee, Long hostId) {
+    public Channel createChannel(String channelName, int LimitOfParticipants, double entryFee, Long hostId) {
         //채널 객체 생성
         Channel channel = Channel.create(channelName, channelNum++, LimitOfParticipants, entryFee, hostId);
 
@@ -68,7 +68,7 @@ public class ChannelService {
      */
     public int enterChannel(String channelId, Long userId) {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
-        Long userPoint = 1000L;
+        double userPoint = 1000.0;
 
         Channel findChannel = findOneChannel(channelId);
         if(findChannel.getLimitOfParticipants() > findChannel.getUsers().size()) {
@@ -136,5 +136,4 @@ public class ChannelService {
         }
         return true;
     }
-
 }

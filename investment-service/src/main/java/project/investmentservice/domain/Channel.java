@@ -16,13 +16,13 @@ public class Channel implements Serializable {
     private Long channelNum;
     private String channelName;
     private int LimitOfParticipants;
-    private Long entryFee;
+    private double entryFee;
     private Map<Long, User> users = new HashMap<>();
-    private Long pointPsum;
+    private double pointPsum;
     private Long hostId;
 
 
-    public static Channel create(String channelName, Long channelNum, int LimitOfParticipants, Long entryFee, Long hostId) {
+    public static Channel create(String channelName, Long channelNum, int LimitOfParticipants, double entryFee, Long hostId) {
         // 채널 정보 생성 + host 추가
         Channel channel = new Channel();
         channel.id = UUID.randomUUID().toString();

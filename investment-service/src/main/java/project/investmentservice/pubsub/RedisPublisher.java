@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import project.investmentservice.domain.dto.ServerMessage;
+import project.investmentservice.domain.dto.StockInfoMessage;
 
 @RequiredArgsConstructor
 @Service
@@ -13,6 +14,10 @@ public class RedisPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
 
     public void publish(ChannelTopic topic, ServerMessage message) {
+        redisTemplate.convertAndSend(topic.getTopic(), message);
+    }
+
+    public void publishStock(ChannelTopic topic, StockInfoMessage message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 }

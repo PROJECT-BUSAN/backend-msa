@@ -17,10 +17,10 @@ public class StockInfo {
     private Long id;
 
     private LocalDate date;
-    private float close;
-    private float open;
-    private float high;
-    private float low;
+    private double close;
+    private double open;
+    private double high;
+    private double low;
     private int volume;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -14,7 +14,7 @@ public class Company {
     
     @Id
     @GeneratedValue
-    @Column(name = "id")
+    @Column(name = "company_id")
     private Long id;
     
     private String stock_name;
