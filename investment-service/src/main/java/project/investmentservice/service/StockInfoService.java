@@ -13,7 +13,7 @@ public class StockInfoService {
     
     private final StockInfoRepository stockInfoRepository;
 
-    public List<StockInfo> periodStockInfo(Long company_id) {
+    public List<StockInfo> getPeriodStockInfo(Long company_id) {
         List<StockInfo> stockInfoList = stockInfoRepository.findStock(company_id);
         int startIdx = (int)Math.random() * (stockInfoList.size() - 60);
         return stockInfoList.subList(startIdx, startIdx + 60);
