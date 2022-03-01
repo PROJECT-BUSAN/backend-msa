@@ -40,7 +40,7 @@ class Gateway(APIView):
         }
         
         response = send_request.delay(request, apimodel.upstream_host, upstream_path)
-        response_data = response.get()
+        response_data = response.get(interval=0.005)
         
         # if response.headers.get('Content-Type', '').lower() == 'application/json':
         #     data = response.json()
