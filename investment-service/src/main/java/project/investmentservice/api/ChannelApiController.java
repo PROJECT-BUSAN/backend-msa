@@ -154,6 +154,7 @@ public class ChannelApiController {
     }
 
     @Data
+    @AllArgsConstructor
     public static class CreateChannelRequest {
         @NotNull
         private String name;
