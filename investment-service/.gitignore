@@ -7,6 +7,7 @@ build/
 
 ### STS ###
 .apt_generated
+.dump.rdb
 .classpath
 .factorypath
 .project
@@ -18,7 +19,6 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
 *.iws
 *.iml
 *.ipr
@@ -35,13 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-# Created by https://www.toptal.com/developers/gitignore/api/redis
-# Edit at https://www.toptal.com/developers/gitignore?templates=redis
-
-### Redis ###
-# Ignore redis binary dump (dump.rdb) files
-
-*.rdb
-
-# End of https://www.toptal.com/developers/gitignore/api/redis
