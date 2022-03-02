@@ -18,7 +18,6 @@ public class User implements Serializable {
         READY, CANCEL;
     }
     private ReadyType readyType;
-//    private Long initialSeedMoney;
     private double seedMoney;
     private Map<Long, UsersStock> companies;
 

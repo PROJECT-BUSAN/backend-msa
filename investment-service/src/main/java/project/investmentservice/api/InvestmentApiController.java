@@ -14,13 +14,9 @@ import project.investmentservice.service.InvestmentService;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import java.util.Map;
 
-import static project.investmentservice.api.InvestmentApiController.PurchaseStockResponse.returnType.FAIL;
 import static project.investmentservice.api.InvestmentApiController.PurchaseStockResponse.returnType.SUCCESS;
 import static project.investmentservice.api.InvestmentApiController.SellStockResponse.returnType;
-import static project.investmentservice.domain.dto.ClientMessage.MessageType.ENTER;
-import static project.investmentservice.domain.dto.ServerMessage.MessageType.RENEWAL;
 
 @RequiredArgsConstructor
 @RestController
@@ -71,7 +67,7 @@ public class InvestmentApiController {
         @NotNull
         private Long companyId;
         @NotNull
-        private Long price;
+        private double price;
         @NotNull
         private Long quantity;
     }

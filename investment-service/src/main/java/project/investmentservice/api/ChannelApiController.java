@@ -126,24 +126,29 @@ public class ChannelApiController {
         };
         timer.schedule(timerTask, 0, 10000);
 
-        
-        // 게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
+
+        /**
+         *    게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
+         */
         Channel nowChannel = channelService.findOneChannel(channelId);
-        for (Long user_id : nowChannel.getUsers().keySet()) {
-            // 모든 유저를 탐색
-            User user = nowChannel.getUsers().get(user_id);
-            for (Long company_id : user.getCompanies().keySet()) {
-                // 유저가 가진 기업들을 탐색
-                UsersStock usersStock = user.getCompanies().get(company_id);
-                Long quantity = usersStock.getQuantity();
-                double sellPrice = closeValue.get(company_id);
-                
-                // sellStock의 인자로 Request를 받는게 범용성이 떨어지는 느낌을 받네용
-//                investmentService.sellStock(nowChannel.getId(), );
+        Map<Long, User> users = nowChannel.getUsers();
+
+        for(Long userKey : users.keySet()) {
+            User user = users.get(userKey);
+            double userSeedMoney = user.getSeedMoney();
+            for(Long companyKey : user.getCompanies().keySet()) {
+                UsersStock usersStock = user.getCompanies().get(companyKey);
+                if(usersStock.getQuantity() == 0L) continue;
+                double sellPrice = closeValue.get(companyKey);
+                userSeedMoney += (sellPrice * usersStock.getQuantity());
             }
+            user.setSeedMoney(userSeedMoney);
         }
-        
-        
+        channelRepository.updateChannel(nowChannel);
+
+
+
+
         // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
         int k = 0;
         List<gameEndResponse> responseList = new ArrayList<>();
