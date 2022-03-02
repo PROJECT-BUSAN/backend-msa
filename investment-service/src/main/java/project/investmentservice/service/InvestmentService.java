@@ -66,7 +66,10 @@ public class InvestmentService {
      * 비즈니스 로직
      * 종목 판매
      */
+
+
     public boolean sellStock(String channelId, StockRequest request) {
+
         Channel findChannel = channelRepository.findChannelById(channelId);
         User user = findChannel.getUsers().get(request.getUserId());
 
@@ -92,14 +95,19 @@ public class InvestmentService {
         }
         else {
             // (종목 가격 - 평균 구매 가격) * 매도 수량 = 시드머니 변동값
-            user.setSeedMoney((userSeedMoney + (requestPrice - averagePrice) * requestQuantity));
+            user.setSeedMoney(userSeedMoney + (requestPrice * requestQuantity));
             if(quantity == requestQuantity) {
                 usersStock.renewalStock(0.0, 0L, 0.0);
             }
             else {
-                usersStock.renewalStock(averagePrice, quantity - requestQuantity, totalPrice-(requestPrice * requestQuantity));
+                usersStock.renewalStock(averagePrice, quantity - requestQuantity, totalPrice-(averagePrice * requestQuantity));
             }
+            channelRepository.updateChannel(findChannel);
             return true;
         }
     }
+
+
+
+
 }
