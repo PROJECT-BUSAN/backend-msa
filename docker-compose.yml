@@ -84,9 +84,7 @@ services:
     networks:
       - test
     command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
-networks:
-  test:
-    external: true
+
   # investment-service:
   #   image: investment-service
   #   volumes:
@@ -158,4 +156,18 @@ networks:
   #   networks:
   #     - test
   
-
+  nginx-service:
+    image: nginx:1.21.1
+    networks:
+      - test
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+      - 443:443
+    depends_on: 
+      - apigateway-service
+    
+networks:
+  test:
+    external: true
