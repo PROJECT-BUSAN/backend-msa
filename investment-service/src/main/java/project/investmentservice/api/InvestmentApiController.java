@@ -48,12 +48,12 @@ public class InvestmentApiController {
     }
 
     // 주식 판매
-    @GetMapping("/sell/{channelId}")
+    @PostMapping("/sell/{channelId}")
     public SellStockResponse sellStock(@PathVariable("channelId") String channelId, @RequestBody @Valid StockRequest request) {
         boolean flag = investmentService.sellStock(channelId, request);
         if(flag) {
             Channel channel = channelService.findOneChannel(channelId);
-            return new SellStockResponse(returnType.SUCCESS, channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getAveragePrice(), channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity(), channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getTotalPrice());
+            return new SellStockResponse(returnType.SUCCESS, channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getAveragePrice(), channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity(), channel.getUsers().get(request.getUserId()).getSeedMoney());
         }
         else {
             return new SellStockResponse(returnType.FAIL, 0.0, 0L, 0.0);

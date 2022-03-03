@@ -32,7 +32,6 @@ import project.investmentservice.service.ChannelService;
 
 
 
-@Disabled
 @Transactional
 @SpringBootTest
 @RunWith(SpringRunner.class)

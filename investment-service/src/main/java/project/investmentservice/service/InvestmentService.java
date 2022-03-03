@@ -8,7 +8,6 @@ import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
 import project.investmentservice.repository.ChannelRepository;
 
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -39,7 +38,7 @@ public class InvestmentService {
             user.setSeedMoney(userSeedMoney - (requestPrice * requestQuantity));
             
             // 유저의 보유 종목을 추가함
-            if(user.getCompanies().containsKey(request.getCompanyId()) == false) {
+            if(!user.getCompanies().containsKey(request.getCompanyId())) {
                 user.addCompany(request.getCompanyId());
             }
 
@@ -87,7 +86,9 @@ public class InvestmentService {
         else {
             // (종목 가격 - 평균 구매 가격) * 매도 수량 = 시드머니 변동값
             user.setSeedMoney(userSeedMoney + (requestPrice * requestQuantity));
-            if(quantity == requestQuantity) {
+            System.out.println("totalPrice = " + quantity);
+            System.out.println("totalPrice = " + requestQuantity);
+            if(quantity.equals(requestQuantity)) {
                 usersStock.renewalStock(0.0, 0L, 0.0);
             }
             else {
