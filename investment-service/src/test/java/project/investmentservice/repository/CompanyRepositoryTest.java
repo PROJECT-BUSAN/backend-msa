@@ -38,7 +38,7 @@ public class CompanyRepositoryTest {
 
     @Test
     public void findAllTest() {
-        // given @BeforeEach
+        // given @Before
 
         // when
         List<Company> companyList = companyRepository.findAll();
@@ -49,7 +49,7 @@ public class CompanyRepositoryTest {
 
     @Test
     public void findOneTest() {
-        // given @BeforeEach
+        // given @Before
 
         // when
         Company company1 = companyRepository.findOne(1L);
