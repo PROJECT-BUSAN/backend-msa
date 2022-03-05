@@ -95,6 +95,8 @@ public class ChannelApiController {
         // <company_id, closePrice>
         Map<Long, Double> closeValue = new HashMap<>();
         
+        // 타이머 종료를 위한 lock 객체 설정
+        Object lock = new Object();
         // 10초에 한 번씩 주가 정보를 전송한다.
         // 주요 게임 로직을 담당한다.
         Timer timer = new Timer();
@@ -120,12 +122,24 @@ public class ChannelApiController {
                     idx++;
                 }
                 else {
+                    // 타이머가 종료되면 lock에 시그널을 보낸다.
+                    synchronized (lock) {
+                        lock.notifyAll();
+                    }
                     timer.cancel();
                 }
             }
         };
         timer.schedule(timerTask, 0, 10000);
-
+        
+        // 타이머가 종료된 이후 다음 로직을 수행해야 하므로
+        // lock이 시그널을 받을 때까지 기다린다.
+        synchronized (lock) {
+            try {
+                lock.wait();
+            } catch (InterruptedException ex) {
+            }
+        }
 
         /**
          *    게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
@@ -145,8 +159,6 @@ public class ChannelApiController {
             user.setSeedMoney(userSeedMoney);
         }
         channelRepository.updateChannel(nowChannel);
-
-
 
 
         // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
