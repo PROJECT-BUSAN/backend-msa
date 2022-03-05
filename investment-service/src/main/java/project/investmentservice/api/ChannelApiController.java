@@ -153,7 +153,7 @@ public class ChannelApiController {
         int k = 0;
         List<gameEndResponse> responseList = new ArrayList<>();
         for(Long cid: companyIds){
-            Company company = companyService.findCompany(cid);
+            Company company = companyService.findOneCompany(cid);
             gameEndResponse gameEndResponse = new gameEndResponse(
                     cid,
                     company.getStock_name(),

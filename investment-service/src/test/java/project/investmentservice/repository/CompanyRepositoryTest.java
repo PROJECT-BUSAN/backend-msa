@@ -1,12 +1,11 @@
 package project.investmentservice.repository;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 import project.investmentservice.domain.Company;
 
 import java.util.List;
@@ -20,9 +19,8 @@ public class CompanyRepositoryTest {
     @Autowired
     private CompanyRepository companyRepository;
 
-    @Test
-    public void findAllTest() {
-        // given
+    @Before
+    public void createCompany() {
         Company company1 = new Company();
         company1.setStock_code("111");
         company1.setStock_name("A");
@@ -32,17 +30,26 @@ public class CompanyRepositoryTest {
         company2.setStock_code("112");
         company2.setStock_name("B");
         companyRepository.save(company2);
+
+        System.out.println("company2 = " + company2.getId());
+        System.out.println("company1 = " + company1.getId());
+
+    }
+
+    @Test
+    public void findAllTest() {
+        // given @Before
+
         // when
         List<Company> companyList = companyRepository.findAll();
         
         // then
-        assertEquals(companyList.size(), 2);
+        assertEquals(companyList.size(), 4);
     }
 
     @Test
     public void findOneTest() {
-        // given
-        // beforeEach
+        // given @Before
 
         // when
         Company company1 = companyRepository.findOne(1L);

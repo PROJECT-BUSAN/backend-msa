@@ -23,10 +23,6 @@ public class StockInfoRepository {
     public void save(StockInfo stockInfo) {
         em.persist(stockInfo);
     }
-
-    public List<StockInfo> findAll() {
-        return em.createQuery("select s from StockInfo s", StockInfo.class).getResultList();
-    }
     
     public List<StockInfo> findStock(Long company_id) {
         return em.createQuery(
