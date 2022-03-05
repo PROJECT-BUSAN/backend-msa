@@ -45,6 +45,9 @@ public class CompanyRepositoryTest {
         
         // then
         assertEquals(companyList.size(), 4);
+        System.out.println("companyList = " + companyList.get(0).getStock_name());
+        System.out.println("companyList = " + companyList.get(1).getStock_name());
+
     }
 
     @Test
