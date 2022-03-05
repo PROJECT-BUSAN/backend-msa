@@ -2,109 +2,66 @@
 
 version: "3.3"
 services:
-  apigateway-service:
-    image: apigateway
-    volumes:
-      - ./apigateway-service:/home/apigateway
-    ports:
-      - 8000:8000
-    environment:
-      - PYTHONUNBUFFERED=1
-    entrypoint: ["bash", "-c"]
-    restart: always
-    command: 
-      - |
-        python manage.py makemigrations --noinput --settings=config.settings.local
-        python manage.py migrate --noinput --settings=config.settings.local
-        python manage.py loaddata /apigateway/initdata.yaml --settings=config.settings.local
-        python manage.py runserver 0.0.0.0:8000 --settings=config.settings.local
-    
-    networks:
-      - test
-  
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - 5672:5672
-      - 30000:15672
-    restart: always
-    networks:
-      - test
-      
-  celery_worker:
-    image: apigateway
-    volumes:
-      - ./apigateway-service:/home/apigateway
-    environment:
-      - PYTHONUNBUFFERED=1
-    depends_on:
-      - apigateway-service
-      - rabbitmq
-    networks:
-      - test
-    restart: always
-    entrypoint: ["bash", "-c"]
-    command: 
-      - |
-        DJANGO_SETTINGS_MODULE='config.settings.local' celery -A config worker -l info
-  
-  profile-service:
-    image: profile-service
-    volumes:
-      - ./profile-service/profile-service:/home/spring
-    ports:
-      - 8080:8080
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://profile-database:3306/profile-db?useUnicode=true&serverTimezone=Asia/Seoul
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: 1234
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      SPRING_DATASOURCE_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
-    depends_on:
-      - profile-database
-    restart: always
-    networks:
-      - test
-    entrypoint: ["bash", "-c"]
-    command:
-      - |
-        ./gradlew build
-        ./gradlew bootRun
-
-  profile-database:
-    image: mysql:5.7
-    ports:
-      - 33060:3306
-    environment:
-      MYSQL_DATABASE: profile-db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: 1234
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_TCP_PORT: 3306
-    networks:
-      - test
-    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
-
-  # investment-service:
-  #   image: investment-service
+  # apigateway-service:
+  #   image: apigateway
   #   volumes:
-  #     - ./investment-service:/home/spring
+  #     - ./apigateway-service:/home/apigateway
+  #   ports:
+  #     - 8000:8000
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
+  #   entrypoint: ["bash", "-c"]
+  #   restart: always
+  #   command: 
+  #     - |
+  #       python manage.py makemigrations --noinput --settings=config.settings.local
+  #       python manage.py migrate --noinput --settings=config.settings.local
+  #       python manage.py loaddata /apigateway/initdata.yaml --settings=config.settings.local
+  #       python manage.py runserver 0.0.0.0:8000 --settings=config.settings.local
+    
+  #   networks:
+  #     - test
+  
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   ports:
+  #     - 5672:5672
+  #     - 30000:15672
+  #   restart: always
+  #   networks:
+  #     - test
+      
+  # celery_worker:
+  #   image: apigateway
+  #   volumes:
+  #     - ./apigateway-service:/home/apigateway
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
+  #   depends_on:
+  #     - apigateway-service
+  #     - rabbitmq
+  #   networks:
+  #     - test
+  #   restart: always
+  #   entrypoint: ["bash", "-c"]
+  #   command: 
+  #     - |
+  #       DJANGO_SETTINGS_MODULE='config.settings.local' celery -A config worker -l info
+  
+  # profile-service:
+  #   image: profile-service
+  #   volumes:
+  #     - ./profile-service/profile-service:/home/spring
   #   ports:
   #     - 8080:8080
   #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:mysql://investment-database:3307/investment-db?useUnicode=true&serverTimezone=Asia/Seoul
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://profile-database:3306/profile-db?useUnicode=true&serverTimezone=Asia/Seoul
   #     SPRING_DATASOURCE_USERNAME: user
   #     SPRING_DATASOURCE_PASSWORD: 1234
   #     SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
   #     SPRING_DATASOURCE_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
-  #     SPRING_SESSION_STORAGE_TYPE: redis
-  #     SPRING_REDIS_HOST: investment-redis
-  #     SPRING_REDIS_PORT: 6379
-      
   #   depends_on:
-  #     - investment-database
-  #     - investment-redis
-  #     - crawling-service
+  #     - profile-database
   #   restart: always
   #   networks:
   #     - test
@@ -113,60 +70,103 @@ services:
   #     - |
   #       ./gradlew build
   #       ./gradlew bootRun
-  
-  # investment-database:
+
+  # profile-database:
   #   image: mysql:5.7
   #   ports:
-  #     - 33070:3307
+  #     - 33060:3306
   #   environment:
-  #     MYSQL_DATABASE: investment-db
+  #     MYSQL_DATABASE: profile-db
   #     MYSQL_USER: user
   #     MYSQL_PASSWORD: 1234
   #     MYSQL_ROOT_PASSWORD: 1234
-  #     MYSQL_TCP_PORT: 3307
+  #     MYSQL_TCP_PORT: 3306
   #   networks:
   #     - test
   #   command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
-  
-  # investment-redis:
-  #   image: redis:6.2.6
-  #   ports:
-  #     - 6379:6379
-  #   networks:
-  #     - test
-  #   command: [ "redis-server", "--protected-mode", "no" ]
-  
-  # crawling-service:
-  #   image: crawling
-  #   volumes:
-  #     - ./crawling-service:/home/crawling
-  #   ports:
-  #     - 8001:8001
-  #   environment:
-  #     - PYTHONUNBUFFERED=1
-  #   depends_on:
-  #     - investment-database
-  #   entrypoint: ["bash", "-c"]
-  #   restart: always
-  #   command: 
-  #     - |
-  #       python manage.py makemigrations --noinput --settings=config.settings.local
-  #       python manage.py migrate --noinput --settings=config.settings.local
-  #       python manage.py runserver 0.0.0.0:8001 --settings=config.settings.local
-  #   networks:
-  #     - test
-  
-  nginx-service:
-    image: nginx:1.21.1
+
+  investment-service:
+    image: investment-service
+    volumes:
+      - ./investment-service:/home/spring
+    ports:
+      - 8080:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://investment-database:3307/investment-db?useUnicode=true&serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_DATASOURCE_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
+      SPRING_SESSION_STORAGE_TYPE: redis
+      SPRING_REDIS_HOST: investment-redis
+      SPRING_REDIS_PORT: 6379
+      
+    depends_on:
+      - investment-database
+      - investment-redis
+      - crawling-service
+    restart: always
     networks:
       - test
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        ./gradlew build
+        ./gradlew bootRun
+  
+  investment-database:
+    image: mysql:5.7
     ports:
-      - 80:80
-      - 443:443
-    depends_on: 
-      - apigateway-service
+      - 33070:3307
+    environment:
+      MYSQL_DATABASE: investment-db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_TCP_PORT: 3307
+    networks:
+      - test
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+  
+  investment-redis:
+    image: redis:6.2.6
+    ports:
+      - 6379:6379
+    networks:
+      - test
+    command: [ "redis-server", "--protected-mode", "no" ]
+  
+  crawling-service:
+    image: crawling
+    volumes:
+      - ./crawling-service:/home/crawling
+    ports:
+      - 8001:8001
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - investment-database
+    entrypoint: ["bash", "-c"]
+    restart: always
+    command: 
+      - |
+        python manage.py makemigrations --noinput --settings=config.settings.local
+        python manage.py migrate --noinput --settings=config.settings.local
+        python manage.py runserver 0.0.0.0:8001 --settings=config.settings.local
+    networks:
+      - test
+  
+  # nginx-service:
+  #   image: nginx:1.21.1
+  #   networks:
+  #     - test
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   depends_on: 
+  #     - apigateway-service
     
 networks:
   test:
