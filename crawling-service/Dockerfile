@@ -10,6 +10,6 @@ RUN pip install -r requirements.txt
 
 RUN pip install gunicorn
 
-# RUN pip install mysqlclient
+RUN pip install mysqlclient
 
 EXPOSE 8001
