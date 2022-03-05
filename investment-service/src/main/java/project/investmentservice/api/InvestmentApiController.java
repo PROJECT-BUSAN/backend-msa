@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import project.investmentservice.api.CompanyApiController.TestRequest;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
@@ -27,6 +29,14 @@ public class InvestmentApiController {
     private final InvestmentService investmentService;
     @Autowired
     private final ChannelService channelService;
+    @Autowired
+    private final HttpApiController httpApiController;
+
+    @PostMapping("/12312312321")
+    public ResponseEntity<String> get() {
+        TestRequest test = new TestRequest();
+        return httpApiController.postRequest("http://localhost:8080/api/v1/investment/test", test);
+    }
 
     // 주식 구매
     @PostMapping("/purchase/{channelId}")
