@@ -16,7 +16,7 @@ class Crawling:
     '''
     def daily(self, start_date, end_date):
         companies = Company.objects.filter().all()
-        for com in companies:
+        for com in companies[0:1]:
             code = com.stock_code
             df_ohlcv = stock.get_market_ohlcv_by_date(start_date, end_date, code)
             for row in df_ohlcv.itertuples():
@@ -48,5 +48,5 @@ class Crawling:
     
     def run(self):
         self.company(self.date)
-        self.daily("20150101", "20220201")
+        self.daily("20211101", "20220201")
         
