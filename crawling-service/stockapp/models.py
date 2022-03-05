@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Company(models.Model):
-    id = models.BigAutoField(primary_key=True, db_column="id")
+    company_id = models.BigAutoField(primary_key=True, db_column="company_id")
     stock_name = models.CharField(help_text="종목명", max_length=200, null=True, blank=True, db_column="stock_name")
     stock_code = models.CharField(help_text="종목코드", max_length=200, null=True, blank=True, db_column="stock_code")
     
