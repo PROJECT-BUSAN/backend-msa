@@ -37,7 +37,7 @@ public class ProfileRepository {
     
     /**
      * 조회 시 사용하지 말 것
-     * 사용처 : remove
+     * 사용처 : remove, Test
      */
     public Profile findOne(Long user_id) {
         Profile profile = em.createQuery(
@@ -50,15 +50,15 @@ public class ProfileRepository {
     }
 
     /**
-     * 유저의 모든 정보(배지 현황, 출석 현황)를 fetch join을 통해 한 번에 가져온다
+     * 유저의 모든 정보(배지 현황, 출석 현황)를 join을 통해 한 번에 가져온다
      * @param user_id
      * @return Profile
      */
     public Profile findOneAllInfo(Long user_id) {
         Profile profile = em.createQuery(
                 "select p from Profile p " +
-                        "left join fetch p.profileBadges " +
-                        "left join fetch p.attendances " +
+                        "left join p.profileBadges " +
+                        "left join p.attendances " +
                         "where p.user_id = :user_id", Profile.class)
                 .setParameter("user_id", user_id)
                 .getSingleResult();
@@ -109,7 +109,7 @@ public class ProfileRepository {
     public Profile findOneBadgeAll(Long user_id) {
         Profile profile = em.createQuery(
                         "select p from Profile p " +
-                                "left join fetch p.profileBadges " +
+                                "left join p.profileBadges " +
                                 "where p.user_id = :user_id " , Profile.class)
                 .setParameter("user_id", user_id)
                 .getSingleResult();

@@ -1,5 +1,6 @@
 package project.profileservice.service;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import project.profileservice.domain.Profile;
+import project.profileservice.exception.NotEnoughPointException;
 import project.profileservice.service.ProfileService;
 
 import javax.persistence.EntityManager;
@@ -26,7 +28,7 @@ public class ProfileServiceTest {
     private ProfileService profileService;
     
     @Test
-    public void 프로필생성() throws Exception{
+    public void create_Test() throws Exception{
         // given
         Profile profile = new Profile();
         profile.setUser_id(1L);
@@ -39,5 +41,29 @@ public class ProfileServiceTest {
         //then
         Assertions.assertEquals(user_id, 1L);
     }
-    
+
+    @Test
+    public void updatePoint_Test() {
+        //given
+        Long user_id = profileService.create(1L);
+        
+        //when
+        Long updatePoint = profileService.updatePoint(user_id, -500000L);
+
+        //then
+        Assertions.assertEquals(updatePoint, 500000L);
+        
+    }
+
+    @Test(expected = NotEnoughPointException.class)
+    public void Point_부족한경우_Test() {
+        // given
+        Long user_id = profileService.create(1L);
+        
+        // when
+        Long updatePoint = profileService.updatePoint(user_id, -1000001L);
+        
+        // then
+        Assert.fail("point가 부족합니다.");
+    }
 }
