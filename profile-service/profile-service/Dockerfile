@@ -1,7 +1,7 @@
 FROM openjdk:11
 
-COPY . /home/spring
+ARG JAR_FILE=build/libs/profile-service.jar
 
-WORKDIR /home/spring
+COPY ${JAR_FILE} app.jar
 
-EXPOSE 8080
+EXPOSE 8081
