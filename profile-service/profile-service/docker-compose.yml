@@ -2,8 +2,8 @@ version: "3.3"
 services:
   profile-service:
     image: profile-service
-    # volumes:
-    #   - .:/home/spring
+    volumes:
+      - ./build/libs/profile-service.jar:/HOME/spring/app.jar
     ports:
       - 8081:8081
     environment:
