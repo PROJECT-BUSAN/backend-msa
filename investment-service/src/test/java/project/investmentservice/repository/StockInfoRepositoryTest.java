@@ -47,11 +47,10 @@ public class StockInfoRepositoryTest {
         stockInfoRepository.save(stockInfoObject1);
         stockInfoRepository.save(stockInfoObject2);
         stockInfoRepository.save(stockInfoObject3);
-        
+
+        Company company = companyRepository.findOne(company1.getId());
+
         // when
-        List<Company> companyList = companyRepository.findAll();
-        Company company = companyList.get(0);
-        
         List<StockInfo> stockInfoList = stockInfoRepository.findStock(company.getId());
         
         // then

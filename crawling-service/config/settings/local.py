@@ -26,12 +26,14 @@ CORS_ALLOW_CREDENTIALS = True
 #     }
 # }
 
+
+# Integral Test
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'investment-db',
         'USER': 'user',
-        'PASSWORD': 1234,
+        'PASSWORD': '1234',
         'HOST': 'investment-database',
         'PORT': '3307',
     }

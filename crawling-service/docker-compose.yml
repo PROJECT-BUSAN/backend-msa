@@ -3,7 +3,7 @@ services:
   crawling-service:
     image: crawling
     ports:
-      - 8001:8000
+      - 8001:8001
     volumes:
       - ./:/home/crawling
     environment:
@@ -16,7 +16,7 @@ services:
       - |
         python manage.py makemigrations --noinput --settings=config.settings.local
         python manage.py migrate --noinput --settings=config.settings.local
-        python manage.py runserver 0.0.0.0:8000 --settings=config.settings.local
+        python manage.py runserver 0.0.0.0:8001 --settings=config.settings.local
   
 networks:
   test:

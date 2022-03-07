@@ -95,6 +95,8 @@ public class ChannelApiController {
         // <company_id, closePrice>
         Map<Long, Double> closeValue = new HashMap<>();
         
+        // 타이머 종료를 위한 lock 객체 설정
+        Object lock = new Object();
         // 10초에 한 번씩 주가 정보를 전송한다.
         // 주요 게임 로직을 담당한다.
         Timer timer = new Timer();
@@ -120,35 +122,50 @@ public class ChannelApiController {
                     idx++;
                 }
                 else {
+                    // 타이머가 종료되면 lock에 시그널을 보낸다.
+                    synchronized (lock) {
+                        lock.notifyAll();
+                    }
                     timer.cancel();
                 }
             }
         };
         timer.schedule(timerTask, 0, 10000);
-
         
-        // 게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
-        Channel nowChannel = channelService.findOneChannel(channelId);
-        for (Long user_id : nowChannel.getUsers().keySet()) {
-            // 모든 유저를 탐색
-            User user = nowChannel.getUsers().get(user_id);
-            for (Long company_id : user.getCompanies().keySet()) {
-                // 유저가 가진 기업들을 탐색
-                UsersStock usersStock = user.getCompanies().get(company_id);
-                Long quantity = usersStock.getQuantity();
-                double sellPrice = closeValue.get(company_id);
-                
-                // sellStock의 인자로 Request를 받는게 범용성이 떨어지는 느낌을 받네용
-//                investmentService.sellStock(nowChannel.getId(), );
+        // 타이머가 종료된 이후 다음 로직을 수행해야 하므로
+        // lock이 시그널을 받을 때까지 기다린다.
+        synchronized (lock) {
+            try {
+                lock.wait();
+            } catch (InterruptedException ex) {
             }
         }
-        
-        
+
+        /**
+         *    게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
+         */
+        Channel nowChannel = channelService.findOneChannel(channelId);
+        Map<Long, User> users = nowChannel.getUsers();
+
+        for(Long userKey : users.keySet()) {
+            User user = users.get(userKey);
+            double userSeedMoney = user.getSeedMoney();
+            for(Long companyKey : user.getCompanies().keySet()) {
+                UsersStock usersStock = user.getCompanies().get(companyKey);
+                if(usersStock.getQuantity() == 0L) continue;
+                double sellPrice = closeValue.get(companyKey);
+                userSeedMoney += (sellPrice * usersStock.getQuantity());
+            }
+            user.setSeedMoney(userSeedMoney);
+        }
+        channelRepository.updateChannel(nowChannel);
+
+
         // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
         int k = 0;
         List<gameEndResponse> responseList = new ArrayList<>();
         for(Long cid: companyIds){
-            Company company = companyService.findCompany(cid);
+            Company company = companyService.findOneCompany(cid);
             gameEndResponse gameEndResponse = new gameEndResponse(
                     cid,
                     company.getStock_name(),

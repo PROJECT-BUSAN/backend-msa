@@ -1,14 +1,10 @@
 spring:
   datasource:
-#     url: jdbc:h2:tcp://localhost/~/profile
-#    username: sa
-#    password:
-#    driver-class-name: org.h2.Driver
-    url: jdbc:mysql://localhost:33060/profile-db?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
-    username: user
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    database-platform: org.hibernate.dialect.MySQL5Dialect
+  #   url: jdbc:mysql://localhost:33060/profile-db?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+  #   username: user
+  #   password: 1234
+  #   driver-class-name: com.mysql.cj.jdbc.Driver
+  #   database-platform: org.hibernate.dialect.MySQL5Dialect
     
   jpa:
     hibernate:
@@ -20,3 +16,6 @@ spring:
   logging.level:
     org.hibernate.SQL: debug
   #  org.hibernate.type: trace
+
+server:
+  port: 8081

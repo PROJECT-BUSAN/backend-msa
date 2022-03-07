@@ -1,7 +1,6 @@
 package project.investmentservice.repository;
 
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,10 +18,6 @@ public class ChannelRepositoryTest implements Serializable {
 
     @Autowired
     private ChannelRepository channelRepository;
-
-    @BeforeEach
-    public void beforeEach() {
-    }
 
     @Test
     public void createChannel() {
@@ -81,5 +76,21 @@ public class ChannelRepositoryTest implements Serializable {
 
         //then
         assertEquals(channel.getId(), findChannel.getId());
+    }
+
+    @Test
+    public void updateChannel() {
+        //given
+        Channel channel = Channel.create("updateChannel", 11L, 10, 10000L, 1234L);
+        channelRepository.createChannel(channel);
+        channel.setChannelName("updateChannel2");
+
+        //when
+        channelRepository.updateChannel(channel);
+        Channel findChannel = channelRepository.findChannelById(channel.getId());
+
+        //then
+        assertEquals(findChannel.getChannelName(), "updateChannel2");
+        assertEquals(findChannel.getId(), channel.getId());
     }
 }

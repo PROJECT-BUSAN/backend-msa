@@ -38,13 +38,13 @@ public class CompanyService {
             if(stockInfoRepository.findStock(comId).size() < 60){
                 continue;
             }
-            companyIds.add((long)(Math.random() * companySize) + 1);
+            companyIds.add(comId);
         }
 
         return companyIds;
     }
 
-    public Company findCompany(Long company_id) {
+    public Company findOneCompany(Long company_id) {
         return companyRepository.findOne(company_id);
     }
 

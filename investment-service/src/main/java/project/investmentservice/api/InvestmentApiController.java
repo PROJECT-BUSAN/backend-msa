@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import project.investmentservice.api.CompanyApiController.TestRequest;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
@@ -14,13 +16,9 @@ import project.investmentservice.service.InvestmentService;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import java.util.Map;
 
-import static project.investmentservice.api.InvestmentApiController.PurchaseStockResponse.returnType.FAIL;
 import static project.investmentservice.api.InvestmentApiController.PurchaseStockResponse.returnType.SUCCESS;
 import static project.investmentservice.api.InvestmentApiController.SellStockResponse.returnType;
-import static project.investmentservice.domain.dto.ClientMessage.MessageType.ENTER;
-import static project.investmentservice.domain.dto.ServerMessage.MessageType.RENEWAL;
 
 @RequiredArgsConstructor
 @RestController
@@ -31,6 +29,14 @@ public class InvestmentApiController {
     private final InvestmentService investmentService;
     @Autowired
     private final ChannelService channelService;
+    @Autowired
+    private final HttpApiController httpApiController;
+
+    @PostMapping("/12312312321")
+    public ResponseEntity<String> get() {
+        TestRequest test = new TestRequest();
+        return httpApiController.postRequest("http://localhost:8080/api/v1/investment/test", test);
+    }
 
     // 주식 구매
     @PostMapping("/purchase/{channelId}")
@@ -52,12 +58,14 @@ public class InvestmentApiController {
     }
 
     // 주식 판매
-    @GetMapping("/sell/{channelId}")
+    @PostMapping("/sell/{channelId}")
     public SellStockResponse sellStock(@PathVariable("channelId") String channelId, @RequestBody @Valid StockRequest request) {
         boolean flag = investmentService.sellStock(channelId, request);
         if(flag) {
             Channel channel = channelService.findOneChannel(channelId);
-            return new SellStockResponse(returnType.SUCCESS, channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getAveragePrice(), channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getQuantity(), channel.getUsers().get(request.getUserId()).getCompanies().get(request.getCompanyId()).getTotalPrice());
+            User user = channel.getUsers().get(request.getUserId());
+            UsersStock usersStock = user.getCompanies().get(request.getCompanyId());
+            return new SellStockResponse(returnType.SUCCESS, usersStock.getAveragePrice(), usersStock.getQuantity(), user.getSeedMoney());
         }
         else {
             return new SellStockResponse(returnType.FAIL, 0.0, 0L, 0.0);
@@ -71,7 +79,7 @@ public class InvestmentApiController {
         @NotNull
         private Long companyId;
         @NotNull
-        private Long price;
+        private double price;
         @NotNull
         private Long quantity;
     }

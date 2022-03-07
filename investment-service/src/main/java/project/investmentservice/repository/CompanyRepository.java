@@ -19,6 +19,7 @@ public class CompanyRepository {
      */
     @Transactional
     public void save(Company company) {
+
         em.persist(company);
     }
 

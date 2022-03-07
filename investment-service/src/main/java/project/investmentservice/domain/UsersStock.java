@@ -1,7 +1,6 @@
 package project.investmentservice.domain;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
