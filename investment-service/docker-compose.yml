@@ -4,6 +4,7 @@ services:
     image: investment-service
     volumes:
       - .:/home/spring
+      # - ./build/libs/profile-service.jar:/HOME/spring/app.jar
     ports:
       - 8080:8080
     environment:
@@ -27,6 +28,7 @@ services:
       - |
         ./gradlew build
         ./gradlew bootRun
+      #  java -Xms512m -Xms512m -jar app.jar
 
   investment-database:
     image: mysql:5.7

@@ -1,5 +1,4 @@
 spring:
-  port: 8080
   datasource:
   #     url: jdbc:h2:tcp://localhost/~/profile
   #     username: sa
@@ -38,3 +37,6 @@ spring:
   spring:
     profiles:
       active: local
+      
+server:
+  port: 8080
