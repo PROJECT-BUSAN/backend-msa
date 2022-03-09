@@ -1,4 +1,4 @@
-package project.profileservice.service;
+package project.profileservice.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;

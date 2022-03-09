@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.profileservice.domain.Badge;
+import project.profileservice.domain.dto.UpdateBadgeDto;
 import project.profileservice.repository.BadgeRepository;
 
 import java.util.List;

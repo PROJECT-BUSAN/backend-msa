@@ -22,10 +22,10 @@ import javax.persistence.PersistenceContext;
 public class BadgeServiceTest {
 
     @PersistenceContext
-    EntityManager em;
+    private EntityManager em;
 
     @Autowired
-    ProfileService profileService;
+    private ProfileService profileService;
 
 //    @Test
 //    public void profile_생성() {

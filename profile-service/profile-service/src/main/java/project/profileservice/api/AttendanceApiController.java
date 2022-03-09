@@ -4,14 +4,10 @@ import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.profileservice.domain.Attendance;
-import project.profileservice.domain.Badge;
 import project.profileservice.domain.Profile;
 import project.profileservice.service.AttendanceService;
-import project.profileservice.service.ProfileService;
 
 import java.time.LocalDateTime;
 import java.util.List;

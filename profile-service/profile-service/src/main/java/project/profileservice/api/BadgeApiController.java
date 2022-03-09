@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.profileservice.domain.Badge;
 import project.profileservice.service.BadgeService;
-import project.profileservice.service.UpdateBadgeDto;
+import project.profileservice.domain.dto.UpdateBadgeDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
