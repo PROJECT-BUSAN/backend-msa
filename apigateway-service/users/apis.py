@@ -39,14 +39,14 @@ class UserMeApi(ApiAuthMixin, APIView):
         
         user_query = User.objects\
             .filter(Q(username=username))\
-            .prefetch_related(
-                'profile__favorite_post',
-                'profile__favorite_post__favorite_user',
-                'profile__favorite_post__creator',
-                'profile__favorite_post__category',
-                'profile__favorite_category',
-                'profile__favorite_category__favorite_user',
-            )
+            # .prefetch_related(
+            #     'profile__favorite_post',
+            #     'profile__favorite_post__favorite_user',
+            #     'profile__favorite_post__creator',
+            #     'profile__favorite_post__category',
+            #     'profile__favorite_category',
+            #     'profile__favorite_category__favorite_user',
+            # )
         
         return Response(UserSerializer(user_query, many=True, context={'request':request}).data)
     
