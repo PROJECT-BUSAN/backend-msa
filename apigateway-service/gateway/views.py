@@ -21,7 +21,7 @@ class Gateway(APIView):
         
         # ** Most Dangerous Code **
         # EX : /api/v1/users...
-        path = '/' + path[1] + "/" + path[2] + "/" + path[3]
+        path = '/' + path[1] + '/' + path[2] + '/' + path[3]
         
         apimodel = Api.objects.filter(upstream_path=path)
         if apimodel.count() != 1:
@@ -32,6 +32,10 @@ class Gateway(APIView):
         if not valid:
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         
+        if msg is not '':
+            userid = msg
+            request.data['userId'] = userid
+            
         request = {
             "method": request.method,
             "data": request.data,
