@@ -30,6 +30,7 @@ public class Channel implements Serializable {
         channel.channelNum = channelNum;
         channel.LimitOfParticipants = LimitOfParticipants;
         channel.entryFee = entryFee;
+        channel.hostId = hostId;
 
         User user = new User(entryFee);
         user.setReadyType(User.ReadyType.READY);

@@ -51,12 +51,17 @@ public class ChannelApiController {
     //채널 생성
     @PostMapping("/channel")
     public CreateChannelResponse createChannel(@RequestBody @Valid CreateChannelRequest request) {
+        System.out.println("request = " + request);
+        System.out.println("request = " + request.getName());
+        System.out.println("request = " + request.getUserId());
+        System.out.println("request.getEntryFee() = " + request.getEntryFee());
+        System.out.println("request.getLimitOfParticipants() = " + request.getLimitOfParticipants());
         Channel channel = channelService.createChannel(request.getName(), request.getLimitOfParticipants(), request.getEntryFee(), request.getUserId());
         return new CreateChannelResponse(channel.getId(), channel.getChannelNum(), channel.getChannelName());
     }
 
     // 채널 입장
-    @PostMapping("/channel/enter/{channelId}")
+    @PostMapping("/channel/{channelId}")
     public EnterChannelResponse enterChannel(@PathVariable("channelId") String channelId, @RequestBody @Valid EnterChannelRequest request) {
         int result = channelService.enterChannel(channelId, request.getUser_id());
         if(result == 0) {
@@ -193,7 +198,7 @@ public class ChannelApiController {
         @NotNull
         private String name;
         @NotNull
-        private int LimitOfParticipants;
+        private int limitOfParticipants;
         @NotNull
         private Long entryFee;
         private Long userId;
