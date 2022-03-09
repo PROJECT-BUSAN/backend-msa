@@ -2,88 +2,88 @@
 
 version: "3.3"
 services:
-  # apigateway-service:
-  #   image: apigateway
-  #   volumes:
-  #     - ./apigateway-service:/home/apigateway
-  #   ports:
-  #     - 8000:8000
-  #   environment:
-  #     - PYTHONUNBUFFERED=1
-  #   entrypoint: ["bash", "-c"]
-  #   restart: always
-  #   command: 
-  #     - |
-  #       python manage.py makemigrations --noinput --settings=config.settings.local
-  #       python manage.py migrate --noinput --settings=config.settings.local
-  #       python manage.py loaddata /apigateway/initdata.yaml --settings=config.settings.local
-  #       python manage.py runserver 0.0.0.0:8000 --settings=config.settings.local
+  apigateway-service:
+    image: apigateway
+    volumes:
+      - ./apigateway-service:/home/apigateway
+    ports:
+      - 8000:8000
+    environment:
+      - PYTHONUNBUFFERED=1
+    entrypoint: ["bash", "-c"]
+    restart: always
+    command: 
+      - |
+        python manage.py makemigrations --noinput --settings=config.settings.local
+        python manage.py migrate --noinput --settings=config.settings.local
+        python manage.py loaddata /apigateway/initdata.yaml --settings=config.settings.local
+        python manage.py runserver 0.0.0.0:8000 --settings=config.settings.local
     
-  #   networks:
-  #     - test
+    networks:
+      - test
   
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   ports:
-  #     - 5672:5672
-  #     - 30000:15672
-  #   restart: always
-  #   networks:
-  #     - test
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 30000:15672
+    restart: always
+    networks:
+      - test
       
-  # celery_worker:
-  #   image: apigateway
-  #   volumes:
-  #     - ./apigateway-service:/home/apigateway
-  #   environment:
-  #     - PYTHONUNBUFFERED=1
-  #   depends_on:
-  #     - apigateway-service
-  #     - rabbitmq
-  #   networks:
-  #     - test
-  #   restart: always
-  #   entrypoint: ["bash", "-c"]
-  #   command: 
-  #     - |
-  #       DJANGO_SETTINGS_MODULE='config.settings.local' celery -A config worker -l info
+  celery_worker:
+    image: apigateway
+    volumes:
+      - ./apigateway-service:/home/apigateway
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - apigateway-service
+      - rabbitmq
+    networks:
+      - test
+    restart: always
+    entrypoint: ["bash", "-c"]
+    command: 
+      - |
+        DJANGO_SETTINGS_MODULE='config.settings.local' celery -A config worker -l info
   
-  # profile-service:
-  #   image: profile-service
-  #   volumes:
-  #     - ./profile-service/profile-service:/home/spring
-  #   ports:
-  #     - 8080:8080
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:mysql://profile-database:3306/profile-db?useUnicode=true&serverTimezone=Asia/Seoul
-  #     SPRING_DATASOURCE_USERNAME: user
-  #     SPRING_DATASOURCE_PASSWORD: 1234
-  #     SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-  #     SPRING_DATASOURCE_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
-  #   depends_on:
-  #     - profile-database
-  #   restart: always
-  #   networks:
-  #     - test
-  #   entrypoint: ["bash", "-c"]
-  #   command:
-  #     - |
-  #       ./gradlew build
-  #       ./gradlew bootRun
+  profile-service:
+    image: profile-service
+    volumes:
+      - ./profile-service/profile-service:/home/spring
+    ports:
+      - 8081:8081
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://profile-database:3306/profile-db?useUnicode=true&serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_DATASOURCE_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
+    depends_on:
+      - profile-database
+    restart: always
+    networks:
+      - test
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        ./gradlew build
+        ./gradlew bootRun
 
-  # profile-database:
-  #   image: mysql:5.7
-  #   ports:
-  #     - 33060:3306
-  #   environment:
-  #     MYSQL_DATABASE: profile-db
-  #     MYSQL_USER: user
-  #     MYSQL_PASSWORD: 1234
-  #     MYSQL_ROOT_PASSWORD: 1234
-  #     MYSQL_TCP_PORT: 3306
-  #   networks:
-  #     - test
-  #   command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+  profile-database:
+    image: mysql:5.7
+    ports:
+      - 33060:3306
+    environment:
+      MYSQL_DATABASE: profile-db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_TCP_PORT: 3306
+    networks:
+      - test
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
 
   investment-service:
     image: investment-service
