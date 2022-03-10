@@ -10,13 +10,26 @@ class UserTest(APITestCase):
     headers = {}
     
     def test_create_user(self):
-        userfile = open('testjson/testuser.json', 'r')
-        userdata = json.load(userfile)
-        userfile.close()
+        '''
+        기본 루트 회원가입 API 테스트
+        '''
+        
+        userdata = {
+            "username": "testuser",
+            "password1": "@qwerty1234",
+            "password2": "@qwerty1234",
+            "last_name": "테",
+            "first_name": "스트",
+            "gender": "M",
+            "email": "test@test.com"
+        }
         response = self.client.post(
             '/api/v1/users/me/', json.dumps(userdata), content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
+        
+        user = User.objects.filter(username="testuser").first()
+        self.assertIsInstance(user, User)
     
     def test_create_super_user(self):
         user = User.objects.create_superuser('TEST', 'test@nav.com', 'test1234@')
@@ -63,6 +76,7 @@ class ProfileTest(APITestCase):
         response = self.client.get(
             '/api/v1/users/me',
             **self.headers, content_type = "application/json")
+        print(response.content)
         self.assertEqual(response.status_code, 200)
         
     

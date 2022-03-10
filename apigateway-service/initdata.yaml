@@ -14,6 +14,13 @@
     name: profileV1
     description: 프로필 gateway
     upstream_path: /api/v1/profile
-    upstream_host: profile-service:8080
+    upstream_host: profile-service:8081
     plugin: 0
+  pk: 2
+  fields:
+    name: investmentV1
+    description: 투자 gateway
+    upstream_path: /api/v1/investment
+    upstream_host: investment-service:8080
+    plugin: 1
   

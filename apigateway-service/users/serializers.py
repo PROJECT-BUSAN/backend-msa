@@ -121,20 +121,8 @@ class RegisterSerializer(serializers.Serializer):
         data['username'] = self.validate_username(data['username'])
         return data
 
-    # def get_cleaned_data(self):
-    #     return {
-    #         'username': self.validated_data.get('username', ''),
-    #         'password1': self.validated_data.get('password1', ''),
-    #         'email': self.validated_data.get('email', '')
-    #     }
-        
     def create(self, validated_data):
-        user = User.objects.create_user(
-            # username=validated_data["username"],
-            # email=validated_data["email"],
-            # password=validated_data["password1"],
-            validated_data
-        )
+        user = User.objects.create_user(validated_data)
         
         return user
 

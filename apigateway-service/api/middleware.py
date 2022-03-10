@@ -9,8 +9,8 @@ class APIGateway:
         if hasattr(self, 'process_request'):
             request = self.process_request(request)
         
-        print("path info : ", request.path_info)
-        print("origin path : ", request.path)
+        # print("path info : ", request.path_info)
+        # print("origin path : ", request.path)
         
         # call view
         response = self.get_response(request)
