@@ -5,7 +5,8 @@ import javax.persistence.*;
 @Entity
 @Getter
 public class ProfileBadge {
-    @Id @GeneratedValue
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profile_badge_id")
     private Long id;
 

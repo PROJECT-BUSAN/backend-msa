@@ -11,7 +11,8 @@ import java.util.List;
 @Getter @Setter
 public class Badge {
 
-    @Id @GeneratedValue
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "badge_id")
     private Long id;
     private String name;
