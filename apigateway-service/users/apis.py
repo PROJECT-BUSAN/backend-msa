@@ -1,3 +1,5 @@
+import requests
+
 from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -26,7 +28,7 @@ from users.services import send_mail, email_auth_string
 User = get_user_model()
 
 
-class UserMeApi(ApiAuthMixin, APIView):
+class GetUserInfoApi(ApiAuthMixin, APIView):
     def get(self, request, *args, **kwargs):
         """
         현재 로그인 된 유저의 모든 정보 반환
@@ -44,30 +46,36 @@ class UserMeApi(ApiAuthMixin, APIView):
             )
         
         return Response(UserSerializer(user_query, many=True, context={'request':request}).data)
-    
-    def put(self, request, *args, **kwargs):
+
+
+class CreateUserApi(PublicApiMixin, APIView):
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
         """
-        현재 로그인 된 유저의 비밀번호 변경
+        회원가입 api
+        user 모델과 profile 모델이 반드시 같이 생성되어야 하기 때문에
+        transaction 적용
         """
-        user = request.user
-        if not check_password(request.data.get("oldpassword"), user.password):
-            raise serializers.ValidationError(
-                _("passwords do not match")
-            )
+        serializer = RegisterSerializer(data=request.data)
+        if not serializer.is_valid(raise_exception=True):
+            return Response({
+                "message": "Request Body Error"
+                }, status=status.HTTP_409_CONFLICT)
         
-        serializer = PasswordChangeSerializer(data=request.data, partial=True)
+        user = serializer.save()
         
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_409_CONFLICT)
+        """
+        profile-service로 user create 요청 전송
+        requests.post("http://profile-service/api/v1/profile")
+        """
         
         
-        validated_data = serializer.validated_data
-        serializer.update(user=user, validated_data=validated_data)
-        return Response({
-            "message": "Change password success"
-            }, status=status.HTTP_200_OK)
-    
-    
+        response = Response(status=status.HTTP_200_OK)
+        response = jwt_login(response=response, user=user)
+        return response
+
+
+class DeleteUserApi(ApiAuthMixin, APIView):
     def delete(self, request, *args, **kwargs):
         """
         현재 로그인 된 유저 삭제
@@ -90,30 +98,14 @@ class UserMeApi(ApiAuthMixin, APIView):
             
         user.delete()
         
+        """
+        profile-service로 user delete 요청 전송
+        requests.delete("http://profile-service/api/v1/profile")
+        """
+        
         return Response({
             "message": "Delete user success"
             }, status=status.HTTP_204_NO_CONTENT)
-
-
-class UserCreateApi(PublicApiMixin, APIView):
-    @transaction.atomic
-    def post(self, request, *args, **kwargs):
-        """
-        회원가입 api
-        user 모델과 profile 모델이 반드시 같이 생성되어야 하기 때문에
-        transaction 적용
-        """
-        serializer = RegisterSerializer(data=request.data)
-        if not serializer.is_valid(raise_exception=True):
-            return Response({
-                "message": "Request Body Error"
-                }, status=status.HTTP_409_CONFLICT)
-        
-        user = serializer.save()
-        
-        response = Response(status=status.HTTP_200_OK)
-        response = jwt_login(response=response, user=user)
-        return response
 
 
 class FindIDApi(PublicApiMixin, APIView):
@@ -136,6 +128,31 @@ class FindIDApi(PublicApiMixin, APIView):
         }
         
         return Response(data, status=status.HTTP_200_OK)
+
+
+class ChangePasswordApi(ApiAuthMixin, APIView):
+    def put(self, request, *args, **kwargs):
+        """
+        현재 로그인 된 유저의 비밀번호 변경
+        """
+        user = request.user
+        if check_password(request.data.get("newpassword1"), user.password):
+            # 새로운 비밀번호가 이전 비밀번호와 동일할 때
+            raise serializers.ValidationError(
+                _("Same as previous password")
+            )
+        
+        serializer = PasswordChangeSerializer(data=request.data, partial=True)
+        
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_409_CONFLICT)
+        
+        
+        validated_data = serializer.validated_data
+        serializer.update(user=user, validated_data=validated_data)
+        return Response({
+            "message": "Change password success"
+            }, status=status.HTTP_200_OK)
 
 
 class SendPasswordEmailApi(PublicApiMixin, APIView):
@@ -205,26 +222,4 @@ class ConfirmPasswordEmailApi(PublicApiMixin, APIView):
                 "message": "Verification Failed"
             }, status=status.HTTP_401_UNAUTHORIZED)
 
-
-class ResetPasswordApi(ApiAuthMixin, APIView):
-    def post(self, request, *args, **kwargs):
-        """
-        비밀번호 찾기 이메일 인증 이후
-        비밀번호 변경 api
-        """
-        password1 = request.data.get('password1', '')
-        password2 = request.data.get('password2', '')
-        user = request.user
-        
-        newpassword = validate_password12(password1, password2)
-        
-        user.set_password(newpassword)
-        user.save()
-        
-        response = Response({
-            "message": "Reset password success! Go to login page"
-        }, status=status.HTTP_202_ACCEPTED)
-        response.delete_cookie(settings.JWT_AUTH['JWT_AUTH_COOKIE'])
-
-        return response
     

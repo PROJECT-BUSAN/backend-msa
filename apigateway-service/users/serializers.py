@@ -128,22 +128,17 @@ class RegisterSerializer(serializers.Serializer):
 
 
 class PasswordChangeSerializer(serializers.Serializer):
-    oldpassword = serializers.CharField(write_only=True)
     newpassword1 = serializers.CharField(write_only=True)
     newpassword2 = serializers.CharField(write_only=True)
     
-    def validate_password(self, oldpassword, newpassword1, newpassword2):
-        if oldpassword == newpassword1 or oldpassword == newpassword2:
-            raise serializers.ValidationError(
-                _("oldpw and newpw are same either"))
-        
+    def validate_password(self, newpassword1, newpassword2):
         newpassword = validate_password12(newpassword1, newpassword2)
         
         return newpassword
     
     def validate(self, data):
         data['newpassword1'] = self.validate_password(
-            data['oldpassword'], data['newpassword1'], data['newpassword2'])
+            data['newpassword1'], data['newpassword2'])
         
         return data
     

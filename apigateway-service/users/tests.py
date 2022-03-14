@@ -24,12 +24,13 @@ class UserTest(APITestCase):
             "email": "test@test.com"
         }
         response = self.client.post(
-            '/api/v1/users/me/', json.dumps(userdata), content_type='application/json'
+            '/api/v1/users', json.dumps(userdata), content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         
         user = User.objects.filter(username="testuser").first()
         self.assertIsInstance(user, User)
+        
     
     def test_create_super_user(self):
         user = User.objects.create_superuser('TEST', 'test@nav.com', 'test1234@')
@@ -59,7 +60,7 @@ class ProfileTest(APITestCase):
             "password": "test1234@"
         }
         
-        response = self.client.post('/api/v1/auth/login/', json.dumps(user), content_type='application/json')
+        response = self.client.post('/api/v1/auth/login', json.dumps(user), content_type='application/json')
         self.assertEqual(response.status_code, 200)
         
         self.token = response.data['access_token']
@@ -72,9 +73,9 @@ class ProfileTest(APITestCase):
             "X-CSRFToken": self.csrftoken,
         }
         
-    def test_me_api(self):
+    def test_info_api(self):
         response = self.client.get(
-            '/api/v1/users/me',
+            '/api/v1/users',
             **self.headers, content_type = "application/json")
         print(response.content)
         self.assertEqual(response.status_code, 200)
@@ -82,13 +83,12 @@ class ProfileTest(APITestCase):
     
     def test_change_password(self):
         context = {
-            "oldpassword": "test1234@",
-            "newpassword1": "test12345@",
-            "newpassword2": "test12345@",
+            "password1": "test12345@",
+            "password2": "test12345@",
         }
         
         response = self.client.put(
-            '/api/v1/users/me',
+            '/api/v1/users/password',
             json.dumps(context), **self.headers, content_type="application/json")
         self.assertEqual(response.status_code, 200)
     
@@ -99,13 +99,10 @@ class ProfileTest(APITestCase):
         }
         
         response = self.client.delete(
-            '/api/v1/users/me',
+            '/api/v1/users',
             json.dumps(context), **self.headers, content_type="application/json")
         self.assertEqual(response.status_code, 204)
             
-    
-
-
 
 # class UserTest(TestCase):
 #     client = Client()

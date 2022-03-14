@@ -8,7 +8,6 @@ from auth.naverapi import NaverLoginApi, NaverSigninCallBackApi
 
 login_patterns = [
     path('refresh', RefreshJWTtoken.as_view()),
-    path('', LoginApi.as_view(), name='login'),
     
     path('google', GoogleLoginApi.as_view(), name='google_login'),
     path('google/callback', GoogleSigninCallBackApi.as_view(), name='google_login_callback'),
