@@ -10,9 +10,9 @@ app_name = 'swagger'
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="PROJECT BOARD API",
+      title="PROJECT API Gateway",
       default_version='v1',
-      description="board description",
+      description="Test description",
       terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="projectplan0531@gmail.com"),
       license=openapi.License(name="BSD License"),
