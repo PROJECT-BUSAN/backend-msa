@@ -8,5 +8,3 @@ User = get_user_model()
 def user_record_login(user: User):
     user.last_login = timezone.now()
     user.save()
-    
-    return user

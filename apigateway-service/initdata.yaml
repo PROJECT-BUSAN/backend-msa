@@ -14,9 +14,9 @@
     name: profileV1
     description: 프로필 gateway
     upstream_path: /api/v1/profile
-    upstream_host: profile-service:8080
+    upstream_host: profile-service:8081
     plugin: 0
-
+    
 - model: gateway.Api
   pk: 2
   fields:

@@ -33,6 +33,8 @@ class Api(models.Model):
             return True, ''
             
         elif self.plugin == 1:
+            if request.method in SAFE_METHODS:
+                return True, ''
             auth = SafeJWTAuthentication()
             try:
                 user, temp = auth.authenticate(request)
@@ -40,8 +42,8 @@ class Api(models.Model):
                 return False, 'Authentication credentials were not provided'
 
             if User.objects.filter(pk=user.id).exists():
-                if self.has_permission(user, request.method):
-                    return True, ''
+                if self.has_permission(user):
+                    return True, user.id
                 else:
                     return False, 'permission not allowed'
             else:
@@ -56,7 +58,7 @@ class Api(models.Model):
 
             if User.objects.filter(pk=user.id).exists():
                 if self.has_permission(user, request.method):
-                    return True, ''
+                    return True, user.id
                 else:
                     return False, 'permission not allowed'
             else:
@@ -65,41 +67,13 @@ class Api(models.Model):
         else:
             raise NotImplementedError("plugin %d not implemented" % self.plugin)
     
-    def has_permission(self, user, method):
+    def has_permission(self, user):
         # IsAuthenticatedOrReadOnly
         return bool(
-            method in SAFE_METHODS or
             user and
             user.is_authenticated
         )
     
-    def send_request(self, request):
-        headers = {}
-        headers['Host'] = 'apigateway-service'
-
-        url = self.upstream_host +self.upstream_path
-        method = request.method.lower()
-        method_map = {
-            'get': requests.get,
-            'post': requests.post,
-            'put': requests.put,
-            'patch': requests.patch,
-            'delete': requests.delete
-        }
-
-        for k,v in request.FILES.items():
-            request.data.pop(k)
-        
-        if request.content_type and request.content_type.lower()=='application/json':
-            data = json.dumps(request.data)
-            headers['content-type'] = 'application/json; charset=utf-8'
-        else:
-            data = request.data
-        
-        
-        
-        return method_map[method](url, headers=headers, data=data, files=request.FILES)
-
     def __unicode__(self):
         return self.name
 

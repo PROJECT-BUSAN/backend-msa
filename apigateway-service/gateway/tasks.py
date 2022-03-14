@@ -23,7 +23,6 @@ def send_request(request, upstream_host, upstream_path):
     for k,v in request["files"].items():
         request["data"].pop(k)
     
-    
     if request["content-type"] and request["content-type"].lower()=='application/json':
         data = json.dumps(request["data"])
         headers['Content-Type'] = 'application/json; charset=utf-8'

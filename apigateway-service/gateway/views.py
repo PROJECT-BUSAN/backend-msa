@@ -15,13 +15,14 @@ class Gateway(APIView):
     def operation(self, request, *args, **kwargs):
         upstream_path = request.path
         path = request.path.split('/')
+        origin_cookies = request.COOKIES
         
         if len(path) < 2:
             return Response('Bad request Path', status=status.HTTP_400_BAD_REQUEST)
         
         # ** Most Dangerous Code **
         # EX : /api/v1/users...
-        path = '/' + path[1] + "/" + path[2] + "/" + path[3]
+        path = '/' + path[1] + '/' + path[2] + '/' + path[3]
         
         apimodel = Api.objects.filter(upstream_path=path)
         if apimodel.count() != 1:
@@ -31,6 +32,11 @@ class Gateway(APIView):
         valid, msg = apimodel.check_auth_perm(request)
         if not valid:
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+        
+        if msg is not '':
+            userid = msg
+            request.data['userId'] = userid
+            request.data['username'] = "adsf"
         
         request = {
             "method": request.method,
@@ -53,7 +59,14 @@ class Gateway(APIView):
         context = []
         context.append(response_data)
         
-        return Response(data=context)
+        response = Response(data=context)
+        if origin_cookies.get("csrftoken", ''):
+            response.set_cookie(key="csrftoken", value=origin_cookies["csrftoken"])
+            
+        if origin_cookies.get("refreshtoken", ''):
+            response.set_cookie(key="refreshtoken", value=origin_cookies["refreshtoken"], httponly=True)
+        
+        return response
     
     
     def get(self, request, *args, **kwargs):
@@ -65,7 +78,7 @@ class Gateway(APIView):
     def put(self, request, *args, **kwargs):
         return self.operation(request, *args, **kwargs)
     
-    def put(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         return self.operation(request, *args, **kwargs)
     
     def delete(self, request, *args, **kwargs):
