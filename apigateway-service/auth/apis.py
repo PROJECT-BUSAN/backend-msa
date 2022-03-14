@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 
-from auth.authenticate import generate_access_token, jwt_login
+from auth.authenticate import jwt_login
 from api.mixins import PublicApiMixin
 from django.utils.decorators import method_decorator
 
@@ -76,13 +76,8 @@ class RefreshJWTtoken(PublicApiMixin, APIView):
                 "message": "user is inactive"
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        access_token = generate_access_token(user)
-        
-        return Response(
-            {
-                'access_token': access_token,
-            }
-        )
+        response = Response(status=status.HTTP_200_OK)
+        return jwt_login(response, user)
         
         
 @method_decorator(csrf_protect, name='dispatch')

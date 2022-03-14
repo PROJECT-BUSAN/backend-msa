@@ -84,7 +84,7 @@ class AdministratorAuthentication(SafeJWTAuthentication):
         if not user.is_superuser:
             raise exceptions.AuthenticationFailed('User is not superuser')
         
-        # self.enforce_csrf(request)
+        self.enforce_csrf(request)
         
         return (user, None)
 
@@ -135,7 +135,7 @@ def generate_refresh_token(user):
     
     refresh_token = jwt.encode(
         refresh_token_payload,
-        settings.REFRESH_TOKEN_SECRET, algorithm='HS256'
+        settings.SECRET_KEY, algorithm='HS256'
     ).decode('utf-8')
     
     return refresh_token
