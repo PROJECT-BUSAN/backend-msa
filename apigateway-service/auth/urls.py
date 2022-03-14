@@ -22,13 +22,15 @@ login_patterns = [
 ]
 
 validate_patterns = [
-    path('username/', username_duplicate_checkApi.as_view()),
-    path('email/', email_duplicate_checkApi.as_view()),
+    path('username', username_duplicate_checkApi.as_view()),
+    path('email', email_duplicate_checkApi.as_view()),
     
 ]
 
 urlpatterns = [
     path('logout', LogoutApi.as_view(), name="logout"),
+    path('login', LoginApi.as_view(), name="login"),
+    
     path('login/', include(login_patterns)),
     path('validate/', include(validate_patterns)),
 ]
