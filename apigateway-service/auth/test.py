@@ -24,9 +24,7 @@ class AuthTest(APITestCase):
         
         
     def test_login_api(self):
-        '''
-        로그인 API 테스트
-        '''
+        print("test_login_api")
         user = {
             'username': 'test',
             'password': 'test'
@@ -37,9 +35,7 @@ class AuthTest(APITestCase):
         
     
     def test_username_duplicate_api(self):
-        '''
-        회원가입 중복 username API 테스트
-        '''
+        print("test_username_duplicate_api")
         context = {
             'username': 'test',
         }
@@ -54,9 +50,7 @@ class AuthTest(APITestCase):
         
         
     def test_email_duplicate_api(self):
-        '''
-        회원가입 중복 email API 테스트
-        '''
+        print("test_email_duplicate_api")
         context = {
             'email': 'test@test.com',
         }
@@ -71,10 +65,7 @@ class AuthTest(APITestCase):
         
     
     def test_login_api_get_token(self):
-        '''
-        로그인 할 때 토큰 발급 테스트
-        '''
-        
+        print("test_login_api_get_token")
         context = {
             "username": "test",
             "password": "test"

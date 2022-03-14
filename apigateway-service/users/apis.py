@@ -28,7 +28,7 @@ from users.services import send_mail, email_auth_string
 User = get_user_model()
 
 
-class GetDeleteUserInfoApi(ApiAuthMixin, APIView):
+class GetUserInfoApi(ApiAuthMixin, APIView):
     def get(self, request, *args, **kwargs):
         """
         현재 로그인 된 유저의 모든 정보 반환
@@ -46,8 +46,36 @@ class GetDeleteUserInfoApi(ApiAuthMixin, APIView):
             )
         
         return Response(UserSerializer(user_query, many=True, context={'request':request}).data)
-    
-    
+
+
+class CreateUserApi(PublicApiMixin, APIView):
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        """
+        회원가입 api
+        user 모델과 profile 모델이 반드시 같이 생성되어야 하기 때문에
+        transaction 적용
+        """
+        serializer = RegisterSerializer(data=request.data)
+        if not serializer.is_valid(raise_exception=True):
+            return Response({
+                "message": "Request Body Error"
+                }, status=status.HTTP_409_CONFLICT)
+        
+        user = serializer.save()
+        
+        """
+        profile-service로 user create 요청 전송
+        requests.post("http://profile-service/api/v1/profile")
+        """
+        
+        
+        response = Response(status=status.HTTP_200_OK)
+        response = jwt_login(response=response, user=user)
+        return response
+
+
+class DeleteUserApi(ApiAuthMixin, APIView):
     def delete(self, request, *args, **kwargs):
         """
         현재 로그인 된 유저 삭제
@@ -57,7 +85,7 @@ class GetDeleteUserInfoApi(ApiAuthMixin, APIView):
         user = request.user
         signup_path = user.profile.signup_path
         
-        if signup_path != "basic":
+        if signup_path == "kakao" or signup_path == "google":
             user.delete()
             return Response({
                 "message": "Delete user success"
@@ -78,33 +106,6 @@ class GetDeleteUserInfoApi(ApiAuthMixin, APIView):
         return Response({
             "message": "Delete user success"
             }, status=status.HTTP_204_NO_CONTENT)
-
-
-class CreateUserApi(PublicApiMixin, APIView):
-    @transaction.atomic
-    def post(self, request, *args, **kwargs):
-        """
-        회원가입 api
-        user 모델과 profile 모델이 반드시 같이 생성되어야 하기 때문에
-        transaction 적용
-        """
-        
-        serializer = RegisterSerializer(data=request.data)
-        if not serializer.is_valid(raise_exception=True):
-            return Response({
-                "message": "Request Body Error"
-                }, status=status.HTTP_409_CONFLICT)
-        
-        user = serializer.save()
-        
-        """
-        profile-service로 user create 요청 전송
-        requests.post("http://profile-service/api/v1/profile")
-        """
-        
-        response = Response(status=status.HTTP_200_OK)
-        response = jwt_login(response=response, user=user)
-        return response
 
 
 class FindIDApi(PublicApiMixin, APIView):

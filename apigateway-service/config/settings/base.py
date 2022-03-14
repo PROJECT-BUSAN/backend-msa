@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # api 명세
-    'swagger',
+    # 'swagger',
     'drf_yasg',
     
     # debug toolbar
@@ -193,5 +193,4 @@ APIGATEWAY_INNER_FUNCTION = [
     "/admin",
     "/api/v1/users",
     "/api/v1/auth",
-    "/api/v1/swagger",
 ]

@@ -78,7 +78,7 @@ class Gateway(APIView):
     def put(self, request, *args, **kwargs):
         return self.operation(request, *args, **kwargs)
     
-    def patch(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         return self.operation(request, *args, **kwargs)
     
     def delete(self, request, *args, **kwargs):

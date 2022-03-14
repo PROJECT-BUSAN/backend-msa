@@ -8,4 +8,5 @@ app_name = 'gateway'
 
 urlpatterns = [
     path('', Gateway.as_view()),
+    
 ]
