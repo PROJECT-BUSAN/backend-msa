@@ -195,7 +195,7 @@ public class ChannelApiController {
         StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(stockResults, nowChannel.gameResult(), "CLOSE");
         redisPublisher.publishEndMessage(channelRepository.getTopic(channelId), stockGameEndMessage);
 
-        channelService.deleteChannel(channelId);
+        channelService.deleteChannel(nowChannel);
     }
     
     
