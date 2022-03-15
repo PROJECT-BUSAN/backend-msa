@@ -5,12 +5,8 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.*;
-import project.investmentservice.domain.dto.StockGameEndMessage;
-import project.investmentservice.domain.dto.StockInfoMessage;
 import project.investmentservice.pubsub.RedisPublisher;
 import project.investmentservice.repository.ChannelRepository;
 import project.investmentservice.service.ChannelService;
@@ -41,9 +37,6 @@ public class ChannelApiController {
     private final ChannelService channelService;
     private final RedisPublisher redisPublisher;
     private final ChannelRepository channelRepository;
-    private final StockInfoService stockInfoService;
-    private final CompanyService companyService;
-    private final InvestmentService investmentService;
 
     //모든 채널 반환
     @GetMapping("/channel")
@@ -63,19 +56,21 @@ public class ChannelApiController {
     // 채널 입장
     @PostMapping("/channel/{channelId}")
     public EnterChannelResponse enterChannel(@PathVariable("channelId") String channelId, @RequestBody @Valid EnterChannelRequest request) {
-        int result = channelService.enterChannel(channelId, request.getUserId(), request.getUsername());
+        Long userId = request.getUserId();
+        String username = request.getUsername();
+        int result = channelService.enterChannel(channelId, userId, username);
         if(result == 0) {
-            return new EnterChannelResponse(SUCCESS, "채널에 입장합니다.");
+            return new EnterChannelResponse(SUCCESS, "채널에 입장합니다.", userId, username);
         }
         else if(result == 1) {
-            return new EnterChannelResponse(FAIL, "채널에 입장하기 위한 포인트가 부족합니다.");
+            return new EnterChannelResponse(FAIL, "채널에 입장하기 위한 포인트가 부족합니다.", userId, username);
 
         }
         else if(result == 2) {
-            return new EnterChannelResponse(FAIL, "채널에 인원이 가득찼습니다.");
+            return new EnterChannelResponse(FAIL, "채널에 인원이 가득찼습니다.", userId, username);
         }
         else {
-            return new EnterChannelResponse(FAIL, "Server Error 500.");
+            return new EnterChannelResponse(FAIL, "Server Error 500.", userId, username);
         }
     }
 
@@ -238,6 +233,8 @@ public class ChannelApiController {
         }
         private returnType type;
         private String message;
+        private Long userId;
+        private String userName;
     }
 
     @Data

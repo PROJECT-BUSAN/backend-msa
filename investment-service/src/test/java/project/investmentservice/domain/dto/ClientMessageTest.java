@@ -13,12 +13,12 @@ import static project.investmentservice.domain.dto.ClientMessage.MessageType.ENT
 @SpringBootTest
 public class ClientMessageTest {
 
-    @Test
-    public void createClientMessage() {
-        ClientMessage clientMessage = new ClientMessage(ENTER, "test", 1L);
-        assertEquals(clientMessage.getType(), ENTER);
-        assertEquals(clientMessage.getChannelId(), "test");
-        assertEquals(clientMessage.getSenderId(), 1L);
-    }
+//    @Test
+//    public void createClientMessage() {
+//        ClientMessage clientMessage = new ClientMessage(ENTER, "test", 1L);
+//        assertEquals(clientMessage.getType(), ENTER);
+//        assertEquals(clientMessage.getChannelId(), "test");
+//        assertEquals(clientMessage.getSenderId(), 1L);
+//    }
 
 }

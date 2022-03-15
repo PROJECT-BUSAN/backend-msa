@@ -38,20 +38,14 @@ public class ChannelMessageController {
      */
     @MessageMapping("/game/message")
     public void message(ClientMessage clientMessage) {
+
         // 채널 ENTER TYPE
-        System.out.println("clientMessage = " + clientMessage.getChannelId());
+
         if (ENTER.equals(clientMessage.getType())) {
-            int EnterResult = channelService.enterChannel(clientMessage.getChannelId(), clientMessage.getSenderId(), clientMessage.getSenderName());
             // 채널 입장 성공
-            if(EnterResult == 0) {
-                Channel channel = channelService.findOneChannel(clientMessage.getChannelId());
-                ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
-                redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
-            }
-            // 채널 입장 실패
-            else {
-                return;
-            }
+            Channel channel = channelService.findOneChannel(clientMessage.getChannelId());
+            ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
+            redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
         }
         // 채널 EXIT TYPE
         else if(EXIT.equals(clientMessage.getType())) {
