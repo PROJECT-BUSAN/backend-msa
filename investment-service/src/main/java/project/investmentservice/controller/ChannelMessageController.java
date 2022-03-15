@@ -6,6 +6,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.dto.ClientMessage;
+import project.investmentservice.domain.dto.ClientMessage.MessageType;
 import project.investmentservice.domain.dto.ServerMessage;
 import project.investmentservice.pubsub.RedisPublisher;
 import project.investmentservice.repository.ChannelRepository;
@@ -38,56 +39,63 @@ public class ChannelMessageController {
      */
     @MessageMapping("/game/message")
     public void message(ClientMessage clientMessage) {
+        MessageType messageType = clientMessage.getType();
 
         // 채널 ENTER TYPE
 
-        if (ENTER.equals(clientMessage.getType())) {
+        if (ENTER.equals(messageType)) {
             // 채널 입장 성공
             Channel channel = channelService.findOneChannel(clientMessage.getChannelId());
             ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
             redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
         }
         // 채널 EXIT TYPE
-        else if(EXIT.equals(clientMessage.getType())) {
+        else if(EXIT.equals(messageType)) {
             Channel exitChannel = channelRepository.findChannelById(clientMessage.getChannelId());
+            String exitChannelId = exitChannel.getId();
             // Host가 퇴장하는 경우 -> 채널 삭제
             if(exitChannel.getHostId() ==  clientMessage.getSenderId()) {
-                ServerMessage serverMessage = new ServerMessage(CLOSE, clientMessage.getChannelId(), null, "채널이 닫혔습니다.");
-                redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
-                channelService.deleteChannel(clientMessage.getChannelId());
+                ServerMessage serverMessage = new ServerMessage(CLOSE, exitChannelId, null, "채널이 닫혔습니다.");
+                redisPublisher.publish(channelRepository.getTopic(exitChannelId), serverMessage);
+                channelService.deleteChannel(exitChannel);
             }
             // Host가 아닌 사용자가 퇴장하는 경우 -> 채널 유지
             else {
-                Channel channel = channelService.exitChannel(clientMessage.getChannelId(), clientMessage.getSenderId());
-                ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers(), null);
-                redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
+                Channel channel = channelService.exitChannel(exitChannelId, clientMessage.getSenderId());
+                ServerMessage serverMessage = new ServerMessage(RENEWAL, exitChannelId, channel.getUsers(), null);
+                redisPublisher.publish(channelRepository.getTopic(exitChannelId), serverMessage);
             }
         }
+
         // 채널 READY TYPE
-        else if(READY.equals(clientMessage.getType())) {
-            Channel channel = channelService.setReady(clientMessage.getChannelId(), clientMessage.getSenderId());
+        else if(READY.equals(messageType)) {
+            String channelId = clientMessage.getChannelId();
+            Channel channel = channelService.setReady(channelId, clientMessage.getSenderId());
             if(channel.getHostId() == clientMessage.getSenderId()) {
                 //모든인원 ready 상태 확인
-                if(channelService.checkReadyState(clientMessage.getChannelId())) {
-                    ServerMessage serverMessage = new ServerMessage(START, clientMessage.getChannelId(), channel.getUsers(), "게임화면으로 넘어갑니다.");
-
-                    redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
+                if(channelService.checkReadyState(channelId)) {
+                    ServerMessage serverMessage = new ServerMessage(START, channelId, channel.getUsers(), "게임화면으로 넘어갑니다.");
+                    redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
                 }
                 else {
-                    ServerMessage serverMessage = new ServerMessage(NOTICE, clientMessage.getChannelId(), channel.getUsers(), "모든 참가자가 준비를 완료해야 합니다.");
-                    redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
+                    ServerMessage serverMessage = new ServerMessage(NOTICE, channelId, channel.getUsers(), "모든 참가자가 준비를 완료해야 합니다.");
+                    redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
                 }
             }
             else {
-                ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers(), null);
-                redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
+                ServerMessage serverMessage = new ServerMessage(RENEWAL, channelId, channel.getUsers(), null);
+                redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
             }
         }
         // 채널 CANCEL TYPE (준비 취소)
-        else if(CANCEL.equals(clientMessage.getType())) {
+        else if(CANCEL.equals(messageType)) {
             Channel channel = channelService.cancelReady(clientMessage.getChannelId(), clientMessage.getSenderId());
             ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers(), null);
             redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
+        }
+        else if(START.equals(messageType)) {
+            Channel channel = channelService.findOneChannel(clientMessage.getChannelId());
+
         }
     }
 }
