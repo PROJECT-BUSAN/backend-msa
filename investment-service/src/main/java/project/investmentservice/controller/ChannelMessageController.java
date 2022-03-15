@@ -4,13 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
-import project.investmentservice.domain.Channel;
-import project.investmentservice.domain.dto.ClientMessage;
+import project.investmentservice.domain.*;
+import project.investmentservice.domain.dto.*;
 import project.investmentservice.domain.dto.ClientMessage.MessageType;
-import project.investmentservice.domain.dto.ServerMessage;
 import project.investmentservice.pubsub.RedisPublisher;
 import project.investmentservice.repository.ChannelRepository;
 import project.investmentservice.service.ChannelService;
+import project.investmentservice.service.CompanyService;
+import project.investmentservice.service.StockInfoService;
+
+import java.util.*;
 
 import static project.investmentservice.domain.dto.ServerMessage.MessageType.*;
 import static project.investmentservice.domain.dto.ClientMessage.MessageType.*;
@@ -19,12 +22,11 @@ import static project.investmentservice.domain.dto.ClientMessage.MessageType.*;
 @Controller
 public class ChannelMessageController {
 
-    @Autowired
     private final ChannelRepository channelRepository;
-    @Autowired
     private final ChannelService channelService;
-    @Autowired
     private final RedisPublisher redisPublisher;
+    private final CompanyService companyService;
+    private final StockInfoService stockInfoService;
 
     /**
      * websocket "/pub/game/message"로 들어오는 메시징을 처리한다.
@@ -74,8 +76,7 @@ public class ChannelMessageController {
             if(channel.getHostId() == clientMessage.getSenderId()) {
                 //모든인원 ready 상태 확인
                 if(channelService.checkReadyState(channelId)) {
-                    ServerMessage serverMessage = new ServerMessage(START, channelId, channel.getUsers(), "게임화면으로 넘어갑니다.");
-                    redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
+                    gameStart(channelId);
                 }
                 else {
                     ServerMessage serverMessage = new ServerMessage(NOTICE, channelId, channel.getUsers(), "모든 참가자가 준비를 완료해야 합니다.");
@@ -93,9 +94,108 @@ public class ChannelMessageController {
             ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers(), null);
             redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
         }
-        else if(START.equals(messageType)) {
-            Channel channel = channelService.findOneChannel(clientMessage.getChannelId());
+    }
 
+    public void gameStart(String channelId) {
+
+        // 게임에서 사용할 기업을 랜덤으로 n개 가져온다.
+        HashSet<Long> companyIds = companyService.selectInGameCompany(2);
+
+        // 게임에서 사용할 n개의 기업에 대한 주가 정보를 저장하는 배열
+        List<List<StockInfo>> stockLists = new ArrayList<>();
+        for(Long cid: companyIds){
+            stockLists.add(stockInfoService.getPeriodStockInfo(cid));
         }
+
+        // <company_id, closePrice>
+        Map<Long, Double> closeValue = new HashMap<>();
+
+        // 타이머 종료를 위한 lock 객체 설정
+        Object lock = new Object();
+        // 10초에 한 번씩 주가 정보를 전송한다.
+        // 주요 게임 로직을 담당한다.
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            int idx = 0;
+            @Override
+            public void run() {
+                if(idx < 60) {
+                    for(int i = 0; i < stockLists.size(); i++){
+                        StockInfo stockInfo = stockLists.get(i).get(idx);
+                        StockInfoMessage stockInfoMessage = new StockInfoMessage(
+                                stockInfo.getDate(),
+                                stockInfo.getClose(),
+                                stockInfo.getOpen(),
+                                stockInfo.getHigh(),
+                                stockInfo.getLow(),
+                                stockInfo.getVolume(),
+                                stockInfo.getCompany().getId()
+                        );
+                        System.out.println("stockInfo.getClose() = " + stockInfo.getClose());
+                        redisPublisher.publishStock(channelRepository.getTopic(channelId), stockInfoMessage);
+                        closeValue.put(stockInfo.getCompany().getId(), stockInfo.getClose());
+                    }
+                    idx++;
+                }
+                else {
+                    // 타이머가 종료되면 lock에 시그널을 보낸다.
+                    synchronized (lock) {
+                        lock.notifyAll();
+                    }
+                    timer.cancel();
+                }
+            }
+        };
+        timer.schedule(timerTask, 0, 1000);
+
+//         타이머가 종료된 이후 다음 로직을 수행해야 하므로
+//         lock이 시그널을 받을 때까지 기다린다.
+        synchronized (lock) {
+            try {
+                lock.wait();
+            } catch (InterruptedException ex) {
+            }
+        }
+
+        /**
+         *    게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
+         */
+        Channel nowChannel = channelService.findOneChannel(channelId);
+        Map<Long, User> users = nowChannel.getUsers();
+
+        for(Long userKey : users.keySet()) {
+            User user = users.get(userKey);
+            double userSeedMoney = user.getSeedMoney();
+            for(Long companyKey : user.getCompanies().keySet()) {
+                UsersStock usersStock = user.getCompanies().get(companyKey);
+                if(usersStock.getQuantity() == 0L) continue;
+                double sellPrice = closeValue.get(companyKey);
+                userSeedMoney += (sellPrice * usersStock.getQuantity());
+            }
+            user.setSeedMoney(userSeedMoney);
+        }
+        channelRepository.updateChannel(nowChannel);
+
+
+        // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
+        int k = 0;
+        List<StockResult> stockResults = new ArrayList<>();
+        for(Long cid: companyIds){
+            Company company = companyService.findOneCompany(cid);
+            StockResult stockResult = new StockResult(
+                    cid,
+                    company.getStock_name(),
+                    stockLists.get(k).get(0).getDate(),
+                    stockLists.get(k).get(59).getDate(),
+                    "게임이 종료됩니다."
+            );
+            stockResults.add(stockResult);
+            k++;
+        }
+
+        StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(stockResults, nowChannel.gameResult(), "CLOSE");
+        redisPublisher.publishEndMessage(channelRepository.getTopic(channelId), stockGameEndMessage);
+
+        channelService.deleteChannel(nowChannel);
     }
 }

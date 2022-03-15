@@ -38,10 +38,6 @@ import static project.investmentservice.api.ChannelApiController.EnterChannelRes
 public class ChannelApiController {
 
     private final ChannelService channelService;
-    private final RedisPublisher redisPublisher;
-    private final ChannelRepository channelRepository;
-    private final CompanyService companyService;
-    private final StockInfoService stockInfoService;
 
     //모든 채널 반환
     @GetMapping("/channel")
@@ -78,127 +74,6 @@ public class ChannelApiController {
             return new EnterChannelResponse(FAIL, "Server Error 500.", userId, username);
         }
     }
-
-    // 게임 시작 및 종료
-    @PostMapping("/channel/start/{channelId}")
-    public ResponseEntity startChannel(@PathVariable("channelId") String channelId) {
-//        Tttt te = new Tttt();
-//        te.setName("please");
-//        redisPublisher.test(channelRepository.getTopic(channelId), te);
-
-//         채널의 유저가 모두 ready 상태인지 확인
-        if (channelService.checkReadyState(channelId)) {
-            gameStart(channelId);
-            return new ResponseEntity( HttpStatus.OK);
-        }
-        
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
-    }
-
-    public void gameStart(String channelId) {
-
-        // 게임에서 사용할 기업을 랜덤으로 n개 가져온다.
-        HashSet<Long> companyIds = companyService.selectInGameCompany(2);
-
-        // 게임에서 사용할 n개의 기업에 대한 주가 정보를 저장하는 배열
-        List<List<StockInfo>> stockLists = new ArrayList<>();
-        for(Long cid: companyIds){
-            stockLists.add(stockInfoService.getPeriodStockInfo(cid));
-        }
-
-        // <company_id, closePrice>
-        Map<Long, Double> closeValue = new HashMap<>();
-
-        // 타이머 종료를 위한 lock 객체 설정
-        Object lock = new Object();
-        // 10초에 한 번씩 주가 정보를 전송한다.
-        // 주요 게임 로직을 담당한다.
-        Timer timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            int idx = 0;
-            @Override
-            public void run() {
-                if(idx < 60) {
-                    for(int i = 0; i < stockLists.size(); i++){
-                        StockInfo stockInfo = stockLists.get(i).get(idx);
-                        StockInfoMessage stockInfoMessage = new StockInfoMessage(
-                                stockInfo.getDate(),
-                                stockInfo.getClose(),
-                                stockInfo.getOpen(),
-                                stockInfo.getHigh(),
-                                stockInfo.getLow(),
-                                stockInfo.getVolume(),
-                                stockInfo.getCompany().getId()
-                        );
-                        System.out.println("stockInfo.getClose() = " + stockInfo.getClose());
-                        redisPublisher.publishStock(channelRepository.getTopic(channelId), stockInfoMessage);
-                        closeValue.put(stockInfo.getCompany().getId(), stockInfo.getClose());
-                    }
-                    idx++;
-                }
-                else {
-                    // 타이머가 종료되면 lock에 시그널을 보낸다.
-                    synchronized (lock) {
-                        lock.notifyAll();
-                    }
-                    timer.cancel();
-                }
-            }
-        };
-        timer.schedule(timerTask, 0, 1000);
-
-//         타이머가 종료된 이후 다음 로직을 수행해야 하므로
-//         lock이 시그널을 받을 때까지 기다린다.
-        synchronized (lock) {
-            try {
-                lock.wait();
-            } catch (InterruptedException ex) {
-            }
-        }
-
-        /**
-         *    게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
-         */
-        Channel nowChannel = channelService.findOneChannel(channelId);
-        Map<Long, User> users = nowChannel.getUsers();
-
-        for(Long userKey : users.keySet()) {
-            User user = users.get(userKey);
-            double userSeedMoney = user.getSeedMoney();
-            for(Long companyKey : user.getCompanies().keySet()) {
-                UsersStock usersStock = user.getCompanies().get(companyKey);
-                if(usersStock.getQuantity() == 0L) continue;
-                double sellPrice = closeValue.get(companyKey);
-                userSeedMoney += (sellPrice * usersStock.getQuantity());
-            }
-            user.setSeedMoney(userSeedMoney);
-        }
-        channelRepository.updateChannel(nowChannel);
-
-
-        // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
-        int k = 0;
-        List<StockResult> stockResults = new ArrayList<>();
-        for(Long cid: companyIds){
-            Company company = companyService.findOneCompany(cid);
-            StockResult stockResult = new StockResult(
-                    cid,
-                    company.getStock_name(),
-                    stockLists.get(k).get(0).getDate(),
-                    stockLists.get(k).get(59).getDate(),
-                    "게임이 종료됩니다."
-            );
-            stockResults.add(stockResult);
-            k++;
-        }
-        
-        StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(stockResults, nowChannel.gameResult(), "CLOSE");
-        redisPublisher.publishEndMessage(channelRepository.getTopic(channelId), stockGameEndMessage);
-
-        channelService.deleteChannel(nowChannel);
-    }
-    
-    
 
     @Data
     @AllArgsConstructor
@@ -249,15 +124,5 @@ public class ChannelApiController {
         private String userName;
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class gameEndResponse {
-        // 게임에 사용된 기업의 이름, 주식 시작-종료 날짜
-        private Long companyId;
-        private String stockName;
-        private LocalDate startDate;
-        private LocalDate endDate;
-        private String message;
-    }
     
 }
