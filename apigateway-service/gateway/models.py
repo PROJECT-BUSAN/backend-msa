@@ -33,6 +33,8 @@ class Api(models.Model):
             return True, ''
             
         elif self.plugin == 1:
+            if request.method in SAFE_METHODS:
+                return True, ''
             auth = SafeJWTAuthentication()
             try:
                 user, temp = auth.authenticate(request)
@@ -40,9 +42,7 @@ class Api(models.Model):
                 return False, 'Authentication credentials were not provided'
 
             if User.objects.filter(pk=user.id).exists():
-                if request.method in SAFE_METHODS:
-                    return True, ''
-                elif self.has_permission(user):
+                if self.has_permission(user):
                     return True, user.id
                 else:
                     return False, 'permission not allowed'

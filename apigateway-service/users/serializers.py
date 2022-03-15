@@ -121,41 +121,24 @@ class RegisterSerializer(serializers.Serializer):
         data['username'] = self.validate_username(data['username'])
         return data
 
-    # def get_cleaned_data(self):
-    #     return {
-    #         'username': self.validated_data.get('username', ''),
-    #         'password1': self.validated_data.get('password1', ''),
-    #         'email': self.validated_data.get('email', '')
-    #     }
-        
     def create(self, validated_data):
-        user = User.objects.create_user(
-            # username=validated_data["username"],
-            # email=validated_data["email"],
-            # password=validated_data["password1"],
-            validated_data
-        )
+        user = User.objects.create_user(validated_data)
         
         return user
 
 
 class PasswordChangeSerializer(serializers.Serializer):
-    oldpassword = serializers.CharField(write_only=True)
     newpassword1 = serializers.CharField(write_only=True)
     newpassword2 = serializers.CharField(write_only=True)
     
-    def validate_password(self, oldpassword, newpassword1, newpassword2):
-        if oldpassword == newpassword1 or oldpassword == newpassword2:
-            raise serializers.ValidationError(
-                _("oldpw and newpw are same either"))
-        
+    def validate_password(self, newpassword1, newpassword2):
         newpassword = validate_password12(newpassword1, newpassword2)
         
         return newpassword
     
     def validate(self, data):
         data['newpassword1'] = self.validate_password(
-            data['oldpassword'], data['newpassword1'], data['newpassword2'])
+            data['newpassword1'], data['newpassword2'])
         
         return data
     
