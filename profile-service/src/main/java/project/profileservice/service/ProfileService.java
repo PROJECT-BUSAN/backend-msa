@@ -54,7 +54,7 @@ public class ProfileService {
         profile.setUser_id(user_id);
         profile.setMaxStrick(1);
         profile.setNowStrick(1);
-        profile.setPoint(1000000L);
+        profile.setPoint(1000000.0);
         
         // Attendance 생성
         Attendance attendance = new Attendance();
@@ -116,9 +116,10 @@ public class ProfileService {
      * @return
      */
     @Transactional
-    public Long updatePoint(Long user_id, Long point) {
+    public double updatePoint(Long user_id, double point) {
         Profile profile = profileRepository.findOne(user_id);
         profile.updatePoint(point);
         return profile.getPoint();
     }
+
 }

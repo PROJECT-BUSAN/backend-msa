@@ -48,10 +48,10 @@ public class ProfileServiceTest {
         Long user_id = profileService.create(1L);
         
         //when
-        Long updatePoint = profileService.updatePoint(user_id, -500000L);
+        double updatePoint = profileService.updatePoint(user_id, -500000.0);
 
         //then
-        Assertions.assertEquals(updatePoint, 500000L);
+        Assertions.assertEquals(updatePoint, 500000.0);
         
     }
 
@@ -61,7 +61,7 @@ public class ProfileServiceTest {
         Long user_id = profileService.create(1L);
         
         // when
-        Long updatePoint = profileService.updatePoint(user_id, -1000001L);
+        double updatePoint = profileService.updatePoint(user_id, -1000001.0);
         
         // then
         Assert.fail("point가 부족합니다.");

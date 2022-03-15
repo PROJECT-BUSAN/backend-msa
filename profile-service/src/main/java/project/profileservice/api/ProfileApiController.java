@@ -3,6 +3,8 @@ package project.profileservice.api;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.profileservice.domain.Badge;
 import project.profileservice.domain.Profile;
@@ -31,6 +33,7 @@ public class ProfileApiController {
         Profile profile = profileService.findOneAllInfo(user_id);
         return new ProfileResponse(profile);
     }
+
 
     /**
      * 새로운 프로필을 생성한다
@@ -68,12 +71,36 @@ public class ProfileApiController {
         return new Message("획득 성공");
     }
 
+    /**
+     * 회원 포인트 반환
+     */
+
+    @GetMapping("{user_id}/point")
+    public PointResponse FindUserPoint(@PathVariable("user_id") Long user_id) {
+        double userPoint = profileService.findOneAllInfo(user_id).getPoint();
+        return new PointResponse(userPoint);
+    }
+
+    /**
+     * 회원 포인트 업데이트
+     */
     @PostMapping("{user_id}/point")
     public UpdatePointResponse ProfileUpdatePoint(@PathVariable("user_id") Long user_id,
                                                   @RequestBody UpdatePointRequest request) {
 
-        Long updatePoint = profileService.updatePoint(user_id, request.getPoint());
+        double updatePoint = profileService.updatePoint(user_id, request.getPoint());
         return new UpdatePointResponse(user_id, updatePoint);
+    }
+
+    /**
+     * 투자게임 참여 회원 포인트 전체 업데이트
+     */
+    @PostMapping("point/bulk")
+    public ResponseEntity ProfileUpdatePointAllUser(@RequestBody AllUserRequest request) {
+        for (Long userId : request.getUserIds()) {
+            profileService.updatePoint(userId, request.getEntryFee());
+        }
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 
@@ -98,14 +125,14 @@ public class ProfileApiController {
     @Data
     static class UpdatePointRequest {
         @NotNull
-        private Long point;
+        private double point;
     }
 
     @Data
     @AllArgsConstructor
     static class UpdatePointResponse {
         private Long user_id;
-        private Long point;
+        private double point;
     }
 
     static class BadgeDto {
@@ -126,7 +153,7 @@ public class ProfileApiController {
         private Long user_id;
         private int nowStrick;
         private int maxStrick;
-        private Long point;
+        private double point;
         private List<BadgeDto> badges = new ArrayList<>();
 
         public ProfileResponse(Profile profile) {
@@ -140,4 +167,25 @@ public class ProfileApiController {
             }
         }
     }
+
+    @Data
+    static class AllUserRequest {
+        private List<Long> userIds;
+        private double entryFee;
+
+        public AllUserRequest(List<Long> userIds, double entryFee) {
+            this.userIds = userIds;
+            this.entryFee = entryFee;
+        }
+    }
+
+    @Data
+    static class PointResponse {
+        private double userPoint;
+
+        public PointResponse(double userPoint) {
+            this.userPoint = userPoint;
+        }
+    }
+
 }

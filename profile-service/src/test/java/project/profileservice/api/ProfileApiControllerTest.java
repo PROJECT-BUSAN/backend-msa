@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import project.profileservice.domain.Badge;
 import project.profileservice.domain.Profile;
@@ -93,7 +94,23 @@ public class ProfileApiControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("point").value("500000"));
     }
-    
+
+    @Test
+    public void 포인트반환API() throws Exception {
+        // given
+        createProfile(1L);
+
+        // when
+        MvcResult resultActions = this.mockMvc.perform(get("/api/v1/profile/1/point")
+                .contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String str = resultActions.getResponse().getContentAsString();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        PointDto pointDto = objectMapper.readValue(str, PointDto.class);
+        System.out.println("pointDto = " + pointDto.getUserPoint());
+
+        // then
+    }
     
 
     private Long createProfile(Long user_id) {
@@ -102,5 +119,18 @@ public class ProfileApiControllerTest extends BaseControllerTest {
 
     private Long createBadge(String name) {
         return badgeService.create(name, "https://...");
+    }
+
+
+    static class PointDto {
+        double userPoint;
+
+        public double getUserPoint() {
+            return userPoint;
+        }
+
+        public PointDto(double userPoint) {
+            this.userPoint = userPoint;
+        }
     }
 }
