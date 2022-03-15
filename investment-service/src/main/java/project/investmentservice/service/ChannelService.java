@@ -24,10 +24,10 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 추가
      */
-    public Channel createChannel(String channelName, int LimitOfParticipants, double entryFee, Long hostUserId) {
+    public Channel createChannel(String channelName, int LimitOfParticipants, double entryFee, Long hostUserId, String hostname) {
 
         //채널 객체 생성
-        Channel channel = Channel.create(channelName, channelNum++, LimitOfParticipants, entryFee, hostUserId);
+        Channel channel = Channel.create(channelName, channelNum++, LimitOfParticipants, entryFee, hostUserId, hostname);
 
         //채널 저장
         channelRepository.createChannel(channel);
@@ -67,7 +67,7 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 입장
      */
-    public int enterChannel(String channelId, Long userId) {
+    public int enterChannel(String channelId, Long userId, String username) {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
         double userPoint = 1000.0;
 
@@ -77,7 +77,7 @@ public class ChannelService {
             //channel을 생성할때의 제한 인원이 현재 channel에 있는 인원보다 클때 -> channel 입장 비용 확인
             if(findChannel.getEntryFee() <= userPoint) {
                 //userPoint는 게임이 시작할때 차감하는걸로
-                findChannel.getUsers().put(userId, new User(userPoint));
+                findChannel.getUsers().put(userId, new User(userPoint, username));
                 channelRepository.updateChannel(findChannel);
                 return 0;
             }

@@ -30,7 +30,7 @@ public class ChannelRepository {
     private HashOperations<String, String, Channel> opsHashChannel;
 
     //채널에 메시지를 발행하기 위한 redis topic 정보. 서버별로 채널에 매치되는 topic 정보를 Map에 넣어 channelId로 찾을 수있게 한다.
-    private Map<String, ChannelTopic> topics;
+    private static Map<String, ChannelTopic> topics;
 
 
     // 초깃값 설정. Test code에서도 자동으로 실행됨

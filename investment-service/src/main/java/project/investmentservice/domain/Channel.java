@@ -20,9 +20,10 @@ public class Channel implements Serializable {
     private Map<Long, User> users = new HashMap<>();
     private double pointPsum;
     private Long hostId;
+    private String hostName;
 
 
-    public static Channel create(String channelName, Long channelNum, int LimitOfParticipants, double entryFee, Long hostId) {
+    public static Channel create(String channelName, Long channelNum, int LimitOfParticipants, double entryFee, Long hostId, String hostname) {
         // 채널 정보 생성 + host 추가
         Channel channel = new Channel();
         channel.id = UUID.randomUUID().toString();
@@ -31,8 +32,9 @@ public class Channel implements Serializable {
         channel.LimitOfParticipants = LimitOfParticipants;
         channel.entryFee = entryFee;
         channel.hostId = hostId;
+        channel.hostName = hostname;
 
-        User user = new User(entryFee);
+        User user = new User(entryFee, hostname);
         user.setReadyType(User.ReadyType.READY);
         channel.users.put(hostId, user);
         channel.pointPsum = entryFee;
