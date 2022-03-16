@@ -42,7 +42,7 @@ public class ChannelServiceTest {
         Channel channel = channelService.createChannel("deleteChannel", 10, 10000.0, 2L);
 
         //when
-        channelService.deleteChannel(channel.getId());
+        channelService.deleteChannel(channel);
         int afterChannelCount = channelService.findAllChannel().size();
 
         //then

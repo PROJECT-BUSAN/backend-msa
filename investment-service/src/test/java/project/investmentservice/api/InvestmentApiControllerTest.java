@@ -55,7 +55,7 @@ public class InvestmentApiControllerTest {
     @Test
     public void purchaseStock_성공() throws Exception{
         //given
-        Channel channel = channelService.createChannel("springboot", 100, 10L, 112L);
+        Channel channel = channelService.createChannel("springboot", 100, 10L, 112L, "man");
         channelService.enterChannel(channel.getId(), 31L);
 
         StockRequest request = new StockRequest();

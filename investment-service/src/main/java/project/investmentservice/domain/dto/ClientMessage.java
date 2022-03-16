@@ -14,10 +14,12 @@ public class ClientMessage {
     private MessageType type;
     private String channelId;
     private Long senderId;
+    private String senderName;
 
-    public ClientMessage(MessageType type, String channelId, Long senderId) {
+    public ClientMessage(MessageType type, String channelId, Long senderId, String senderName) {
         this.type = type;
         this.channelId = channelId;
         this.senderId = senderId;
+        this.senderName = senderName;
     }
 }
