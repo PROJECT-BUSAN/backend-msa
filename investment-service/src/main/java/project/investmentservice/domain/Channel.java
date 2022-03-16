@@ -25,7 +25,7 @@ public class Channel implements Serializable {
     private Long channelNum;
     private String channelName;
     private int LimitOfParticipants;
-    private double entryFee;
+    private double entryFee;    // 참가비
     private Map<Long, User> users = new HashMap<>();
     private double pointPsum;
     private Long hostId;
@@ -65,6 +65,15 @@ public class Channel implements Serializable {
         }
         results.stream().sorted(Comparator.comparing(GameResult::getUserProfitRate).reversed()).collect(Collectors.toList());
 
+        return results;
+    }
+
+    public List<Long> getAllUsers() {
+        List<Long> results = new ArrayList<>();
+
+        for(Long userKey : users.keySet()) {
+            results.add(userKey);
+        }
         return results;
     }
 }

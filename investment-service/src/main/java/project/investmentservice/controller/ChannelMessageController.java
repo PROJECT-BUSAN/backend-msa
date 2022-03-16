@@ -1,9 +1,14 @@
 package project.investmentservice.controller;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import project.investmentservice.api.HttpApiController;
 import project.investmentservice.domain.*;
 import project.investmentservice.domain.dto.*;
 import project.investmentservice.domain.dto.ClientMessage.MessageType;
@@ -27,6 +32,7 @@ public class ChannelMessageController {
     private final RedisPublisher redisPublisher;
     private final CompanyService companyService;
     private final StockInfoService stockInfoService;
+    private final HttpApiController httpApiController;
 
     /**
      * websocket "/pub/game/message"로 들어오는 메시징을 처리한다.
@@ -97,6 +103,21 @@ public class ChannelMessageController {
     }
 
     public void gameStart(String channelId) {
+        Channel nowChannel = channelService.findOneChannel(channelId);
+        List<Long> allUsers = nowChannel.getAllUsers();
+        
+        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/point/bulk";
+        
+        AllUserPointDeduction deduction = new AllUserPointDeduction(
+                allUsers,
+                nowChannel.getEntryFee()
+        );
+        ResponseEntity<String> response = httpApiController.postRequest(profileServiceUrl, deduction);
+//        if (!response.getStatusCode().equals(HttpStatus.OK)) {
+//            ErrorMessage errorMessage = new ErrorMessage("");
+//            
+//            return;
+//        }
 
         // 게임에서 사용할 기업을 랜덤으로 n개 가져온다.
         HashSet<Long> companyIds = companyService.selectInGameCompany(2);
@@ -156,27 +177,14 @@ public class ChannelMessageController {
             } catch (InterruptedException ex) {
             }
         }
-
-        /**
-         *    게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
-         */
-        Channel nowChannel = channelService.findOneChannel(channelId);
-        Map<Long, User> users = nowChannel.getUsers();
-
-        for(Long userKey : users.keySet()) {
-            User user = users.get(userKey);
-            double userSeedMoney = user.getSeedMoney();
-            for(Long companyKey : user.getCompanies().keySet()) {
-                UsersStock usersStock = user.getCompanies().get(companyKey);
-                if(usersStock.getQuantity() == 0L) continue;
-                double sellPrice = closeValue.get(companyKey);
-                userSeedMoney += (sellPrice * usersStock.getQuantity());
-            }
-            user.setSeedMoney(userSeedMoney);
-        }
-        channelRepository.updateChannel(nowChannel);
-
-
+        
+        
+        
+        
+        // 게임에 참여한 유저가 가지고 있는 주식 전체 강제 매도
+        channelService.sellAllStock(closeValue, nowChannel);
+        
+        
         // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
         int k = 0;
         List<StockResult> stockResults = new ArrayList<>();
@@ -193,9 +201,23 @@ public class ChannelMessageController {
             k++;
         }
 
-        StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(stockResults, nowChannel.gameResult(), "CLOSE");
-        redisPublisher.publishEndMessage(channelRepository.getTopic(channelId), stockGameEndMessage);
+        StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(
+                stockResults, 
+                nowChannel.gameResult(), 
+                "CLOSE"
+        );
+        redisPublisher.publishEndMessage(
+                channelRepository.getTopic(channelId), 
+                stockGameEndMessage
+        );
 
         channelService.deleteChannel(nowChannel);
     }
+
+    @Data
+    @AllArgsConstructor
+    static class AllUserPointDeduction{
+        List<Long> userIds;
+        double fee;
+    } 
 }
