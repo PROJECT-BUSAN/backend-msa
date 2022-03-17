@@ -23,11 +23,11 @@ class UserTest(APITestCase):
         path = "/api/v1/profile/3"
         
         print("Before requests")
-        response = self.client.get(
-            path, content_type='application/json'
-        )
+        # response = self.client.get(
+        #     path, content_type='application/json'
+        # )
+        # print(response)
         print("After requests")
         
-        print(response)
     
     
