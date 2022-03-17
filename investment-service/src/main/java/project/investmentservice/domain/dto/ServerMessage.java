@@ -10,7 +10,7 @@ import java.util.Map;
 public class ServerMessage {
 
     public enum MessageType {
-        RENEWAL, NOTICE, START, CLOSE
+        RENEWAL, NOTICE, CLOSE
     };
 
     private MessageType type;

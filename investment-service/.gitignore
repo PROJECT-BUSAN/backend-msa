@@ -8,6 +8,7 @@ build/
 ### STS ###
 .apt_generated
 .dump.rdb
+dump.rdb
 .classpath
 .factorypath
 .project

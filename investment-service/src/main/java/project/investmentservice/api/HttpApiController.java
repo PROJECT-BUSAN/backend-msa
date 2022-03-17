@@ -11,7 +11,6 @@ import project.investmentservice.api.CompanyApiController.TestRequest;
 import project.investmentservice.api.CompanyApiController.TestResult;
 
 @RestController
-@RequiredArgsConstructor
 public class HttpApiController {
 
     RestTemplate restTemplate = new RestTemplate();

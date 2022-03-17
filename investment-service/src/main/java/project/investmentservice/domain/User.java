@@ -22,10 +22,11 @@ public class User implements Serializable {
     private String name;
     private Map<Long, UsersStock> companies;
 
-    public User(double seedMoney) {
+    public User(double seedMoney, String name) {
         this.readyType = ReadyType.CANCEL;
         this.seedMoney = seedMoney;
         this.companies = new HashMap();
+        this.name = name;
     }
 
     /**
