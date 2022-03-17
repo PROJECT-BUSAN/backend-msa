@@ -101,18 +101,20 @@ public class ChannelMessageController {
             redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
         }
     }
-
+    
+    
+    @MessageMapping("/game/start")
     public void gameStart(String channelId) {
         Channel nowChannel = channelService.findOneChannel(channelId);
         List<Long> allUsers = nowChannel.getAllUsers();
         
-        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/point/bulk";
-        
-        AllUserPointDeduction deduction = new AllUserPointDeduction(
-                allUsers,
-                nowChannel.getEntryFee()
-        );
-        ResponseEntity<String> response = httpApiController.postRequest(profileServiceUrl, deduction);
+//        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/point/bulk";
+//        
+//        AllUserPointDeduction deduction = new AllUserPointDeduction(
+//                allUsers,
+//                nowChannel.getEntryFee()
+//        );
+//        ResponseEntity<String> response = httpApiController.postRequest(profileServiceUrl, deduction);
 //        if (!response.getStatusCode().equals(HttpStatus.OK)) {
 //            ErrorMessage errorMessage = new ErrorMessage("");
 //            

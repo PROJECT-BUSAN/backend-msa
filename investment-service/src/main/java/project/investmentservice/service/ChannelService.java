@@ -1,5 +1,7 @@
 package project.investmentservice.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +15,6 @@ import project.investmentservice.controller.ChannelMessageController;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
-import project.investmentservice.domain.dto.ErrorMessage;
 import project.investmentservice.repository.ChannelRepository;
 
 import java.util.List;
@@ -26,8 +27,8 @@ import static project.investmentservice.domain.User.ReadyType.READY;
 @Service
 public class ChannelService {
 
-    private HttpApiController httpApiController;
-    private ChannelRepository channelRepository;
+    private final HttpApiController httpApiController;
+    private final ChannelRepository channelRepository;
     private Long channelNum = 1L;
 
     /**
@@ -70,42 +71,39 @@ public class ChannelService {
 
         return channelRepository.findAllChannel();
     }
-
-
+    
+    
     /**
      * 비즈니스 로직
      * Channel 입장
      */
     public int enterChannel(String channelId, Long userId, String username) {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
-        double userPoint = 1000.0;
         Channel findChannel = findOneChannel(channelId);
         List<Long> allUsers = findChannel.getAllUsers();
-
-        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/";
+        double userPoint = -1.0;
+                
+//        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/";
+        String profileServiceUrl = "http://172.30.1.11:8081/api/v1/profile/";
 
         /**
          * 입장할 때 유저 프로필의 point를 차감한다.
          * 만약 입장료보다 point를 적게 가지고 있을 시 참여 불가능.
          */
+        profileServiceUrl += (userId + "/point");
+        
+        ResponseEntity<String> response = httpApiController.getRequest(profileServiceUrl);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode node = mapper.readTree(response.getBody());
+            userPoint = Double.parseDouble(node.get("userPoint").asText());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
-//        String profileServiceUrl = "http://192.179.219.117:8081/api/v1/profile/";
-//        profileServiceUrl += (userId + "/point");
-//        ResponseEntity<PointDTO> response = httpApiController.getRequest(profileServiceUrl);
-//        
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        Object obj = response.getBody();
-//        userPoint = pointDTO.getUserPoint();
-
-//        System.out.println("response = " + response);
-//        System.out.println("response.getBody() = " + response.getBody());
-//        
-//        // 192.179.219.117
-//        if (!response.getStatusCode().equals(HttpStatus.OK)) {
-//            ErrorMessage errorMessage = new ErrorMessage("");
-//
-//            return 1;
-//        }
+        if (userPoint < findChannel.getEntryFee()) {
+            return 1;
+        }
         
         if(findChannel.getLimitOfParticipants() > findChannel.getUsers().size()) {
 

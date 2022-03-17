@@ -1,5 +1,8 @@
 package project.investmentservice.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +41,34 @@ import static project.investmentservice.api.ChannelApiController.EnterChannelRes
 public class ChannelApiController {
 
     private final ChannelService channelService;
+    private final HttpApiController httpApiController;
+
+    @PostMapping("/testpoint")
+    public ResponseEntity test() {
+        String profileServiceUrl = "http://172.30.1.11:8081/api/v1/profile/";
+        double userPoint = -1.0;
+        /**
+         * 입장할 때 유저 프로필의 point를 차감한다.
+         * 만약 입장료보다 point를 적게 가지고 있을 시 참여 불가능.
+         */
+        profileServiceUrl += ("2" + "/point");
+
+        ResponseEntity<String> response = httpApiController.getRequest(profileServiceUrl);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode node = mapper.readTree(response.getBody());
+            System.out.println("node = " + node);
+            userPoint = Double.parseDouble(node.get("userPoint").asText());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        if (userPoint < 500) {
+            return new ResponseEntity(HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity(HttpStatus.OK);
+
+    }
 
     //모든 채널 반환
     @GetMapping("/channel")
