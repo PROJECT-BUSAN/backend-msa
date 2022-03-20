@@ -4,6 +4,10 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+profile-service
+apigateway-service
+shopping-service
+board-service
 
 ### STS ###
 .apt_generated
