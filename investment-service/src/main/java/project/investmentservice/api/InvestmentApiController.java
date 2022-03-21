@@ -3,21 +3,19 @@ package project.investmentservice.api;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
-import project.investmentservice.domain.dto.ReturnType;
+import project.investmentservice.enums.ReturnType;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.service.InvestmentService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import static project.investmentservice.domain.dto.ReturnType.FAIL;
-import static project.investmentservice.domain.dto.ReturnType.SUCCESS;
+import static project.investmentservice.enums.ReturnType.FAIL;
+import static project.investmentservice.enums.ReturnType.SUCCESS;
 
 
 @RequiredArgsConstructor

@@ -1,33 +1,21 @@
 package project.investmentservice.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import project.investmentservice.annotation.LoginRequired;
 import project.investmentservice.domain.*;
-import project.investmentservice.domain.dto.ReturnType;
-import project.investmentservice.domain.dto.StockGameEndMessage;
-import project.investmentservice.domain.dto.StockInfoMessage;
-import project.investmentservice.domain.dto.StockResult;
-import project.investmentservice.pubsub.RedisPublisher;
-import project.investmentservice.repository.ChannelRepository;
+import project.investmentservice.enums.ReturnType;
+import project.investmentservice.service.AuthService;
 import project.investmentservice.service.ChannelService;
-import project.investmentservice.service.CompanyService;
-import project.investmentservice.service.InvestmentService;
-import project.investmentservice.service.StockInfoService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.*;
 
-import static project.investmentservice.domain.dto.ReturnType.FAIL;
-import static project.investmentservice.domain.dto.ReturnType.SUCCESS;
+import static project.investmentservice.enums.ReturnType.FAIL;
+import static project.investmentservice.enums.ReturnType.SUCCESS;
 
 /**
  *  채널 삭제는 소켓 message로 처리
@@ -38,10 +26,11 @@ import static project.investmentservice.domain.dto.ReturnType.SUCCESS;
 @RequiredArgsConstructor
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
-@RequestMapping("/api/v1/investment/channel")
+@RequestMapping("/api/v1/investment")
 public class ChannelApiController {
 
     private final ChannelService channelService;
+    private final AuthService authService;
     private final HttpApiController httpApiController;
     
     /**
@@ -94,17 +83,19 @@ public class ChannelApiController {
      * 
      * @return
      */
+    @LoginRequired
     @PostMapping("/channel/{channelId}")
     public EnterChannelResponse enterChannel(@PathVariable("channelId") String channelId, @RequestBody @Valid EnterChannelRequest request) {
         Long userId = request.getUserId();
         String username = request.getUsername();
+        authService.LoginCheck(userId, username);
+        
         int result = channelService.enterChannel(channelId, userId, username);
         if(result == 0) {
             return new EnterChannelResponse(SUCCESS, "채널에 입장합니다.", userId, username);
         }
         else if(result == 1) {
             return new EnterChannelResponse(FAIL, "채널에 입장하기 위한 포인트가 부족합니다.", userId, username);
-
         }
         else if(result == 2) {
             return new EnterChannelResponse(FAIL, "채널에 인원이 가득찼습니다.", userId, username);
@@ -127,7 +118,7 @@ public class ChannelApiController {
         @NotNull
         private int limitOfParticipants;
         @NotNull
-        private Long entryFee;
+        private double entryFee;
         private Long userId;
         private String username;
     }
@@ -153,8 +144,6 @@ public class ChannelApiController {
         private ReturnType type;
         private String message;
         private Long userId;
-        private String userName;
+        private String username;
     }
-
-    
 }
