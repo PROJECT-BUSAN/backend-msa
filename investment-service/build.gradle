@@ -37,7 +37,8 @@ dependencies {
 	implementation group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
 	// spring에서 redis를 session storage로 사용하기 위한 의존성
 	implementation 'org.springframework.session:spring-session-data-redis'
-	
+	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
 
 	implementation ("org.webjars:bootstrap:3.3.7")
 	implementation ("org.webjars:jquery:3.4.1")
