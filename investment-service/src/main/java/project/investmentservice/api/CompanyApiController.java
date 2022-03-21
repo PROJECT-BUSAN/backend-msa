@@ -31,28 +31,7 @@ public class CompanyApiController {
 
         return result;
     }
-
-    @GetMapping("/test")
-    public ResponseEntity testv1() {
-        List<TestResult> responseList = new ArrayList<>();
-        for(int i = 0; i < 5; i++){
-            TestResult testResult = new TestResult("message" + i, "data");
-            responseList.add(testResult);
-        }
-
-        return new ResponseEntity(responseList, HttpStatus.OK);
-    }
-
-    @PostMapping("/test")
-    public ResponseEntity testv1(@RequestBody TestRequest request) {
-        List<TestResult> responseList = new ArrayList<>();
-        for(int i = 0; i < 5; i++){
-            TestResult testResult = new TestResult("message" + i, request.data);
-            responseList.add(testResult);
-        }
-
-        return new ResponseEntity(responseList, HttpStatus.OK);
-    }
+    
 
     @Data
     @AllArgsConstructor
@@ -70,11 +49,6 @@ public class CompanyApiController {
     @AllArgsConstructor
     static class TestResult {
         private String message;
-        private String data;
-    }
-
-    @Data
-    static class TestRequest {
         private String data;
     }
 }

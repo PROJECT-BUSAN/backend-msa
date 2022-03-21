@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.*;
+import project.investmentservice.domain.dto.ReturnType;
 import project.investmentservice.domain.dto.StockGameEndMessage;
 import project.investmentservice.domain.dto.StockInfoMessage;
 import project.investmentservice.domain.dto.StockResult;
@@ -25,8 +26,8 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.*;
 
-import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.FAIL;
-import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.SUCCESS;
+import static project.investmentservice.domain.dto.ReturnType.FAIL;
+import static project.investmentservice.domain.dto.ReturnType.SUCCESS;
 
 /**
  *  채널 삭제는 소켓 message로 처리
@@ -37,55 +38,62 @@ import static project.investmentservice.api.ChannelApiController.EnterChannelRes
 @RequiredArgsConstructor
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
-@RequestMapping("/api/v1/investment")
+@RequestMapping("/api/v1/investment/channel")
 public class ChannelApiController {
 
     private final ChannelService channelService;
     private final HttpApiController httpApiController;
-
-    @PostMapping("/testpoint")
-    public ResponseEntity test() {
-        String profileServiceUrl = "http://172.30.1.11:8081/api/v1/profile/";
-        double userPoint = -1.0;
-        /**
-         * 입장할 때 유저 프로필의 point를 차감한다.
-         * 만약 입장료보다 point를 적게 가지고 있을 시 참여 불가능.
-         */
-        profileServiceUrl += ("2" + "/point");
-
-        ResponseEntity<String> response = httpApiController.getRequest(profileServiceUrl);
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            JsonNode node = mapper.readTree(response.getBody());
-            System.out.println("node = " + node);
-            userPoint = Double.parseDouble(node.get("userPoint").asText());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        if (userPoint < 500) {
-            return new ResponseEntity(HttpStatus.FORBIDDEN);
-        }
-        return new ResponseEntity(HttpStatus.OK);
-
-    }
-
-    //모든 채널 반환
+    
+    /**
+     * 모든 채널들의 정보 반환
+     * 대기중인 방 리스트를 띄울 때 필요함
+     * 
+     * @return 
+     * String id;
+     * Long channelNum;
+     * String channelName;
+     * int LimitOfParticipants;
+     * double entryFee;    -> 참가비
+     * Map<Long, User> users = new HashMap<>();
+     * double pointPsum;
+     * Long hostId;
+     * String hostName;
+     */
     @GetMapping("/channel")
     public AllChannelResponse channels() {
         List<Channel> channels = channelService.findAllChannel();
         return new AllChannelResponse(channels);
     }
 
-    //채널 생성
+    /**
+     * 채널 생성 api
+     * @param request
+     * @NotNull String name; -> 방 이름 필수
+     * @NotNull int limitOfParticipants; -> 방 제한인원 필수
+     * @NotNull Long entryFee; -> 참가비 필수
+     * Long userId; -> 방장의 id
+     * String username; -> 방장의 username
+     * 
+     * @return{
+     *      id, channelName, channelNum
+     * }
+     */
     @PostMapping("/channel")
     public CreateChannelResponse createChannel(@RequestBody @Valid CreateChannelRequest request) {
-
         Channel channel = channelService.createChannel(request.getName(), request.getLimitOfParticipants(), request.getEntryFee(), request.getUserId(), request.getUsername());
         return new CreateChannelResponse(channel.getId(), channel.getChannelNum(), channel.getChannelName());
     }
 
-    // 채널 입장
+    
+    /**
+     * 채널 입장
+     * 채널 소켓 연결 전에 호출해서 유저가 방에 입장할 수 있는지 확인한다. (유저의 포인트 >= 참가비)
+     * 확인되면 
+     * @param channelId -> uuid
+     * @param request
+     * 
+     * @return
+     */
     @PostMapping("/channel/{channelId}")
     public EnterChannelResponse enterChannel(@PathVariable("channelId") String channelId, @RequestBody @Valid EnterChannelRequest request) {
         Long userId = request.getUserId();
@@ -113,7 +121,6 @@ public class ChannelApiController {
     }
 
     @Data
-    @AllArgsConstructor
     public static class CreateChannelRequest {
         @NotNull
         private String name;
@@ -123,9 +130,6 @@ public class ChannelApiController {
         private Long entryFee;
         private Long userId;
         private String username;
-
-        public CreateChannelRequest() {
-        }
     }
 
     @Data
@@ -146,10 +150,7 @@ public class ChannelApiController {
     @Data
     @AllArgsConstructor
     public static class EnterChannelResponse {
-        public enum returnType {
-            SUCCESS, FAIL
-        }
-        private returnType type;
+        private ReturnType type;
         private String message;
         private Long userId;
         private String userName;
