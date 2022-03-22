@@ -1,5 +1,6 @@
 package project.investmentservice.utils;
 
+import org.junit.Assert;
 import org.junit.Test;
 import project.investmentservice.api.ChannelApiController.EnterChannelRequest;
 
@@ -9,14 +10,20 @@ public class JsonMapperTest {
     public void jsonMapperTest() {
         //given
         CustomJsonMapper customJsonMapper = new CustomJsonMapper();
-        String strJson = "{\"userId\":\"123\", "
-                + "\"username\":\"text\""
-                + "}";
+        String strJson = "{" +
+                "\"userId\":\"123\"," +
+                "\"username\":null" +
+                "}";
 
         //when
-        EnterChannelRequest json = (EnterChannelRequest) customJsonMapper.jsonParse(strJson);
+        Object obj = customJsonMapper.jsonParse(strJson, EnterChannelRequest.class);
+        EnterChannelRequest enterChannelRequest = EnterChannelRequest.class
+                .cast(obj);
 
-//        //then
-        System.out.println("json = " + json);
+        //then
+//        System.out.println("json = " + enterChannelRequest.getUsername());
+        Assert.assertTrue(enterChannelRequest instanceof EnterChannelRequest);
+//        System.out.println("enterChannelRequest = " + enterChannelRequest);
+
     }
 }
