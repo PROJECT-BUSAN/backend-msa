@@ -67,7 +67,8 @@ public class ChannelRepository {
     }
 
     /**
-     * 채널 정보 변경
+     * 채널 정보 변경 ->
+     * Redis 에 저장된 채널 정보 변경
      * 채널에 새로운 인원 Enter or Exit한 결과를 다시 저장
      */
     public Channel updateChannel(Channel channel) {

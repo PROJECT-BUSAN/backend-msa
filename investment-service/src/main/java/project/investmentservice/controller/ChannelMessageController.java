@@ -5,10 +5,11 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import project.investmentservice.enums.SocketClientMessageType;
+import project.investmentservice.enums.SocketServerMessageType;
 import project.investmentservice.utils.HttpApiController;
 import project.investmentservice.domain.*;
 import project.investmentservice.domain.dto.*;
-import project.investmentservice.domain.dto.ClientMessage.MessageType;
 import project.investmentservice.pubsub.RedisPublisher;
 import project.investmentservice.repository.ChannelRepository;
 import project.investmentservice.service.ChannelService;
@@ -17,8 +18,8 @@ import project.investmentservice.service.StockInfoService;
 
 import java.util.*;
 
-import static project.investmentservice.domain.dto.ServerMessage.MessageType.*;
-import static project.investmentservice.domain.dto.ClientMessage.MessageType.*;
+import static project.investmentservice.enums.SocketClientMessageType.*;
+import static project.investmentservice.enums.SocketServerMessageType.*;
 
 @RequiredArgsConstructor
 @Controller
@@ -44,7 +45,7 @@ public class ChannelMessageController {
      */
     @MessageMapping("/game/message")
     public void message(ClientMessage clientMessage) {
-        MessageType messageType = clientMessage.getType();
+        SocketClientMessageType messageType = clientMessage.getType();
 
         // 채널 ENTER TYPE
 

@@ -3,6 +3,7 @@ package project.investmentservice.domain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import project.investmentservice.enums.UserReadyType;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -13,17 +14,13 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    // User 준비 상태
-    public enum ReadyType {
-        READY, CANCEL;
-    }
-    private ReadyType readyType;
+    private UserReadyType readyType;
     private double seedMoney;
     private String name;
     private Map<Long, UsersStock> companies;
 
     public User(double seedMoney, String name) {
-        this.readyType = ReadyType.CANCEL;
+        this.readyType = UserReadyType.CANCEL;
         this.seedMoney = seedMoney;
         this.companies = new HashMap();
         this.name = name;

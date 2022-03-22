@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
-import project.investmentservice.enums.ReturnType;
+import project.investmentservice.enums.HttpReturnType;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.service.InvestmentService;
 import project.investmentservice.utils.HttpApiController;
@@ -15,8 +15,8 @@ import project.investmentservice.utils.HttpApiController;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import static project.investmentservice.enums.ReturnType.FAIL;
-import static project.investmentservice.enums.ReturnType.SUCCESS;
+import static project.investmentservice.enums.HttpReturnType.FAIL;
+import static project.investmentservice.enums.HttpReturnType.SUCCESS;
 
 
 @RequiredArgsConstructor
@@ -84,7 +84,7 @@ public class InvestmentApiController {
     @Data
     @AllArgsConstructor
     public static class PurchaseStockResponse {
-        private ReturnType type;
+        private HttpReturnType type;
         private double averagePrice;
         private Long quantity;
         private double seedMoney;
@@ -93,7 +93,7 @@ public class InvestmentApiController {
     @Data
     @AllArgsConstructor
     public static class SellStockResponse {
-        private ReturnType type;
+        private HttpReturnType type;
         private double averagePrice;
         private Long quantity;
         private double seedMoney;

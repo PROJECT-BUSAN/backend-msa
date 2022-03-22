@@ -17,8 +17,8 @@ import project.investmentservice.repository.ChannelRepository;
 import java.util.List;
 import java.util.Map;
 
-import static project.investmentservice.domain.User.ReadyType.CANCEL;
-import static project.investmentservice.domain.User.ReadyType.READY;
+import static project.investmentservice.enums.UserReadyType.CANCEL;
+import static project.investmentservice.enums.UserReadyType.READY;
 
 @RequiredArgsConstructor
 @Service

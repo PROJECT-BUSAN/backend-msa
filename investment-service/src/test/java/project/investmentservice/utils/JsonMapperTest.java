@@ -12,7 +12,7 @@ public class JsonMapperTest {
         CustomJsonMapper customJsonMapper = new CustomJsonMapper();
         String strJson = "{" +
                 "\"userId\":\"123\"," +
-                "\"username\":null" +
+                "\"username\":\"null\"" +
                 "}";
 
         //when
@@ -21,9 +21,9 @@ public class JsonMapperTest {
                 .cast(obj);
 
         //then
-//        System.out.println("json = " + enterChannelRequest.getUsername());
+        System.out.println("json = " + enterChannelRequest.getUsername());
         Assert.assertTrue(enterChannelRequest instanceof EnterChannelRequest);
-//        System.out.println("enterChannelRequest = " + enterChannelRequest);
+        System.out.println("enterChannelRequest = " + enterChannelRequest);
 
     }
 }

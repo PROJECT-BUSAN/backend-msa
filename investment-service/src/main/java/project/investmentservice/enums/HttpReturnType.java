@@ -1,5 +1,5 @@
 package project.investmentservice.enums;
 
-public enum ReturnType {
+public enum HttpReturnType {
     SUCCESS, FAIL
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.*;
-import project.investmentservice.enums.ReturnType;
+import project.investmentservice.enums.HttpReturnType;
 import project.investmentservice.service.AuthenticateService;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.utils.HttpApiController;
@@ -14,8 +14,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
-import static project.investmentservice.enums.ReturnType.FAIL;
-import static project.investmentservice.enums.ReturnType.SUCCESS;
+import static project.investmentservice.enums.HttpReturnType.FAIL;
+import static project.investmentservice.enums.HttpReturnType.SUCCESS;
 
 /**
  *  채널 삭제는 소켓 message로 처리
@@ -140,7 +140,7 @@ public class ChannelApiController {
     @Data
     @AllArgsConstructor
     public static class EnterChannelResponse {
-        private ReturnType type;
+        private HttpReturnType type;
         private String message;
         private Long userId;
         private String username;

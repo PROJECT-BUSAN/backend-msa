@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import project.investmentservice.domain.dto.GameResult;
 import project.investmentservice.domain.dto.StockInfoMessage;
+import project.investmentservice.enums.UserReadyType;
 import project.investmentservice.pubsub.RedisPublisher;
 import project.investmentservice.repository.ChannelRepository;
 import project.investmentservice.service.ChannelService;
@@ -43,7 +44,7 @@ public class Channel implements Serializable {
         channel.hostName = hostname;
 
         User user = new User(entryFee, hostname);
-        user.setReadyType(User.ReadyType.READY);
+        user.setReadyType(UserReadyType.READY);
         channel.users.put(hostId, user);
         channel.pointPsum = entryFee;
         return channel;
