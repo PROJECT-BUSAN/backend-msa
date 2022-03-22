@@ -3,6 +3,10 @@ package project.investmentservice.domain.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * 유저간의 게임 결과 반환
+ * 유저의 이율 기준 내림차순
+ */
 @Getter
 @AllArgsConstructor
 public class GameResult {

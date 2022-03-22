@@ -1,24 +1,24 @@
 package project.investmentservice.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import project.investmentservice.domain.User;
 import project.investmentservice.enums.SocketServerMessageType;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
-public class ServerMessage {
+@Getter @Setter
+public class ServerMessage extends PublishMessage {
+
     
-    private SocketServerMessageType type;
     private String channelId;
     private Map<Long, User> users = new HashMap<>();
-    private String message;
 
-    public ServerMessage(SocketServerMessageType type, String channelId, Map<Long, User> users, String message) {
-        this.type = type;
+    public ServerMessage(SocketServerMessageType type, String channelId, Map<Long, User> users) {
+        super(type);
         this.channelId = channelId;
         this.users = users;
-        this.message = message;
     }
 }

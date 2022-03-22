@@ -1,5 +1,5 @@
 package project.investmentservice.enums;
 
 public enum SocketServerMessageType {
-    RENEWAL, NOTICE, CLOSE
+    RENEWAL, NOTICE, CLOSE, STOCK
 }

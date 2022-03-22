@@ -52,7 +52,7 @@ public class ChannelMessageController {
         if (ENTER.equals(messageType)) {
             // 채널 입장 성공
             Channel channel = channelService.findOneChannel(clientMessage.getChannelId());
-            ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
+            ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers());
             redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
         }
         // 채널 EXIT TYPE
@@ -61,18 +61,18 @@ public class ChannelMessageController {
             String exitChannelId = exitChannel.getId();
             // Host가 퇴장하는 경우 -> 채널 삭제
             if(exitChannel.getHostId() ==  clientMessage.getSenderId()) {
-                ServerMessage serverMessage = new ServerMessage(CLOSE, exitChannelId, null, "채널이 닫혔습니다.");
+                ServerMessage serverMessage = new ServerMessage(CLOSE, exitChannelId, null);
                 redisPublisher.publish(channelRepository.getTopic(exitChannelId), serverMessage);
                 channelService.deleteChannel(exitChannel);
             }
             // Host가 아닌 사용자가 퇴장하는 경우 -> 채널 유지
             else {
                 Channel channel = channelService.exitChannel(exitChannelId, clientMessage.getSenderId());
-                ServerMessage serverMessage = new ServerMessage(RENEWAL, exitChannelId, channel.getUsers(), null);
+                ServerMessage serverMessage = new ServerMessage(RENEWAL, exitChannelId, channel.getUsers());
                 redisPublisher.publish(channelRepository.getTopic(exitChannelId), serverMessage);
             }
         }
-
+        
         // 채널 READY TYPE
         else if(READY.equals(messageType)) {
             String channelId = clientMessage.getChannelId();
@@ -83,19 +83,19 @@ public class ChannelMessageController {
                     gameStart(channelId);
                 }
                 else {
-                    ServerMessage serverMessage = new ServerMessage(NOTICE, channelId, channel.getUsers(), "모든 참가자가 준비를 완료해야 합니다.");
+                    ServerMessage serverMessage = new ServerMessage(NOTICE, channelId, channel.getUsers());
                     redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
                 }
             }
             else {
-                ServerMessage serverMessage = new ServerMessage(RENEWAL, channelId, channel.getUsers(), null);
+                ServerMessage serverMessage = new ServerMessage(RENEWAL, channelId, channel.getUsers());
                 redisPublisher.publish(channelRepository.getTopic(channelId), serverMessage);
             }
         }
         // 채널 CANCEL TYPE (준비 취소)
         else if(CANCEL.equals(messageType)) {
             Channel channel = channelService.cancelReady(clientMessage.getChannelId(), clientMessage.getSenderId());
-            ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers(), null);
+            ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers());
             redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
         }
     }
@@ -144,6 +144,7 @@ public class ChannelMessageController {
                     for(int i = 0; i < stockLists.size(); i++){
                         StockInfo stockInfo = stockLists.get(i).get(idx);
                         StockInfoMessage stockInfoMessage = new StockInfoMessage(
+                                STOCK,
                                 stockInfo.getDate(),
                                 stockInfo.getClose(),
                                 stockInfo.getOpen(),
@@ -153,7 +154,7 @@ public class ChannelMessageController {
                                 stockInfo.getCompany().getId()
                         );
                         System.out.println("stockInfo.getClose() = " + stockInfo.getClose());
-                        redisPublisher.publishStock(channelRepository.getTopic(channelId), stockInfoMessage);
+                        redisPublisher.publish(channelRepository.getTopic(channelId), stockInfoMessage);
                         closeValue.put(stockInfo.getCompany().getId(), stockInfo.getClose());
                     }
                     idx++;
@@ -202,11 +203,11 @@ public class ChannelMessageController {
         }
 
         StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(
-                stockResults, 
-                nowChannel.gameResult(), 
-                "CLOSE"
+                CLOSE,
+                stockResults,
+                nowChannel.gameResult()
         );
-        redisPublisher.publishEndMessage(
+        redisPublisher.publish(
                 channelRepository.getTopic(channelId), 
                 stockGameEndMessage
         );

@@ -19,11 +19,11 @@ public class RedisPublisher {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 
-    public void publishStock(ChannelTopic topic, StockInfoMessage message) {
+    public void publish(ChannelTopic topic, StockInfoMessage message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 
-    public void publishEndMessage(ChannelTopic topic, StockGameEndMessage message) {
+    public void publish(ChannelTopic topic, StockGameEndMessage message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
     }
 
