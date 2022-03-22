@@ -4,11 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import project.investmentservice.annotation.LoginRequired;
 import project.investmentservice.domain.*;
 import project.investmentservice.enums.ReturnType;
-import project.investmentservice.service.AuthService;
+import project.investmentservice.service.AuthenticateService;
 import project.investmentservice.service.ChannelService;
+import project.investmentservice.utils.HttpApiController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -30,7 +30,7 @@ import static project.investmentservice.enums.ReturnType.SUCCESS;
 public class ChannelApiController {
 
     private final ChannelService channelService;
-    private final AuthService authService;
+    private final AuthenticateService authService;
     private final HttpApiController httpApiController;
     
     /**
@@ -83,7 +83,6 @@ public class ChannelApiController {
      * 
      * @return
      */
-    @LoginRequired
     @PostMapping("/channel/{channelId}")
     public EnterChannelResponse enterChannel(@PathVariable("channelId") String channelId, @RequestBody @Valid EnterChannelRequest request) {
         Long userId = request.getUserId();

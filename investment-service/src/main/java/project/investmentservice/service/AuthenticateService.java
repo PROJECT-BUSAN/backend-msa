@@ -8,7 +8,7 @@ import project.investmentservice.exceptions.AuthException;
 import java.lang.reflect.Field;
 
 @Service
-public class AuthService {
+public class AuthenticateService {
 
     public void LoginCheck(Long userId, String username) {
         if (userId == null || username == null || username.isEmpty()) {

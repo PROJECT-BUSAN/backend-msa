@@ -85,46 +85,56 @@ public class ChannelApiControllerTest {
     }
 
 
-//    @Test
-//    public void 채널입장API() throws Exception {
-//        //given
-//        Channel channel1 = channelService.createChannel("testChannel32", 100, 20L, 51L);
-//        Channel channel2 = channelService.createChannel("testChannel32", 100, 100000L, 51L);
-//        Channel channel3 = channelService.createChannel("testChannel32", 1, 100000L, 51L);
-//        EnterChannelRequest enterChannelRequest1 = new EnterChannelRequest();
-//        enterChannelRequest1.setUser_id(31L);
-//        EnterChannelRequest enterChannelRequest2 = new EnterChannelRequest();
-//        enterChannelRequest2.setUser_id(31L);
-//        EnterChannelRequest enterChannelRequest3 = new EnterChannelRequest();
-//        enterChannelRequest3.setUser_id(31L);
-//
-//        //when
-//        ResultActions resultActions1 = mockMvc.perform(post("/api/v1/investment/channel/enter/" + channel1.getId())
-//                .content(new ObjectMapper().writeValueAsString(enterChannelRequest1))
-//                .contentType(MediaType.APPLICATION_JSON));
-//
-//        ResultActions resultActions2 = mockMvc.perform(post("/api/v1/investment/channel/enter/" + channel2.getId())
-//                .content(new ObjectMapper().writeValueAsString(enterChannelRequest2))
-//                .contentType(APPLICATION_JSON));
-//
-//        ResultActions resultActions3 = mockMvc.perform(post("/api/v1/investment/channel/enter/" + channel3.getId())
-//                .content(new ObjectMapper().writeValueAsString(enterChannelRequest3))
-//                .contentType(APPLICATION_JSON));
-//
-//
-//        //then
-//        resultActions1.andExpect(status().isOk());
-//        resultActions2.andExpect(status().isOk());
-//        resultActions3.andExpect(status().isOk());
-//
-//        String result1 = resultActions1.andReturn().getResponse().getContentAsString();
-//        System.out.println("result1 = " + result1);
-//        String result2 = resultActions2.andReturn().getResponse().getContentAsString();
-//        System.out.println("result2 = " + result2);
-//        String result3 = resultActions3.andReturn().getResponse().getContentAsString();
-//        System.out.println("result3 = " + result3);
-//    }
+    @Test
+    public void 채널입장API() throws Exception {
+        //given
+        Channel testChannel1 = createChannelByService("TestChannel", 1L);
+        Channel testChannel2 = createChannelByService("TestChannel", 2L);
+        Channel testChannel3 = createChannelByService("TestChannel", 3L);
 
+        EnterChannelRequest enterChannelRequest1 = new EnterChannelRequest();
+        enterChannelRequest1.setUserId(10L);
+        enterChannelRequest1.setUsername("admin");
+        EnterChannelRequest enterChannelRequest2 = new EnterChannelRequest();
+        enterChannelRequest2.setUserId(11L);
+        enterChannelRequest2.setUsername("admin");
+        EnterChannelRequest enterChannelRequest3 = new EnterChannelRequest();
+        enterChannelRequest3.setUserId(12L);
+        enterChannelRequest3.setUsername("admin");
+
+
+        //when
+        ResultActions resultActions1 = mockMvc.perform(post("/api/v1/investment/channel/" + testChannel1.getId())
+                .content(new ObjectMapper().writeValueAsString(enterChannelRequest1))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        ResultActions resultActions2 = mockMvc.perform(post("/api/v1/investment/channel/" + testChannel2.getId())
+                .content(new ObjectMapper().writeValueAsString(enterChannelRequest2))
+                .contentType(APPLICATION_JSON));
+
+        ResultActions resultActions3 = mockMvc.perform(post("/api/v1/investment/channel/" + testChannel3.getId())
+                .content(new ObjectMapper().writeValueAsString(enterChannelRequest3))
+                .contentType(APPLICATION_JSON));
+
+
+        //then
+        resultActions1.andExpect(status().isOk());
+        resultActions2.andExpect(status().isOk());
+        resultActions3.andExpect(status().isOk());
+
+        String result1 = resultActions1.andReturn().getResponse().getContentAsString();
+        System.out.println("result1 = " + result1);
+        String result2 = resultActions2.andReturn().getResponse().getContentAsString();
+        System.out.println("result2 = " + result2);
+        String result3 = resultActions3.andReturn().getResponse().getContentAsString();
+        System.out.println("result3 = " + result3);
+    }
+
+    
+    private Channel createChannelByService(String name, Long userId){
+        return channelService.createChannel(name, 10, 100, userId, "admin");
+    }
+    
     private CreateChannelRequest createChannel(){
         CreateChannelRequest createChannelRequest = new CreateChannelRequest();
         createChannelRequest.setName("newRoom");

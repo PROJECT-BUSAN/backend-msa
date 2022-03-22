@@ -1,4 +1,4 @@
-package project.investmentservice.api;
+package project.investmentservice.utils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.investmentservice.annotation.LoginRequired;
-import project.investmentservice.service.AuthService;
+import project.investmentservice.service.AuthenticateService;
+import project.investmentservice.utils.HttpApiController;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.List;
 public class TestApiController {
 
     private final HttpApiController httpApiController;
-    private final AuthService authService;
+    private final AuthenticateService authService;
 
     /**
      * GET 테스트 API

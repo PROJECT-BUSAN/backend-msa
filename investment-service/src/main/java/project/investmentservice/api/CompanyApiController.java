@@ -47,7 +47,7 @@ public class CompanyApiController {
 
     @Data
     @AllArgsConstructor
-    static class TestResult {
+    public static class TestResult {
         private String message;
         private String data;
     }
