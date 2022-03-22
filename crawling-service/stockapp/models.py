@@ -15,7 +15,9 @@ class Company(models.Model):
 
 class StockInfo(models.Model):
     id = models.BigAutoField(primary_key=True, db_column="id")
-    date = models.DateField(help_text="거래일", blank=True, null=True, db_column="date")
+
+    # 소켓 메시지에서 LocalTime 형식이 변환되지 않아 Char 타입으로 변경
+    date = models.CharField(help_text="거래일", max_length=32, blank=True, null=True, db_column="date")
     close = models.FloatField(help_text="종가", blank=True, null=True, db_column="close")
     open = models.FloatField(help_text="시가", blank=True, null=True, db_column="open")
     high = models.FloatField(help_text="고가", blank=True, null=True, db_column="high")
