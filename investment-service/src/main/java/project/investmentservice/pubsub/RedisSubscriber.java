@@ -8,7 +8,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
-import project.investmentservice.dto.socket.ServerMessage;
+import project.investmentservice.dto.SocketDto;
+
+import static project.investmentservice.dto.SocketDto.*;
 
 @Slf4j
 @RequiredArgsConstructor

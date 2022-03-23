@@ -2,7 +2,7 @@ package project.investmentservice.utils;
 
 import org.junit.Assert;
 import org.junit.Test;
-import project.investmentservice.dto.channel.EnterChannelRequest;
+import project.investmentservice.dto.ChannelDto.EnterChannelRequest;
 
 public class JsonMapperTest {
 

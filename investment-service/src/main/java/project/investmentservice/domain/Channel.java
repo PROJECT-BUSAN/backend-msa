@@ -2,7 +2,7 @@ package project.investmentservice.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import project.investmentservice.dto.socket.GameResult;
+import project.investmentservice.dto.SocketDto.GameResult;
 import project.investmentservice.enums.UserReadyType;
 
 import java.io.Serializable;

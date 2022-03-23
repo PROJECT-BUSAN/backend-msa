@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.support.ErrorMessage;
 import org.springframework.stereotype.Controller;
-import project.investmentservice.dto.socket.*;
+import project.investmentservice.dto.SocketDto.*;
 import project.investmentservice.enums.SocketClientMessageType;
 import project.investmentservice.enums.SocketServerMessageType;
 import project.investmentservice.utils.HttpApiController;
@@ -21,6 +21,7 @@ import project.investmentservice.service.StockInfoService;
 
 import java.util.*;
 
+import static project.investmentservice.dto.SocketDto.*;
 import static project.investmentservice.enums.SocketClientMessageType.*;
 import static project.investmentservice.enums.SocketServerMessageType.*;
 

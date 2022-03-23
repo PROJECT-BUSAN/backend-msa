@@ -5,15 +5,16 @@ import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
-import project.investmentservice.dto.investment.PurchaseStockResponse;
-import project.investmentservice.dto.investment.SellStockResponse;
-import project.investmentservice.dto.investment.StockRequest;
+import project.investmentservice.dto.InvestmentDto;
+import project.investmentservice.dto.InvestmentDto.PurchaseStockResponse;
+import project.investmentservice.dto.InvestmentDto.StockRequest;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.service.InvestmentService;
 import project.investmentservice.utils.HttpApiController;
 
 import javax.validation.Valid;
 
+import static project.investmentservice.dto.InvestmentDto.*;
 import static project.investmentservice.enums.HttpReturnType.FAIL;
 import static project.investmentservice.enums.HttpReturnType.SUCCESS;
 

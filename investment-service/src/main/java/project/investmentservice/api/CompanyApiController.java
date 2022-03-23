@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Company;
-import project.investmentservice.dto.company.CompanyResult;
+import project.investmentservice.dto.CompanyDto.CompanyResult;
 import project.investmentservice.service.CompanyService;
 
 import java.util.List;

@@ -23,8 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import project.investmentservice.domain.Channel;
-import project.investmentservice.dto.channel.CreateChannelRequest;
-import project.investmentservice.dto.channel.EnterChannelRequest;
+import project.investmentservice.dto.ChannelDto;
+import project.investmentservice.dto.ChannelDto.CreateChannelRequest;
+import project.investmentservice.dto.ChannelDto.EnterChannelRequest;
 import project.investmentservice.service.ChannelService;
 
 
