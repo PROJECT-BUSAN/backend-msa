@@ -189,4 +189,12 @@ public class ChannelService {
         }
         channelRepository.updateChannel(nowChannel);
     }
+
+    /**
+     * 특정 channel의 특정 User 반환
+     */
+    public User findUserById(String channelId, Long userId) {
+        Channel channel = channelRepository.findChannelById(channelId);
+        return channel.findUserById(userId);
+    }
 }

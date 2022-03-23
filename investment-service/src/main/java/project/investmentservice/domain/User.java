@@ -35,7 +35,7 @@ public class User implements Serializable {
     
     
     public void addCompany(Long companyId) {
-        UsersStock usersStock = new UsersStock(0, 0L, 0.0);
+        UsersStock usersStock = new UsersStock(0.0, 0.0, 0.0);
         this.companies.put(companyId, usersStock);
     }
 }

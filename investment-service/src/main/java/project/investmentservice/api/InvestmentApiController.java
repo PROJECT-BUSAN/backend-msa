@@ -1,13 +1,15 @@
 package project.investmentservice.api;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
-import project.investmentservice.dto.InvestmentDto;
-import project.investmentservice.dto.InvestmentDto.PurchaseStockResponse;
 import project.investmentservice.dto.InvestmentDto.StockRequest;
+import project.investmentservice.enums.HttpReturnType;
+import project.investmentservice.enums.TradeType;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.service.InvestmentService;
 import project.investmentservice.utils.HttpApiController;
@@ -15,8 +17,8 @@ import project.investmentservice.utils.HttpApiController;
 import javax.validation.Valid;
 
 import static project.investmentservice.dto.InvestmentDto.*;
-import static project.investmentservice.enums.HttpReturnType.FAIL;
-import static project.investmentservice.enums.HttpReturnType.SUCCESS;
+import static project.investmentservice.enums.TradeType.FAIL;
+import static project.investmentservice.enums.TradeType.SUCCESS;
 
 
 @RequiredArgsConstructor
@@ -36,35 +38,35 @@ public class InvestmentApiController {
      * @return
      */
     @PostMapping("/purchase/{channelId}")
-    public PurchaseStockResponse purchaseStockV1(@PathVariable("channelId") String channelId, @RequestBody @Valid StockRequest request) {
+    public ResponseEntity<TradeResponse> purchaseStockV1(@PathVariable("channelId") String channelId, @RequestBody @Valid TradeRequest request) {
+        Long userId = request.getUserId();
         boolean flag = investmentService.purchaseStock(channelId, request);
-        
-        if(!flag) return new PurchaseStockResponse(FAIL, 0, 0L, 0L);
+        User user = channelService.findUserById(channelId, userId);
+        if(!flag) {
+            TradeResponse response = new TradeResponse(FAIL, "보유 금액보다 주문량이 많습니다.", user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
         else {
-            Channel channel = channelService.findOneChannel(channelId);
-            User user = channel.getUsers().get(request.getUserId());
-            UsersStock usersStock = user.getCompanies().get(request.getCompanyId());
-            
-            double averagePrice = usersStock.getAveragePrice();
-            Long quantity = usersStock.getQuantity();
-            double seedMoney = user.getSeedMoney();
-
-            return new PurchaseStockResponse(SUCCESS, averagePrice, quantity, seedMoney);
+            TradeResponse response = new TradeResponse(SUCCESS, "주문에 성공하였습니다.", user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 
     // 주식 판매
     @PostMapping("/sell/{channelId}")
-    public SellStockResponse sellStock(@PathVariable("channelId") String channelId, @RequestBody @Valid StockRequest request) {
+    public ResponseEntity<TradeResponse> sellStock(@PathVariable("channelId") String channelId, @RequestBody @Valid TradeRequest request) {
+        Long userId = request.getUserId();
+        Long companyId = request.getCompanyId();
         boolean flag = investmentService.sellStock(channelId, request);
-        if(flag) {
-            Channel channel = channelService.findOneChannel(channelId);
-            User user = channel.getUsers().get(request.getUserId());
-            UsersStock usersStock = user.getCompanies().get(request.getCompanyId());
-            return new SellStockResponse(SUCCESS, usersStock.getAveragePrice(), usersStock.getQuantity(), user.getSeedMoney());
+        User user = channelService.findUserById(channelId, userId);
+
+        if(!flag) {
+            TradeResponse response = new TradeResponse(FAIL, "보유량보다 판매량이 많습니다.", user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         else {
-            return new SellStockResponse(FAIL, 0.0, 0L, 0.0);
+            TradeResponse response = new TradeResponse(SUCCESS, "판매에 성공했습니다.", user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 }

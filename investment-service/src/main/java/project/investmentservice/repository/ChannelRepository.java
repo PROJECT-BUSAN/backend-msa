@@ -7,6 +7,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Repository;
 import project.investmentservice.domain.Channel;
+import project.investmentservice.domain.User;
 import project.investmentservice.pubsub.RedisSubscriber;
 
 import javax.annotation.PostConstruct;
@@ -83,7 +84,6 @@ public class ChannelRepository {
     public Channel findChannelById(String id) {
         return opsHashChannel.get(CHANNEL, id);
     }
-
 
     public ChannelTopic getTopic(String channelId) {
         return topics.get(channelId);

@@ -5,7 +5,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import project.investmentservice.enums.ClientMessageType;
 import project.investmentservice.enums.ServerMessageType;
-import project.investmentservice.enums.TradeClientMessageType;
 import project.investmentservice.service.InvestmentService;
 import project.investmentservice.utils.HttpApiController;
 import project.investmentservice.domain.*;
@@ -98,21 +97,22 @@ public class ChannelMessageController {
         }
     }
 
-    @MessageMapping("/game/trade")
-    public void tradeMessage(TradeMessage tradeMessage) {
-        TradeClientMessageType messageType = tradeMessage.getType();
-        String channelId = tradeMessage.getChannelId();
-        Long userId = tradeMessage.getUserId();
-        Long companyId = tradeMessage.getCompanyId();
-        double count = tradeMessage.getCount();
-
-        switch (messageType) {
-            case BUY:
-                boolean flag = investmentService.purchaseStock(channelId, tradeMessage);
-            case SELL:
-
-        }
-    }
+//    @MessageMapping("/game/trade")
+//    public void tradeMessage(TradeMessage tradeMessage) {
+//        TradeClientMessageType messageType = tradeMessage.getType();
+//        switch (messageType) {
+//            case BUY:
+//                boolean flag = investmentService.purchaseStock(tradeMessage);
+//                if(flag) {
+//
+//                }
+//                else {
+//
+//                }
+//            case SELL:
+//
+//        }
+//    }
 
     public void gameStart(Channel channel) {
         String channelId = channel.getId();

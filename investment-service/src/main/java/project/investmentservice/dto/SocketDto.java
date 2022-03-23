@@ -4,7 +4,6 @@ import lombok.*;
 import project.investmentservice.domain.User;
 import project.investmentservice.enums.ClientMessageType;
 import project.investmentservice.enums.ServerMessageType;
-import project.investmentservice.enums.TradeClientMessageType;
 
 import java.util.List;
 import java.util.Map;
@@ -115,14 +114,5 @@ public class SocketDto {
             this.userIds = userIds;
             this.fee = fee;
         }
-    }
-
-    @Getter
-    public static class TradeMessage {
-        private TradeClientMessageType type;
-        private String channelId;
-        private Long userId;
-        private Long companyId;
-        private double count;
     }
 }

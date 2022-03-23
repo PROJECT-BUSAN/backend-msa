@@ -72,6 +72,10 @@ public class Channel implements Serializable {
         return results;
     }
 
+    public User findUserById(Long userId) {
+        return this.users.get(userId);
+    }
+
     public void setCurrentPriceByCompany(Long companyId, double price) {
         this.CurrentPriceByCompany.put(companyId, price);
     }
