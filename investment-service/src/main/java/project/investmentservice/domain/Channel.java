@@ -21,7 +21,8 @@ public class Channel implements Serializable {
     private int LimitOfParticipants;
     private double entryFee;    // 참가비
     private Map<Long, User> users = new HashMap<>();
-    private double pointPsum;
+    private Map<Long, Double> CurrentPriceByCompany;
+    private double pointPsum;   // 참가비 모음
     private Long hostId;
     private String hostName;
 
@@ -69,5 +70,13 @@ public class Channel implements Serializable {
             results.add(userKey);
         }
         return results;
+    }
+
+    public void setCurrentPriceByCompany(Long companyId, double price) {
+        this.CurrentPriceByCompany.put(companyId, price);
+    }
+
+    public Double getCurrentPriceByCompany(Long companyId) {
+        return CurrentPriceByCompany.get(companyId);
     }
 }

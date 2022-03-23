@@ -8,9 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.support.ErrorMessage;
 import org.springframework.stereotype.Controller;
+import project.investmentservice.dto.ChannelDto;
 import project.investmentservice.dto.SocketDto.*;
 import project.investmentservice.enums.SocketClientMessageType;
 import project.investmentservice.enums.SocketServerMessageType;
+import project.investmentservice.utils.CustomJsonMapper;
 import project.investmentservice.utils.HttpApiController;
 import project.investmentservice.domain.*;
 import project.investmentservice.pubsub.RedisPublisher;
@@ -49,6 +51,12 @@ public class ChannelMessageController {
      */
     @MessageMapping("/game/message")
     public void message(ClientMessage clientMessage) {
+        // ==== 만약 clientMessage가 String 이면 ====
+//        CustomJsonMapper cm = new CustomJsonMapper();
+//        Object obj = cm.jsonParse(clientMessage, ClientMessage.class);
+//        ClientMessage clientMessage = ClientMessage.class.cast(obj);
+        // ======================
+        
         SocketClientMessageType messageType = clientMessage.getType();
         String channelId = clientMessage.getChannelId();
         Long senderId = clientMessage.getSenderId();
