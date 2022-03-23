@@ -7,6 +7,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import project.investmentservice.dto.socket.*;
 import project.investmentservice.enums.SocketClientMessageType;
+import project.investmentservice.enums.SocketServerMessageType;
 import project.investmentservice.utils.HttpApiController;
 import project.investmentservice.domain.*;
 import project.investmentservice.pubsub.RedisPublisher;
@@ -54,6 +55,7 @@ public class ChannelMessageController {
                 Channel enterChannel = channelService.findOneChannel(channelId);
                 ServerMessage serverEnterMessage = new ServerMessage(RENEWAL, channelId, enterChannel.getUsers());
                 redisPublisher.publish(channelRepository.getTopic(channelId), serverEnterMessage);
+
             case EXIT:
                 Channel exitChannel = channelRepository.findChannelById(channelId);
                 if(exitChannel.getHostId().equals(senderId)) {
@@ -68,26 +70,32 @@ public class ChannelMessageController {
                     ServerMessage serverExitMessage = new ServerMessage(RENEWAL, channelId, channel.getUsers());
                     redisPublisher.publish(channelRepository.getTopic(channelId), serverExitMessage);
                 }
+
             case READY:
                 Channel readyChannel = channelService.setReady(channelId, senderId);
                 if(readyChannel.getHostId().equals(senderId)) {
                     if(channelService.checkReadyState(channelId)) {
                         //모든인원 ready 상태 확인
-                        gameStart(channelId);
+                        ServerMessage serverStartTrueMessage = new ServerMessage(SocketServerMessageType.START, channelId, readyChannel.getUsers());
+                        redisPublisher.publish(channelRepository.getTopic(channelId), serverStartTrueMessage);
                     }
                     else {
-                        ServerMessage serverStartMessage = new ServerMessage(NOTICE, channelId, readyChannel.getUsers());
-                        redisPublisher.publish(channelRepository.getTopic(channelId), serverStartMessage);
+                        ServerMessage serverStartFalseMessage = new ServerMessage(NOTICE, channelId, readyChannel.getUsers());
+                        redisPublisher.publish(channelRepository.getTopic(channelId), serverStartFalseMessage);
                     }
                 }
                 else {
                     ServerMessage serverReadyMessage = new ServerMessage(RENEWAL, channelId, readyChannel.getUsers());
                     redisPublisher.publish(channelRepository.getTopic(channelId), serverReadyMessage);
                 }
+
             case CANCEL:
                 Channel cancelChannel = channelService.cancelReady(channelId, senderId);
                 ServerMessage serverCancelMessage = new ServerMessage(RENEWAL, channelId, cancelChannel.getUsers());
                 redisPublisher.publish(channelRepository.getTopic(channelId), serverCancelMessage);
+
+            case START:
+                gameStart(channelId);
         }
     }
     
