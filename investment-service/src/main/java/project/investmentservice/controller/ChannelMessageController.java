@@ -3,7 +3,10 @@ package project.investmentservice.controller;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.support.ErrorMessage;
 import org.springframework.stereotype.Controller;
 import project.investmentservice.dto.socket.*;
 import project.investmentservice.enums.SocketClientMessageType;
@@ -78,6 +81,8 @@ public class ChannelMessageController {
                         //모든인원 ready 상태 확인
                         ServerMessage serverStartTrueMessage = new ServerMessage(SocketServerMessageType.START, channelId, readyChannel.getUsers());
                         redisPublisher.publish(channelRepository.getTopic(channelId), serverStartTrueMessage);
+                        gameStart(readyChannel);
+
                     }
                     else {
                         ServerMessage serverStartFalseMessage = new ServerMessage(NOTICE, channelId, readyChannel.getUsers());
@@ -93,28 +98,25 @@ public class ChannelMessageController {
                 Channel cancelChannel = channelService.cancelReady(channelId, senderId);
                 ServerMessage serverCancelMessage = new ServerMessage(RENEWAL, channelId, cancelChannel.getUsers());
                 redisPublisher.publish(channelRepository.getTopic(channelId), serverCancelMessage);
-
-            case START:
-                gameStart(channelId);
         }
     }
     
-    
-    @MessageMapping("/game/start")
-    public void gameStart(String channelId) {
-        Channel nowChannel = channelService.findOneChannel(channelId);
-        List<Long> allUsers = nowChannel.getAllUsers();
+    //MessageMapping은 의미가 없다고 생각
+//    @MessageMapping("/game/start")
+    public void gameStart(Channel channel) {
+        String channelId = channel.getId();
+        List<Long> allUsers = channel.getAllUsers();
         
 //        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/point/bulk";
-//        
+//
 //        AllUserPointDeduction deduction = new AllUserPointDeduction(
 //                allUsers,
-//                nowChannel.getEntryFee()
+//                channel.getEntryFee()
 //        );
 //        ResponseEntity<String> response = httpApiController.postRequest(profileServiceUrl, deduction);
 //        if (!response.getStatusCode().equals(HttpStatus.OK)) {
 //            ErrorMessage errorMessage = new ErrorMessage("");
-//            
+//
 //            return;
 //        }
 
@@ -182,7 +184,7 @@ public class ChannelMessageController {
         
         
         // 게임에 참여한 유저가 가지고 있는 주식 전체 강제 매도
-        channelService.sellAllStock(closeValue, nowChannel);
+        channelService.sellAllStock(closeValue, channel);
         
         
         // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
@@ -204,20 +206,14 @@ public class ChannelMessageController {
         StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(
                 CLOSE,
                 stockResults,
-                nowChannel.gameResult()
+                channel.gameResult()
         );
         redisPublisher.publish(
                 channelRepository.getTopic(channelId), 
                 stockGameEndMessage
         );
 
-        channelService.deleteChannel(nowChannel);
+        channelService.deleteChannel(channel);
     }
 
-    @Data
-    @AllArgsConstructor
-    static class AllUserPointDeduction{
-        List<Long> userIds;
-        double fee;
-    } 
 }
