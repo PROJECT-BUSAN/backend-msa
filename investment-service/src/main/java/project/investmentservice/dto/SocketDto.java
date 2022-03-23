@@ -20,8 +20,8 @@ public class SocketDto {
     public static class StockResult {
         private Long companyId;
         private String stockName;
-        private LocalDate startDate;
-        private LocalDate endDate;
+        private String startDate;
+        private String endDate;
         private String message;
     }
 
@@ -31,7 +31,7 @@ public class SocketDto {
     @Getter
     public static class StockInfoMessage extends PublishMessage {
 
-        private LocalDate date;
+        private String date;
         private double close;
         private double open;
         private double high;
@@ -39,7 +39,7 @@ public class SocketDto {
         private int volume;
         private Long company_id;
 
-        public StockInfoMessage(SocketServerMessageType type, LocalDate date, double close, double open, double high, double low, int volume, Long company_id) {
+        public StockInfoMessage(SocketServerMessageType type, String date, double close, double open, double high, double low, int volume, Long company_id) {
             super(type);
             this.date = date;
             this.close = close;
