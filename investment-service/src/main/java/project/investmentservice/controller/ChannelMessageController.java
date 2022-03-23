@@ -3,18 +3,10 @@ package project.investmentservice.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
-<<<<<<< Updated upstream
-import project.investmentservice.dto.ChannelDto;
-import project.investmentservice.dto.SocketDto.*;
-import project.investmentservice.enums.SocketClientMessageType;
-import project.investmentservice.enums.SocketServerMessageType;
-import project.investmentservice.utils.CustomJsonMapper;
-=======
 import project.investmentservice.enums.ClientMessageType;
 import project.investmentservice.enums.ServerMessageType;
 import project.investmentservice.enums.TradeClientMessageType;
 import project.investmentservice.service.InvestmentService;
->>>>>>> Stashed changes
 import project.investmentservice.utils.HttpApiController;
 import project.investmentservice.domain.*;
 import project.investmentservice.pubsub.RedisPublisher;
@@ -51,21 +43,9 @@ public class ChannelMessageController {
      * 근데 channel 상태에 관한 메시지는 어디서 관리하냐? 가 문제임 -> redis에 저장된 channel에 저장하자.
      * ChannelMessage가 들어오면 channel 정보를 message로 만들어 뿌려주자
      */
-<<<<<<< Updated upstream
-    @MessageMapping("/game/message")
-    public void message(ClientMessage clientMessage) {
-        // ==== 만약 clientMessage가 String 이면 ====
-//        CustomJsonMapper cm = new CustomJsonMapper();
-//        Object obj = cm.jsonParse(clientMessage, ClientMessage.class);
-//        ClientMessage clientMessage = ClientMessage.class.cast(obj);
-        // ======================
-        
-        SocketClientMessageType messageType = clientMessage.getType();
-=======
     @MessageMapping("/game/channel")
     public void channelMessage(ClientMessage clientMessage) {
         ClientMessageType messageType = clientMessage.getType();
->>>>>>> Stashed changes
         String channelId = clientMessage.getChannelId();
         Long senderId = clientMessage.getSenderId();
         String senderName = clientMessage.getSenderName();
