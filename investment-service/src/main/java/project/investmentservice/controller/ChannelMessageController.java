@@ -1,18 +1,20 @@
 package project.investmentservice.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.support.ErrorMessage;
 import org.springframework.stereotype.Controller;
+<<<<<<< Updated upstream
 import project.investmentservice.dto.ChannelDto;
 import project.investmentservice.dto.SocketDto.*;
 import project.investmentservice.enums.SocketClientMessageType;
 import project.investmentservice.enums.SocketServerMessageType;
 import project.investmentservice.utils.CustomJsonMapper;
+=======
+import project.investmentservice.enums.ClientMessageType;
+import project.investmentservice.enums.ServerMessageType;
+import project.investmentservice.enums.TradeClientMessageType;
+import project.investmentservice.service.InvestmentService;
+>>>>>>> Stashed changes
 import project.investmentservice.utils.HttpApiController;
 import project.investmentservice.domain.*;
 import project.investmentservice.pubsub.RedisPublisher;
@@ -24,8 +26,7 @@ import project.investmentservice.service.StockInfoService;
 import java.util.*;
 
 import static project.investmentservice.dto.SocketDto.*;
-import static project.investmentservice.enums.SocketClientMessageType.*;
-import static project.investmentservice.enums.SocketServerMessageType.*;
+import static project.investmentservice.enums.ServerMessageType.*;
 
 @RequiredArgsConstructor
 @Controller
@@ -36,6 +37,7 @@ public class ChannelMessageController {
     private final RedisPublisher redisPublisher;
     private final CompanyService companyService;
     private final StockInfoService stockInfoService;
+    private final InvestmentService investmentService;
     private final HttpApiController httpApiController;
 
     /**
@@ -49,6 +51,7 @@ public class ChannelMessageController {
      * 근데 channel 상태에 관한 메시지는 어디서 관리하냐? 가 문제임 -> redis에 저장된 channel에 저장하자.
      * ChannelMessage가 들어오면 channel 정보를 message로 만들어 뿌려주자
      */
+<<<<<<< Updated upstream
     @MessageMapping("/game/message")
     public void message(ClientMessage clientMessage) {
         // ==== 만약 clientMessage가 String 이면 ====
@@ -58,6 +61,11 @@ public class ChannelMessageController {
         // ======================
         
         SocketClientMessageType messageType = clientMessage.getType();
+=======
+    @MessageMapping("/game/channel")
+    public void channelMessage(ClientMessage clientMessage) {
+        ClientMessageType messageType = clientMessage.getType();
+>>>>>>> Stashed changes
         String channelId = clientMessage.getChannelId();
         Long senderId = clientMessage.getSenderId();
         String senderName = clientMessage.getSenderName();
@@ -88,7 +96,7 @@ public class ChannelMessageController {
                 if(readyChannel.getHostId().equals(senderId)) {
                     if(channelService.checkReadyState(channelId)) {
                         //모든인원 ready 상태 확인
-                        ServerMessage serverStartTrueMessage = new ServerMessage(SocketServerMessageType.START, channelId, readyChannel.getUsers());
+                        ServerMessage serverStartTrueMessage = new ServerMessage(ServerMessageType.START, channelId, readyChannel.getUsers());
                         redisPublisher.publish(channelRepository.getTopic(channelId), serverStartTrueMessage);
                         gameStart(readyChannel);
 
@@ -109,13 +117,27 @@ public class ChannelMessageController {
                 redisPublisher.publish(channelRepository.getTopic(channelId), serverCancelMessage);
         }
     }
-    
-    //MessageMapping은 의미가 없다고 생각
-//    @MessageMapping("/game/start")
+
+    @MessageMapping("/game/trade")
+    public void tradeMessage(TradeMessage tradeMessage) {
+        TradeClientMessageType messageType = tradeMessage.getType();
+        String channelId = tradeMessage.getChannelId();
+        Long userId = tradeMessage.getUserId();
+        Long companyId = tradeMessage.getCompanyId();
+        double count = tradeMessage.getCount();
+
+        switch (messageType) {
+            case BUY:
+                boolean flag = investmentService.purchaseStock(channelId, tradeMessage);
+            case SELL:
+
+        }
+    }
+
     public void gameStart(Channel channel) {
         String channelId = channel.getId();
         List<Long> allUsers = channel.getAllUsers();
-        
+
 //        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/point/bulk";
 //
 //        AllUserPointDeduction deduction = new AllUserPointDeduction(
@@ -188,14 +210,14 @@ public class ChannelMessageController {
             } catch (InterruptedException ex) {
             }
         }
-        
-        
-        
-        
+
+
+
+
         // 게임에 참여한 유저가 가지고 있는 주식 전체 강제 매도
         channelService.sellAllStock(closeValue, channel);
-        
-        
+
+
         // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
         int k = 0;
         List<StockResult> stockResults = new ArrayList<>();
@@ -218,7 +240,7 @@ public class ChannelMessageController {
                 channel.gameResult()
         );
         redisPublisher.publish(
-                channelRepository.getTopic(channelId), 
+                channelRepository.getTopic(channelId),
                 stockGameEndMessage
         );
 

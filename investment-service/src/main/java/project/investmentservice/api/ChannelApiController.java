@@ -89,7 +89,7 @@ public class ChannelApiController {
         authService.LoginCheck(userId, username);
         
         ChannelServiceReturnType result = channelService.enterChannel(channelId, userId, username);
-        if(result == ChannelServiceReturnType.SUCCESS) {
+        if(result == SUCCESS) {
             return new EnterChannelResponse(HttpReturnType.SUCCESS, "채널에 입장합니다.", userId, username);
         }
         else if(result == POINTLACK) {

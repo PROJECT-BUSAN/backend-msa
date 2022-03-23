@@ -17,8 +17,6 @@ public class InvestmentDto {
         @NotNull
         private Long companyId;
         @NotNull
-        private double price;
-        @NotNull
         private Long quantity;
     }
 

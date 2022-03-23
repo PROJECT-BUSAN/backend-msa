@@ -1,5 +1,5 @@
 package project.investmentservice.enums;
 
-public enum SocketClientMessageType {
+public enum ClientMessageType {
     ENTER, EXIT, READY, CANCEL
 }

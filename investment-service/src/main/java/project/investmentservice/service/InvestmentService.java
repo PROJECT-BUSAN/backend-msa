@@ -24,7 +24,7 @@ public class InvestmentService {
         User user = findChannel.getUsers().get(request.getUserId());
         
         // 구매를 원하는 종목의 가격, 수량
-        double requestPrice = request.getPrice();
+        double requestPrice = findChannel.getCurrentPriceByCompany(companyId);
         Long requestQuantity = request.getQuantity();
         
         // 현재 유저의 시드머니

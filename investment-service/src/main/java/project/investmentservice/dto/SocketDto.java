@@ -1,14 +1,11 @@
 package project.investmentservice.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import project.investmentservice.domain.User;
-import project.investmentservice.enums.SocketClientMessageType;
-import project.investmentservice.enums.SocketServerMessageType;
+import project.investmentservice.enums.ClientMessageType;
+import project.investmentservice.enums.ServerMessageType;
+import project.investmentservice.enums.TradeClientMessageType;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +36,7 @@ public class SocketDto {
         private int volume;
         private Long company_id;
 
-        public StockInfoMessage(SocketServerMessageType type, String date, double close, double open, double high, double low, int volume, Long company_id) {
+        public StockInfoMessage(ServerMessageType type, String date, double close, double open, double high, double low, int volume, Long company_id) {
             super(type);
             this.date = date;
             this.close = close;
@@ -56,7 +53,7 @@ public class SocketDto {
         List<StockResult> stockResults;
         List<GameResult> gameResults;
 
-        public StockGameEndMessage(SocketServerMessageType type, List<StockResult> stockResults, List<GameResult> gameResults) {
+        public StockGameEndMessage(ServerMessageType type, List<StockResult> stockResults, List<GameResult> gameResults) {
             super(type);
             this.stockResults = stockResults;
             this.gameResults = gameResults;
@@ -70,7 +67,7 @@ public class SocketDto {
         private String channelId;
         private Map<Long, User> users;
 
-        public ServerMessage(SocketServerMessageType type, String channelId, Map<Long, User> users) {
+        public ServerMessage(ServerMessageType type, String channelId, Map<Long, User> users) {
             super(type);
             this.channelId = channelId;
             this.users = users;
@@ -80,7 +77,7 @@ public class SocketDto {
     @Getter
     @AllArgsConstructor
     public static class PublishMessage {
-        private SocketServerMessageType type;
+        private ServerMessageType type;
     }
 
     /**
@@ -101,13 +98,12 @@ public class SocketDto {
      */
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class ClientMessage {
-
-        private SocketClientMessageType type;
+        private ClientMessageType type;
         private String channelId;
         private Long senderId;
         private String senderName;
-
     }
 
     @Data
@@ -119,5 +115,14 @@ public class SocketDto {
             this.userIds = userIds;
             this.fee = fee;
         }
+    }
+
+    @Getter
+    public static class TradeMessage {
+        private TradeClientMessageType type;
+        private String channelId;
+        private Long userId;
+        private Long companyId;
+        private double count;
     }
 }
