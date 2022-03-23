@@ -2,10 +2,10 @@ package project.investmentservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.investmentservice.api.InvestmentApiController.StockRequest;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
+import project.investmentservice.dto.investment.StockRequest;
 import project.investmentservice.repository.ChannelRepository;
 
 

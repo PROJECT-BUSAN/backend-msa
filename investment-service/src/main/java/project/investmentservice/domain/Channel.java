@@ -1,16 +1,9 @@
 package project.investmentservice.domain;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import project.investmentservice.domain.dto.GameResult;
-import project.investmentservice.domain.dto.StockInfoMessage;
+import project.investmentservice.dto.socket.GameResult;
 import project.investmentservice.enums.UserReadyType;
-import project.investmentservice.pubsub.RedisPublisher;
-import project.investmentservice.repository.ChannelRepository;
-import project.investmentservice.service.ChannelService;
-import project.investmentservice.service.CompanyService;
-import project.investmentservice.service.StockInfoService;
 
 import java.io.Serializable;
 import java.util.*;

@@ -1,28 +1,26 @@
 package project.investmentservice.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.*;
+import project.investmentservice.dto.channel.*;
+import project.investmentservice.enums.ChannelServiceReturnType;
 import project.investmentservice.enums.HttpReturnType;
 import project.investmentservice.service.AuthenticateService;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.utils.HttpApiController;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
+import static project.investmentservice.enums.ChannelServiceReturnType.*;
 import static project.investmentservice.enums.HttpReturnType.FAIL;
-import static project.investmentservice.enums.HttpReturnType.SUCCESS;
 
 /**
  *  채널 삭제는 소켓 message로 처리
  *  1) 방장이 EXIT를 메시지를 보내는경우 -> CANCEL 메시지를 모든 User에게 보냄
  *  2) 방장이 아닌 User가 EXIT 메시지를 보내는경우 -> 채널 정보를 갱신하여 모든 User에게 다시 전송
  */
-
 @RequiredArgsConstructor
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -89,60 +87,18 @@ public class ChannelApiController {
         String username = request.getUsername();
         authService.LoginCheck(userId, username);
         
-        int result = channelService.enterChannel(channelId, userId, username);
-        if(result == 0) {
-            return new EnterChannelResponse(SUCCESS, "채널에 입장합니다.", userId, username);
+        ChannelServiceReturnType result = channelService.enterChannel(channelId, userId, username);
+        if(result == ChannelServiceReturnType.SUCCESS) {
+            return new EnterChannelResponse(HttpReturnType.SUCCESS, "채널에 입장합니다.", userId, username);
         }
-        else if(result == 1) {
+        else if(result == POINTLACK) {
             return new EnterChannelResponse(FAIL, "채널에 입장하기 위한 포인트가 부족합니다.", userId, username);
         }
-        else if(result == 2) {
+        else if(result == FULLCHANNEL) {
             return new EnterChannelResponse(FAIL, "채널에 인원이 가득찼습니다.", userId, username);
         }
         else {
             return new EnterChannelResponse(FAIL, "Server Error 500.", userId, username);
         }
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class AllChannelResponse {
-        private List<Channel> channels;
-    }
-
-    @Data
-    public static class CreateChannelRequest {
-        @NotNull
-        private String name;
-        @NotNull
-        private int limitOfParticipants;
-        @NotNull
-        private double entryFee;
-        private Long userId;
-        private String username;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class CreateChannelResponse {
-        private String id;
-        private Long channelNum;
-        private String channelName;
-    }
-
-    @Data
-    public static class EnterChannelRequest {
-        @NotNull
-        private Long userId;
-        private String username;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class EnterChannelResponse {
-        private HttpReturnType type;
-        private String message;
-        private Long userId;
-        private String username;
     }
 }

@@ -1,19 +1,18 @@
 package project.investmentservice.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
-import project.investmentservice.enums.HttpReturnType;
+import project.investmentservice.dto.investment.PurchaseStockResponse;
+import project.investmentservice.dto.investment.SellStockResponse;
+import project.investmentservice.dto.investment.StockRequest;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.service.InvestmentService;
 import project.investmentservice.utils.HttpApiController;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import static project.investmentservice.enums.HttpReturnType.FAIL;
 import static project.investmentservice.enums.HttpReturnType.SUCCESS;
@@ -27,7 +26,6 @@ public class InvestmentApiController {
     private final InvestmentService investmentService;
     private final ChannelService channelService;
     private final HttpApiController httpApiController;
-
 
     /**
      * 주식 구매 API
@@ -68,35 +66,4 @@ public class InvestmentApiController {
             return new SellStockResponse(FAIL, 0.0, 0L, 0.0);
         }
     }
-
-    @Data
-    public static class StockRequest {
-        @NotNull
-        private Long userId;
-        @NotNull
-        private Long companyId;
-        @NotNull
-        private double price;
-        @NotNull
-        private Long quantity;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class PurchaseStockResponse {
-        private HttpReturnType type;
-        private double averagePrice;
-        private Long quantity;
-        private double seedMoney;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class SellStockResponse {
-        private HttpReturnType type;
-        private double averagePrice;
-        private Long quantity;
-        private double seedMoney;
-    }
-
 }

@@ -1,12 +1,7 @@
 package project.investmentservice.utils;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import org.json.simple.JSONObject;
 import org.springframework.stereotype.Component;
-import project.investmentservice.api.ChannelApiController;
-import project.investmentservice.api.ChannelApiController.EnterChannelRequest;
 
 @Component
 public class CustomJsonMapper {

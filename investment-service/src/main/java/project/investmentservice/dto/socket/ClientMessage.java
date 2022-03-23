@@ -1,4 +1,4 @@
-package project.investmentservice.domain.dto;
+package project.investmentservice.dto.socket;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

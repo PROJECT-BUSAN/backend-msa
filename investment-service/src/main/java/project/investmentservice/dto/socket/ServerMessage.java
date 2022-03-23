@@ -1,6 +1,5 @@
-package project.investmentservice.domain.dto;
+package project.investmentservice.dto.socket;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import project.investmentservice.domain.User;
@@ -14,7 +13,7 @@ public class ServerMessage extends PublishMessage {
 
     
     private String channelId;
-    private Map<Long, User> users = new HashMap<>();
+    private Map<Long, User> users;
 
     public ServerMessage(SocketServerMessageType type, String channelId, Map<Long, User> users) {
         super(type);

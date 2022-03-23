@@ -1,13 +1,9 @@
-package project.investmentservice.domain.dto;
+package project.investmentservice.dto.socket;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import project.investmentservice.api.ChannelApiController;
 import project.investmentservice.enums.SocketServerMessageType;
 
 import java.util.List;
-
-import static project.investmentservice.api.ChannelApiController.*;
 
 /**
  * StockResult : 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환

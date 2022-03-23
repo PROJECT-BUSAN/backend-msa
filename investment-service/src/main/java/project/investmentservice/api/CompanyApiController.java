@@ -3,13 +3,11 @@ package project.investmentservice.api;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.investmentservice.domain.Company;
+import project.investmentservice.dto.company.CompanyResult;
 import project.investmentservice.service.CompanyService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,19 +29,7 @@ public class CompanyApiController {
 
         return result;
     }
-    
 
-    @Data
-    @AllArgsConstructor
-    static class CompanyResult {
-        private String stock_name;
-        private String stock_code;
-
-        public CompanyResult(Company company) {
-            this.stock_name = company.getStock_name();
-            this.stock_code = company.getStock_code();
-        }
-    }
 
     @Data
     @AllArgsConstructor
