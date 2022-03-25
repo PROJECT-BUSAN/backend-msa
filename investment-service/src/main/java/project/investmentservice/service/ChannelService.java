@@ -6,12 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import project.investmentservice.api.HttpApiController;
-import project.investmentservice.controller.ChannelMessageController;
+import project.investmentservice.enums.ChannelServiceReturnType;
+import project.investmentservice.utils.HttpApiController;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
@@ -20,8 +18,9 @@ import project.investmentservice.repository.ChannelRepository;
 import java.util.List;
 import java.util.Map;
 
-import static project.investmentservice.domain.User.ReadyType.CANCEL;
-import static project.investmentservice.domain.User.ReadyType.READY;
+import static project.investmentservice.enums.ChannelServiceReturnType.*;
+import static project.investmentservice.enums.UserReadyType.CANCEL;
+import static project.investmentservice.enums.UserReadyType.READY;
 
 @RequiredArgsConstructor
 @Service
@@ -77,7 +76,7 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 입장
      */
-    public int enterChannel(String channelId, Long userId, String username) {
+    public ChannelServiceReturnType enterChannel(String channelId, Long userId, String username) {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
         Channel findChannel = findOneChannel(channelId);
         List<Long> allUsers = findChannel.getAllUsers();
@@ -102,26 +101,18 @@ public class ChannelService {
         }
 
         if (userPoint < findChannel.getEntryFee()) {
-            return 1;
+            return POINTLACK;
         }
-        
         if(findChannel.getLimitOfParticipants() > findChannel.getUsers().size()) {
-
-            //channel을 생성할때의 제한 인원이 현재 channel에 있는 인원보다 클때 -> channel 입장 비용 확인
-            if(findChannel.getEntryFee() <= userPoint) {
-                //userPoint는 게임이 시작할때 차감하는걸로
-                findChannel.getUsers().put(userId, new User(userPoint, username));
-                channelRepository.updateChannel(findChannel);
-                return 0;
-            }
-            else {
-                //포인트 부족
-                return 1;
-            }
+            //channel을 생성할때의 제한 인원이 현재 channel에 있는 인원보다 클때
+            //userPoint는 게임이 시작할때 차감하는걸로
+            findChannel.getUsers().put(userId, new User(userPoint, username));
+            channelRepository.updateChannel(findChannel);
+            return SUCCESS;
         }
         else {
             // 인원 가득참.
-            return 2;
+            return FULLCHANNEL;
         }
     }
 
@@ -197,5 +188,13 @@ public class ChannelService {
             user.setSeedMoney(userSeedMoney);
         }
         channelRepository.updateChannel(nowChannel);
+    }
+
+    /**
+     * 특정 channel의 특정 User 반환
+     */
+    public User findUserById(String channelId, Long userId) {
+        Channel channel = channelRepository.findChannelById(channelId);
+        return channel.findUserById(userId);
     }
 }

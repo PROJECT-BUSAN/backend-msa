@@ -7,6 +7,6 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-public class Tttt implements Serializable {
+public class TestDomain implements Serializable {
     private String name;
 }

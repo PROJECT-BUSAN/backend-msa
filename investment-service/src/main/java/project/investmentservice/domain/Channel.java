@@ -1,15 +1,9 @@
 package project.investmentservice.domain;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import project.investmentservice.domain.dto.GameResult;
-import project.investmentservice.domain.dto.StockInfoMessage;
-import project.investmentservice.pubsub.RedisPublisher;
-import project.investmentservice.repository.ChannelRepository;
-import project.investmentservice.service.ChannelService;
-import project.investmentservice.service.CompanyService;
-import project.investmentservice.service.StockInfoService;
+import project.investmentservice.dto.SocketDto.GameResult;
+import project.investmentservice.enums.UserReadyType;
 
 import java.io.Serializable;
 import java.util.*;
@@ -27,7 +21,8 @@ public class Channel implements Serializable {
     private int LimitOfParticipants;
     private double entryFee;    // 참가비
     private Map<Long, User> users = new HashMap<>();
-    private double pointPsum;
+    private Map<Long, Double> CurrentPriceByCompany;
+    private double pointPsum;   // 참가비 모음
     private Long hostId;
     private String hostName;
 
@@ -43,7 +38,7 @@ public class Channel implements Serializable {
         channel.hostName = hostname;
 
         User user = new User(entryFee, hostname);
-        user.setReadyType(User.ReadyType.READY);
+        user.setReadyType(UserReadyType.READY);
         channel.users.put(hostId, user);
         channel.pointPsum = entryFee;
         return channel;
@@ -75,5 +70,17 @@ public class Channel implements Serializable {
             results.add(userKey);
         }
         return results;
+    }
+
+    public User findUserById(Long userId) {
+        return this.users.get(userId);
+    }
+
+    public void setCurrentPriceByCompany(Long companyId, double price) {
+        this.CurrentPriceByCompany.put(companyId, price);
+    }
+
+    public Double getCurrentPriceByCompany(Long companyId) {
+        return CurrentPriceByCompany.get(companyId);
     }
 }

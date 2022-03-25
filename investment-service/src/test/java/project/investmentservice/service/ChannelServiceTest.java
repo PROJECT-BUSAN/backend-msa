@@ -7,13 +7,12 @@
 //import org.springframework.test.context.junit4.SpringRunner;
 //import project.investmentservice.domain.Channel;
 //import project.investmentservice.domain.User;
-//
+//import static project.investmentservice.enums.UserReadyType.CANCEL;
+//import static project.investmentservice.enums.UserReadyType.READY;
 //import java.util.List;
 //import java.util.Map;
 //
 //import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static project.investmentservice.domain.User.ReadyType.CANCEL;
-//import static project.investmentservice.domain.User.ReadyType.READY;
 //
 //@RunWith(SpringRunner.class)
 //@SpringBootTest

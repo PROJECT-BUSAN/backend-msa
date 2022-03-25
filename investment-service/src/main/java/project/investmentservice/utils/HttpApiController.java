@@ -1,4 +1,4 @@
-package project.investmentservice.api;
+package project.investmentservice.utils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +7,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import project.investmentservice.api.CompanyApiController.TestRequest;
-import project.investmentservice.api.CompanyApiController.TestResult;
 
+
+/**
+ * Python 의 requests 라이브러리와 비슷한 요청 동작을 구현 (get, post)
+ */
 @RestController
 public class HttpApiController {
 

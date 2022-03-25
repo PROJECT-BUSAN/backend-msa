@@ -7,6 +7,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Repository;
 import project.investmentservice.domain.Channel;
+import project.investmentservice.domain.User;
 import project.investmentservice.pubsub.RedisSubscriber;
 
 import javax.annotation.PostConstruct;
@@ -67,7 +68,8 @@ public class ChannelRepository {
     }
 
     /**
-     * 채널 정보 변경
+     * 채널 정보 변경 ->
+     * Redis 에 저장된 채널 정보 변경
      * 채널에 새로운 인원 Enter or Exit한 결과를 다시 저장
      */
     public Channel updateChannel(Channel channel) {
@@ -82,7 +84,6 @@ public class ChannelRepository {
     public Channel findChannelById(String id) {
         return opsHashChannel.get(CHANNEL, id);
     }
-
 
     public ChannelTopic getTopic(String channelId) {
         return topics.get(channelId);
