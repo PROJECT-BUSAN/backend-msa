@@ -4,6 +4,7 @@
 ### Deploy ###
 
 .coveragerc
+.idea
 
 ### Django ###
 *.log

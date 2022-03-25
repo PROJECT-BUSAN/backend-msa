@@ -16,12 +16,13 @@ class Crawling:
     '''
     def daily(self, start_date, end_date):
         companies = Company.objects.filter().all()
-        for com in companies[0:1]:
+        for com in companies:
             code = com.stock_code
             df_ohlcv = stock.get_market_ohlcv_by_date(start_date, end_date, code)
             for row in df_ohlcv.itertuples():
+                string_date = str(row[0]).split(' ')[0]
                 obj, flag = StockInfo.objects.get_or_create(
-                    date=row[0].to_pydatetime().date(),
+                    date=string_date,
                     open=row[1],
                     high=row[2],
                     low=row[3],
@@ -39,7 +40,7 @@ class Crawling:
         # market = "KOSPI" : 코스피 상장기업
         # market = "KOSDAQ" : 코스닥 상장기업
         self.stock_codes = stock.get_market_ticker_list(date, market="ALL")
-        for stock_code in self.stock_codes:
+        for stock_code in self.stock_codes[0:5]:
             stock_name = stock.get_market_ticker_name(stock_code);
             obj, flag = Company.objects.get_or_create(
                 stock_name=stock_name,

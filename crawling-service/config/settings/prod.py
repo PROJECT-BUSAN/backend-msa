@@ -22,11 +22,11 @@
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'projectdb',
+#         'NAME': 'investment-db',
 #         'USER': 'project',
-#         'PASSWORD': env.str('PROJECT_MARIADB_PASSWORD'),
-#         'HOST': 'projectmariadb',
-#         'PORT': '3306',
+#         'PASSWORD': 'env.str('PROJECT_MARIADB_PASSWORD')',
+#         'HOST': 'investment-database',
+#         'PORT': '3307',
 #     }
 # }
 
