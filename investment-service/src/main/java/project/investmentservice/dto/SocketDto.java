@@ -35,8 +35,8 @@ public class SocketDto {
         private int volume;
         private Long company_id;
 
-        public StockInfoMessage(ServerMessageType type, String date, double close, double open, double high, double low, int volume, Long company_id) {
-            super(type);
+        public StockInfoMessage(ServerMessageType type, String channelId, String date, double close, double open, double high, double low, int volume, Long company_id) {
+            super(type, channelId);
             this.date = date;
             this.close = close;
             this.open = open;
@@ -52,8 +52,8 @@ public class SocketDto {
         List<StockResult> stockResults;
         List<GameResult> gameResults;
 
-        public StockGameEndMessage(ServerMessageType type, List<StockResult> stockResults, List<GameResult> gameResults) {
-            super(type);
+        public StockGameEndMessage(ServerMessageType type, String channelId, List<StockResult> stockResults, List<GameResult> gameResults) {
+            super(type, channelId);
             this.stockResults = stockResults;
             this.gameResults = gameResults;
         }
@@ -62,21 +62,20 @@ public class SocketDto {
     @Getter @Setter
     public static class ServerMessage extends PublishMessage {
 
-
-        private String channelId;
         private Map<Long, User> users;
 
         public ServerMessage(ServerMessageType type, String channelId, Map<Long, User> users) {
-            super(type);
-            this.channelId = channelId;
+            super(type, channelId);
             this.users = users;
         }
     }
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class PublishMessage {
         private ServerMessageType type;
+        private String channelId;
     }
 
     /**

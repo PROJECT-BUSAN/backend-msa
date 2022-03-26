@@ -153,10 +153,15 @@ public class ChannelMessageController {
             @Override
             public void run() {
                 if(idx < 60) {
-                    for(int i = 0; i < stockLists.size(); i++){
-                        StockInfo stockInfo = stockLists.get(i).get(idx);
+                    int k = 0;
+                    Iterator<Long> it = companyIds.iterator();
+                    while (it.hasNext()) {
+                        System.out.println("it.next() = " + it.next());
+                        System.out.println("k = " + k);
+                        StockInfo stockInfo = stockLists.get(k++).get(idx);
                         StockInfoMessage stockInfoMessage = new StockInfoMessage(
                                 STOCK,
+                                channelId,
                                 stockInfo.getDate(),
                                 stockInfo.getClose(),
                                 stockInfo.getOpen(),
@@ -166,6 +171,7 @@ public class ChannelMessageController {
                                 stockInfo.getCompany().getId()
                         );
                         System.out.println("stockInfo.getClose() = " + stockInfo.getClose());
+                        channel.setCurrentPriceByCompany(it.next(), stockInfo.getClose());
                         redisPublisher.publish(channelRepository.getTopic(channelId), stockInfoMessage);
                         closeValue.put(stockInfo.getCompany().getId(), stockInfo.getClose());
                     }
@@ -216,6 +222,7 @@ public class ChannelMessageController {
 
         StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(
                 CLOSE,
+                channelId,
                 stockResults,
                 channel.gameResult()
         );

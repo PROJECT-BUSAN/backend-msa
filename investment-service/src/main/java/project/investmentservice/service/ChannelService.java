@@ -80,25 +80,25 @@ public class ChannelService {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
         Channel findChannel = findOneChannel(channelId);
         List<Long> allUsers = findChannel.getAllUsers();
-        double userPoint = -1.0;
+        double userPoint = -1000000.0;
                 
 //        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/";
-        String profileServiceUrl = "http://172.30.1.11:8081/api/v1/profile/";
+//        String profileServiceUrl = "http://172.30.1.11:8081/api/v1/profile/";
 
         /**
          * 입장할 때 유저 프로필의 point를 차감한다.
          * 만약 입장료보다 point를 적게 가지고 있을 시 참여 불가능.
          */
-        profileServiceUrl += (userId + "/point");
-        
-        ResponseEntity<String> response = httpApiController.getRequest(profileServiceUrl);
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            JsonNode node = mapper.readTree(response.getBody());
-            userPoint = Double.parseDouble(node.get("userPoint").asText());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+//        profileServiceUrl += (userId + "/point");
+//        
+//        ResponseEntity<String> response = httpApiController.getRequest(profileServiceUrl);
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            JsonNode node = mapper.readTree(response.getBody());
+//            userPoint = Double.parseDouble(node.get("userPoint").asText());
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
 
         if (userPoint < findChannel.getEntryFee()) {
             return POINTLACK;
