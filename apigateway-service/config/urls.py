@@ -16,10 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from .views import loader
 
 urlpatterns = [
     path('api/', include('api.urls')),
     path('admin/', admin.site.urls),
+    path('loaderio-0088d2bf7ddcf6f9a5c91d620093104b/', loader)
 ]
 
 if settings.DEBUG:

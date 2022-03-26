@@ -7,6 +7,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Repository;
 import project.investmentservice.domain.Channel;
+import project.investmentservice.domain.User;
 import project.investmentservice.pubsub.RedisSubscriber;
 
 import javax.annotation.PostConstruct;
@@ -30,7 +31,7 @@ public class ChannelRepository {
     private HashOperations<String, String, Channel> opsHashChannel;
 
     //채널에 메시지를 발행하기 위한 redis topic 정보. 서버별로 채널에 매치되는 topic 정보를 Map에 넣어 channelId로 찾을 수있게 한다.
-    private Map<String, ChannelTopic> topics;
+    private static Map<String, ChannelTopic> topics;
 
 
     // 초깃값 설정. Test code에서도 자동으로 실행됨
@@ -67,7 +68,8 @@ public class ChannelRepository {
     }
 
     /**
-     * 채널 정보 변경
+     * 채널 정보 변경 ->
+     * Redis 에 저장된 채널 정보 변경
      * 채널에 새로운 인원 Enter or Exit한 결과를 다시 저장
      */
     public Channel updateChannel(Channel channel) {
@@ -82,7 +84,6 @@ public class ChannelRepository {
     public Channel findChannelById(String id) {
         return opsHashChannel.get(CHANNEL, id);
     }
-
 
     public ChannelTopic getTopic(String channelId) {
         return topics.get(channelId);

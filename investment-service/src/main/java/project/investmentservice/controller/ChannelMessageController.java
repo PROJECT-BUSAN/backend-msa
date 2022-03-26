@@ -1,29 +1,38 @@
 package project.investmentservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
-import project.investmentservice.domain.Channel;
-import project.investmentservice.domain.dto.ClientMessage;
-import project.investmentservice.domain.dto.ServerMessage;
+import project.investmentservice.enums.ClientMessageType;
+import project.investmentservice.enums.ServerMessageType;
+import project.investmentservice.service.InvestmentService;
+import project.investmentservice.utils.CustomJsonMapper;
+import project.investmentservice.utils.HttpApiController;
+import project.investmentservice.domain.*;
 import project.investmentservice.pubsub.RedisPublisher;
 import project.investmentservice.repository.ChannelRepository;
 import project.investmentservice.service.ChannelService;
+import project.investmentservice.service.CompanyService;
+import project.investmentservice.service.StockInfoService;
 
-import static project.investmentservice.domain.dto.ServerMessage.MessageType.*;
-import static project.investmentservice.domain.dto.ClientMessage.MessageType.*;
+import java.util.*;
+
+import static project.investmentservice.dto.SocketDto.*;
+import static project.investmentservice.enums.ServerMessageType.*;
 
 @RequiredArgsConstructor
 @Controller
 public class ChannelMessageController {
 
-    @Autowired
     private final ChannelRepository channelRepository;
-    @Autowired
     private final ChannelService channelService;
-    @Autowired
     private final RedisPublisher redisPublisher;
+    private final CompanyService companyService;
+    private final StockInfoService stockInfoService;
+    private final InvestmentService investmentService;
+    private final HttpApiController httpApiController;
 
     /**
      * websocket "/pub/game/message"로 들어오는 메시징을 처리한다.
@@ -36,63 +45,200 @@ public class ChannelMessageController {
      * 근데 channel 상태에 관한 메시지는 어디서 관리하냐? 가 문제임 -> redis에 저장된 channel에 저장하자.
      * ChannelMessage가 들어오면 channel 정보를 message로 만들어 뿌려주자
      */
-    @MessageMapping("/game/message")
-    public void message(ClientMessage clientMessage) {
-        // 채널 ENTER TYPE
-        if (ENTER.equals(clientMessage.getType())) {
-            int EnterResult = channelService.enterChannel(clientMessage.getChannelId(), clientMessage.getSenderId());
-            // 채널 입장 성공
-            if(EnterResult == 0) {
-                Channel channel = channelService.findOneChannel(clientMessage.getChannelId());
-                ServerMessage serverMessage = new ServerMessage(RENEWAL, channel.getId(), channel.getUsers(), null);
-                redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
-            }
-            // 채널 입장 실패
-            else {
-                return;
-            }
-        }
-        // 채널 EXIT TYPE
-        else if(EXIT.equals(clientMessage.getType())) {
-            Channel exitChannel = channelRepository.findChannelById(clientMessage.getChannelId());
-            // Host가 퇴장하는 경우 -> 채널 삭제
-            if(exitChannel.getHostId() ==  clientMessage.getSenderId()) {
-                ServerMessage serverMessage = new ServerMessage(CLOSE, clientMessage.getChannelId(), null, "채널이 닫혔습니다.");
-                redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
-                channelService.deleteChannel(clientMessage.getChannelId());
-            }
-            // Host가 아닌 사용자가 퇴장하는 경우 -> 채널 유지
-            else {
-                Channel channel = channelService.exitChannel(clientMessage.getChannelId(), clientMessage.getSenderId());
-                ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers(), null);
-                redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
-            }
-        }
-        // 채널 READY TYPE
-        else if(READY.equals(clientMessage.getType())) {
-            Channel channel = channelService.setReady(clientMessage.getChannelId(), clientMessage.getSenderId());
-            if(channel.getHostId() == clientMessage.getSenderId()) {
-                //모든인원 ready 상태 확인
-                if(channelService.checkReadyState(clientMessage.getChannelId())) {
-                    ServerMessage serverMessage = new ServerMessage(START, clientMessage.getChannelId(), channel.getUsers(), "게임화면으로 넘어갑니다.");
+    @MessageMapping("/game/channel")
+    public void channelMessage(ClientMessage clientMessage) {
+        ClientMessageType messageType = clientMessage.getType();
+        String channelId = clientMessage.getChannelId();
+        Long senderId = clientMessage.getSenderId();
+        String senderName = clientMessage.getSenderName();
 
-                    redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
+        switch (messageType) {
+            case ENTER:
+                Channel enterChannel = channelService.findOneChannel(channelId);
+                ServerMessage serverEnterMessage = new ServerMessage(RENEWAL, channelId, enterChannel.getUsers());
+                redisPublisher.publish(channelRepository.getTopic(channelId), serverEnterMessage);
+
+            case EXIT:
+                Channel exitChannel = channelRepository.findChannelById(channelId);
+                if(exitChannel.getHostId().equals(senderId)) {
+                    // Host가 퇴장하는 경우 -> 채널 삭제
+                    ServerMessage serverCloseMessage = new ServerMessage(CLOSE, channelId, null);
+                    redisPublisher.publish(channelRepository.getTopic(channelId), serverCloseMessage);
+                    channelService.deleteChannel(exitChannel);
                 }
                 else {
-                    ServerMessage serverMessage = new ServerMessage(NOTICE, clientMessage.getChannelId(), channel.getUsers(), "모든 참가자가 준비를 완료해야 합니다.");
-                    redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
+                    // Host가 아닌 사용자가 퇴장하는 경우 -> 채널 유지
+                    Channel channel = channelService.exitChannel(channelId, senderId);
+                    ServerMessage serverExitMessage = new ServerMessage(RENEWAL, channelId, channel.getUsers());
+                    redisPublisher.publish(channelRepository.getTopic(channelId), serverExitMessage);
+                }
+
+            case READY:
+                Channel readyChannel = channelService.setReady(channelId, senderId);
+                if(readyChannel.getHostId().equals(senderId)) {
+                    if(channelService.checkReadyState(channelId)) {
+                        //모든인원 ready 상태 확인
+                        ServerMessage serverStartTrueMessage = new ServerMessage(ServerMessageType.START, channelId, readyChannel.getUsers());
+                        redisPublisher.publish(channelRepository.getTopic(channelId), serverStartTrueMessage);
+                        gameStart(readyChannel);
+
+                    }
+                    else {
+                        ServerMessage serverStartFalseMessage = new ServerMessage(NOTICE, channelId, readyChannel.getUsers());
+                        redisPublisher.publish(channelRepository.getTopic(channelId), serverStartFalseMessage);
+                    }
+                }
+                else {
+                    ServerMessage serverReadyMessage = new ServerMessage(RENEWAL, channelId, readyChannel.getUsers());
+                    redisPublisher.publish(channelRepository.getTopic(channelId), serverReadyMessage);
+                }
+
+            case CANCEL:
+                Channel cancelChannel = channelService.cancelReady(channelId, senderId);
+                ServerMessage serverCancelMessage = new ServerMessage(RENEWAL, channelId, cancelChannel.getUsers());
+                redisPublisher.publish(channelRepository.getTopic(channelId), serverCancelMessage);
+        }
+    }
+
+//    @MessageMapping("/game/trade")
+    public void gameStart(Channel channel) {
+        String channelId = channel.getId();
+        List<Long> allUsers = channel.getAllUsers();
+
+        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/point/bulk";
+//
+//        AllUserPointUpdate deduction = new AllUserPointUpdate(
+//                allUsers,
+//                channel.getEntryFee()
+//        );
+//        ResponseEntity<String> response = httpApiController.postRequest(profileServiceUrl, deduction);
+//        if (!response.getStatusCode().equals(HttpStatus.OK)) {
+//            ErrorMessage errorMessage = new ErrorMessage("");
+//
+//            return;
+//        }
+
+        // 게임에서 사용할 기업을 랜덤으로 n개 가져온다.
+        HashSet<Long> companyIds = companyService.selectInGameCompany(2);
+
+        // 게임에서 사용할 n개의 기업에 대한 주가 정보를 저장하는 배열
+        List<List<StockInfo>> stockLists = new ArrayList<>();
+        for(Long cid: companyIds){
+            stockLists.add(stockInfoService.getPeriodStockInfo(cid));
+        }
+
+        // <company_id, closePrice>
+        Map<Long, Double> closeValue = new HashMap<>();
+
+        // 타이머 종료를 위한 lock 객체 설정
+        Object lock = new Object();
+        // 10초에 한 번씩 주가 정보를 전송한다.
+        // 주요 게임 로직을 담당한다.
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            int idx = 0;
+            @Override
+            public void run() {
+                if(idx < 60) {
+                    int k = 0;
+                    Iterator<Long> it = companyIds.iterator();
+                    while (it.hasNext()) {
+                        System.out.println("it.next() = " + it.next());
+                        System.out.println("k = " + k);
+                        StockInfo stockInfo = stockLists.get(k++).get(idx);
+                        StockInfoMessage stockInfoMessage = new StockInfoMessage(
+                                STOCK,
+                                channelId,
+                                stockInfo.getDate(),
+                                stockInfo.getClose(),
+                                stockInfo.getOpen(),
+                                stockInfo.getHigh(),
+                                stockInfo.getLow(),
+                                stockInfo.getVolume(),
+                                stockInfo.getCompany().getId()
+                        );
+                        System.out.println("stockInfo.getClose() = " + stockInfo.getClose());
+                        channel.setCurrentPriceByCompany(it.next(), stockInfo.getClose());
+                        redisPublisher.publish(channelRepository.getTopic(channelId), stockInfoMessage);
+                        closeValue.put(stockInfo.getCompany().getId(), stockInfo.getClose());
+                    }
+                    idx++;
+                }
+                else {
+                    // 타이머가 종료되면 lock에 시그널을 보낸다.
+                    synchronized (lock) {
+                        lock.notifyAll();
+                    }
+                    timer.cancel();
                 }
             }
-            else {
-                ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers(), null);
-                redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
+        };
+        timer.schedule(timerTask, 0, 1000);
+
+//         타이머가 종료된 이후 다음 로직을 수행해야 하므로
+//         lock이 시그널을 받을 때까지 기다린다.
+        synchronized (lock) {
+            try {
+                lock.wait();
+            } catch (InterruptedException ex) {
             }
         }
-        // 채널 CANCEL TYPE (준비 취소)
-        else if(CANCEL.equals(clientMessage.getType())) {
-            Channel channel = channelService.cancelReady(clientMessage.getChannelId(), clientMessage.getSenderId());
-            ServerMessage serverMessage = new ServerMessage(RENEWAL, clientMessage.getChannelId(), channel.getUsers(), null);
-            redisPublisher.publish(channelRepository.getTopic(clientMessage.getChannelId()), serverMessage);
+
+        // 게임에 참여한 유저가 가지고 있는 주식 전체 강제 매도
+        try {
+            channelService.sellAllStock(closeValue, channel);
+        } catch (Exception e) {
+            System.out.println("====\nError in sellAllStock\n====");
         }
+
+
+        // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
+        int k = 0;
+        List<StockResult> stockResults = new ArrayList<>();
+        for(Long cid: companyIds){
+            Company company = companyService.findOneCompany(cid);
+            StockResult stockResult = new StockResult(
+                    cid,
+                    company.getStock_name(),
+                    stockLists.get(k).get(0).getDate(),
+                    stockLists.get(k).get(59).getDate()
+            );
+            stockResults.add(stockResult);
+            k++;
+        }
+
+        // 등수대로 포인트 차등 획득
+        
+        // 5명 참여, 입장료는 1인당 1,000 포인트
+        // 5,000을 차등 부여
+        // 1, 2, 3, 4, 5등
+        // 1, 2, 3등만 부여한다고 가정?
+        // 1등 2500, 2등 1500, 3등 1000(본전)
+        // 나누는 기준을 정해야 함
+        
+        AllUserPointUpdate updatePointByUser = new AllUserPointUpdate(
+//                allUsers,
+                
+        );
+        ResponseEntity<String> stringResponseEntity = httpApiController.postRequest(profileServiceUrl, updatePointByUser);
+        Object obj = CustomJsonMapper.jsonParse(stringResponseEntity.getBody(), ResponseEntity.class);
+        ResponseEntity response = ResponseEntity.class.cast(obj);
+        if (!response.getStatusCode().equals(HttpStatus.OK) ) {
+            System.out.println("포인트 획득과정에서 문제가 발생했습니다.");
+        }
+
+        StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(
+                CLOSE,
+                channelId,
+                stockResults,
+                channel.gameResult()
+        );
+        
+        redisPublisher.publish(
+                channelRepository.getTopic(channelId),
+                stockGameEndMessage
+        );
+
+        channelService.deleteChannel(channel);
     }
 }

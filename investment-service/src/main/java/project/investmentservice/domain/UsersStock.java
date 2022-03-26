@@ -12,16 +12,16 @@ public class UsersStock implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private double averagePrice;
-    private Long quantity;
+    private double quantity;
     private double totalPrice;
 
-    public void renewalStock(double averagePrice, Long quantity, double totalPrice) {
+    public void renewalStock(double averagePrice, double quantity, double totalPrice) {
         this.averagePrice = averagePrice;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
     }
 
-    public UsersStock(double averagePrice, Long quantity, double totalPrice) {
+    public UsersStock(double averagePrice, double quantity, double totalPrice) {
         this.averagePrice = averagePrice;
         this.quantity = quantity;
         this.totalPrice = totalPrice;

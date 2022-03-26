@@ -194,4 +194,5 @@ APIGATEWAY_INNER_FUNCTION = [
     "/api/v1/users",
     "/api/v1/auth",
     "/api/v1/swagger",
+    "/loaderio-93fb503303361a4df17ca92d0e1ef96a/",
 ]

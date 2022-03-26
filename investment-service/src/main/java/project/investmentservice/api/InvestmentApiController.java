@@ -1,113 +1,63 @@
 package project.investmentservice.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.investmentservice.api.CompanyApiController.TestRequest;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
+import project.investmentservice.dto.InvestmentDto.StockRequest;
+import project.investmentservice.enums.HttpReturnType;
+import project.investmentservice.enums.TradeType;
 import project.investmentservice.service.ChannelService;
 import project.investmentservice.service.InvestmentService;
+import project.investmentservice.utils.HttpApiController;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
+import static project.investmentservice.dto.InvestmentDto.*;
+import static project.investmentservice.enums.TradeType.FAIL;
+import static project.investmentservice.enums.TradeType.SUCCESS;
 
-import static project.investmentservice.api.InvestmentApiController.PurchaseStockResponse.returnType.SUCCESS;
-import static project.investmentservice.api.InvestmentApiController.SellStockResponse.returnType;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/investment")
 public class InvestmentApiController {
 
-    @Autowired
     private final InvestmentService investmentService;
-    @Autowired
     private final ChannelService channelService;
-    @Autowired
     private final HttpApiController httpApiController;
 
-    @PostMapping("/12312312321")
-    public ResponseEntity<String> get() {
-        TestRequest test = new TestRequest();
-        return httpApiController.postRequest("http://localhost:8080/api/v1/investment/test", test);
-    }
-
-    // 주식 구매
+    /**
+     * 주식 구매 API
+     * @param channelId
+     * @param request
+     * @return
+     */
     @PostMapping("/purchase/{channelId}")
-    public PurchaseStockResponse purchaseStock(@PathVariable("channelId") String channelId, @RequestBody @Valid StockRequest request) {
-        boolean flag = investmentService.purchaseStock(channelId, request);
+    public ResponseEntity<TradeResponse> purchaseStockV1(@PathVariable("channelId") String channelId, @RequestBody @Valid TradeRequest request) {
+        Long userId = request.getUserId();
         
-        if(!flag) return new PurchaseStockResponse(PurchaseStockResponse.returnType.FAIL, 0, 0L, 0L);
-        else {
-            Channel channel = channelService.findOneChannel(channelId);
-            User user = channel.getUsers().get(request.getUserId());
-            UsersStock usersStock = user.getCompanies().get(request.getCompanyId());
-            
-            double averagePrice = usersStock.getAveragePrice();
-            Long quantity = usersStock.getQuantity();
-            double seedMoney = user.getSeedMoney();
-
-            return new PurchaseStockResponse(SUCCESS, averagePrice, quantity, seedMoney);
-        }
+        investmentService.purchaseStock(channelId, request);
+        
+        User user = channelService.findUserById(channelId, userId);
+        return new ResponseEntity<>(
+                new TradeResponse(SUCCESS, "주문에 성공하였습니다.", user), 
+                HttpStatus.OK);
     }
 
     // 주식 판매
     @PostMapping("/sell/{channelId}")
-    public SellStockResponse sellStock(@PathVariable("channelId") String channelId, @RequestBody @Valid StockRequest request) {
-        boolean flag = investmentService.sellStock(channelId, request);
-        if(flag) {
-            Channel channel = channelService.findOneChannel(channelId);
-            User user = channel.getUsers().get(request.getUserId());
-            UsersStock usersStock = user.getCompanies().get(request.getCompanyId());
-            return new SellStockResponse(returnType.SUCCESS, usersStock.getAveragePrice(), usersStock.getQuantity(), user.getSeedMoney());
-        }
-        else {
-            return new SellStockResponse(returnType.FAIL, 0.0, 0L, 0.0);
-        }
+    public ResponseEntity<TradeResponse> sellStock(@PathVariable("channelId") String channelId, @RequestBody @Valid TradeRequest request) {
+        Long userId = request.getUserId();
+        
+        investmentService.sellStock(channelId, request);
+        
+        User user = channelService.findUserById(channelId, userId);
+        return new ResponseEntity<>(
+                new TradeResponse(SUCCESS, "판매에 성공했습니다.", user), 
+                HttpStatus.OK);
     }
-
-    @Data
-    public static class StockRequest {
-        @NotNull
-        private Long userId;
-        @NotNull
-        private Long companyId;
-        @NotNull
-        private double price;
-        @NotNull
-        private Long quantity;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class PurchaseStockResponse {
-
-        public enum returnType {
-            SUCCESS, FAIL
-        }
-
-        private returnType type;
-        private double averagePrice;
-        private Long quantity;
-        private double seedMoney;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class SellStockResponse {
-        public enum returnType {
-            SUCCESS, FAIL
-        }
-        private returnType type;
-        private double averagePrice;
-        private Long quantity;
-        private double seedMoney;
-    }
-
 }

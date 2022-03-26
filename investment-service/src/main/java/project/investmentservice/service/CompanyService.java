@@ -38,6 +38,7 @@ public class CompanyService {
             if(stockInfoRepository.findStock(comId).size() < 60){
                 continue;
             }
+            System.out.println("comId = " + comId);
             companyIds.add(comId);
         }
 

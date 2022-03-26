@@ -16,7 +16,7 @@ public class StockInfo {
     @Column(name = "id")
     private Long id;
 
-    private LocalDate date;
+    private String date;
     private double close;
     private double open;
     private double high;

@@ -3,7 +3,6 @@ package project.investmentservice.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,8 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.FAIL;
-import static project.investmentservice.api.ChannelApiController.EnterChannelResponse.returnType.SUCCESS;
 
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -25,9 +22,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
-import project.investmentservice.api.ChannelApiController.CreateChannelRequest;
-import project.investmentservice.api.ChannelApiController.EnterChannelRequest;
 import project.investmentservice.domain.Channel;
+import project.investmentservice.dto.ChannelDto;
+import project.investmentservice.dto.ChannelDto.CreateChannelRequest;
+import project.investmentservice.dto.ChannelDto.EnterChannelRequest;
 import project.investmentservice.service.ChannelService;
 
 
@@ -40,16 +38,16 @@ public class ChannelApiControllerTest {
 
     @Autowired 
     private MockMvc mockMvc;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
-    
+
     @Autowired
     private ChannelService channelService;
 
     @Autowired
     private WebApplicationContext ctx;
-    
+
     @Before
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
@@ -60,8 +58,8 @@ public class ChannelApiControllerTest {
     @Test
     public void 모든채널반환API() throws Exception {
         //given
-        CreateChannelRequest createChannelRequest = new CreateChannelRequest("test채널", 10, 1000L, 31L);
-
+        CreateChannelRequest createChannelRequest = createChannel();
+        
         //when
         ResultActions resultActions = mockMvc.perform(get("/api/v1/investment/channel"));
 
@@ -74,8 +72,8 @@ public class ChannelApiControllerTest {
     @Test
     public void 채널생성API() throws Exception {
         //given
-        CreateChannelRequest createChannelRequest = new CreateChannelRequest("test채널", 10, 1000L, 31L);
-
+        CreateChannelRequest createChannelRequest = createChannel();
+        
         //when
         ResultActions resultActions = mockMvc.perform(post("/api/v1/investment/channel")
                 .contentType(APPLICATION_JSON)
@@ -83,33 +81,38 @@ public class ChannelApiControllerTest {
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("channelName").value("test채널"));
+                .andExpect(jsonPath("channelName").value("newRoom"));
     }
-    
+
 
     @Test
     public void 채널입장API() throws Exception {
         //given
-        Channel channel1 = channelService.createChannel("testChannel32", 100, 20L, 51L);
-        Channel channel2 = channelService.createChannel("testChannel32", 100, 100000L, 51L);
-        Channel channel3 = channelService.createChannel("testChannel32", 1, 100000L, 51L);
+        Channel testChannel1 = createChannelByService("TestChannel", 1L);
+        Channel testChannel2 = createChannelByService("TestChannel", 2L);
+        Channel testChannel3 = createChannelByService("TestChannel", 3L);
+
         EnterChannelRequest enterChannelRequest1 = new EnterChannelRequest();
-        enterChannelRequest1.setUser_id(31L);
+        enterChannelRequest1.setUserId(10L);
+        enterChannelRequest1.setUsername("admin");
         EnterChannelRequest enterChannelRequest2 = new EnterChannelRequest();
-        enterChannelRequest2.setUser_id(31L);
+        enterChannelRequest2.setUserId(11L);
+        enterChannelRequest2.setUsername("admin");
         EnterChannelRequest enterChannelRequest3 = new EnterChannelRequest();
-        enterChannelRequest3.setUser_id(31L);
+        enterChannelRequest3.setUserId(12L);
+        enterChannelRequest3.setUsername("admin");
+
 
         //when
-        ResultActions resultActions1 = mockMvc.perform(post("/api/v1/investment/channel/enter/" + channel1.getId())
+        ResultActions resultActions1 = mockMvc.perform(post("/api/v1/investment/channel/" + testChannel1.getId())
                 .content(new ObjectMapper().writeValueAsString(enterChannelRequest1))
                 .contentType(MediaType.APPLICATION_JSON));
 
-        ResultActions resultActions2 = mockMvc.perform(post("/api/v1/investment/channel/enter/" + channel2.getId())
+        ResultActions resultActions2 = mockMvc.perform(post("/api/v1/investment/channel/" + testChannel2.getId())
                 .content(new ObjectMapper().writeValueAsString(enterChannelRequest2))
                 .contentType(APPLICATION_JSON));
 
-        ResultActions resultActions3 = mockMvc.perform(post("/api/v1/investment/channel/enter/" + channel3.getId())
+        ResultActions resultActions3 = mockMvc.perform(post("/api/v1/investment/channel/" + testChannel3.getId())
                 .content(new ObjectMapper().writeValueAsString(enterChannelRequest3))
                 .contentType(APPLICATION_JSON));
 
@@ -126,5 +129,21 @@ public class ChannelApiControllerTest {
         String result3 = resultActions3.andReturn().getResponse().getContentAsString();
         System.out.println("result3 = " + result3);
     }
+
+    
+    private Channel createChannelByService(String name, Long userId){
+        return channelService.createChannel(name, 10, 100, userId, "admin");
+    }
+    
+    private CreateChannelRequest createChannel(){
+        CreateChannelRequest createChannelRequest = new CreateChannelRequest();
+        createChannelRequest.setName("newRoom");
+        createChannelRequest.setEntryFee(100L);
+        createChannelRequest.setUsername("admin");
+        createChannelRequest.setUserId(1L);
+        createChannelRequest.setLimitOfParticipants(10);
+        return createChannelRequest;
+    }
+    
 }
 
