@@ -36,6 +36,7 @@ public class Channel implements Serializable {
         channel.entryFee = entryFee;
         channel.hostId = hostId;
         channel.hostName = hostname;
+        channel.CurrentPriceByCompany = new HashMap<>();
 
         User user = new User(entryFee, hostname);
         user.setReadyType(UserReadyType.READY);

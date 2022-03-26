@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomJsonMapper {
 
-    public Object jsonParse(String jsonStr, Class className) {
+    public static Object jsonParse(String jsonStr, Class className) {
         Gson gson = new Gson();
         Object obj = new Object();
         try {

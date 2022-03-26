@@ -9,6 +9,8 @@ import org.springframework.data.redis.connection.Message;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import project.investmentservice.dto.SocketDto;
+import project.investmentservice.enums.ServerMessageType;
+import project.investmentservice.utils.CustomJsonMapper;
 
 import static project.investmentservice.dto.SocketDto.*;
 
@@ -32,9 +34,30 @@ public class RedisSubscriber implements MessageListener {
 
             String publishMessage = (String) redisTemplate.getStringSerializer().deserialize(message.getBody());
 
-            // ServerMessage 객채로 맵핑
-            ServerMessage serverMessage = objectMapper.readValue(publishMessage, ServerMessage.class);
+            // PublishMessage 객채로 맵핑
 
+            Object obj = CustomJsonMapper.jsonParse(publishMessage, PublishMessage.class);
+            PublishMessage pmsg = PublishMessage.class
+                    .cast(obj);
+
+            PublishMessage serverMessage = new PublishMessage();
+            ServerMessageType type = pmsg.getType();
+            if (type == null) {
+                throw new NullPointerException("Not PublishMessage.\n잘못된 형식의 메시지가 입력되었습니다.");
+            }
+            switch (type) {
+                case STOCK:
+                    serverMessage = objectMapper.readValue(publishMessage, StockInfoMessage.class);
+                    break;
+                case RENEWAL:
+                case START:
+                case NOTICE:
+                    serverMessage = objectMapper.readValue(publishMessage, ServerMessage.class);
+                    break;
+                case CLOSE:
+                    serverMessage = objectMapper.readValue(publishMessage, StockGameEndMessage.class);
+                    break;
+            }
             // Websocket 구독자에게 채팅 메시지 Send
             messagingTemplate.convertAndSend("/sub/game/channel/" + serverMessage.getChannelId(), serverMessage);
         } catch (Exception e) {

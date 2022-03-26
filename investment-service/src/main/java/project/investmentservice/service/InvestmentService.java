@@ -9,6 +9,8 @@ import project.investmentservice.dto.InvestmentDto;
 import project.investmentservice.dto.InvestmentDto.StockRequest;
 import project.investmentservice.dto.InvestmentDto.TradeRequest;
 import project.investmentservice.dto.SocketDto;
+import project.investmentservice.exceptions.InsufficientPointException;
+import project.investmentservice.exceptions.SellOverHoldStockException;
 import project.investmentservice.repository.ChannelRepository;
 
 
@@ -21,7 +23,7 @@ public class InvestmentService {
      * 비즈니스 로직
      * 종목 구매
      */
-    public boolean purchaseStock(String channelId, TradeRequest request) {
+    public void purchaseStock(String channelId, TradeRequest request) {
         // Service에서 사용할 값들 get
         Long companyId = request.getCompanyId();
         Long userId = request.getUserId();
@@ -36,34 +38,31 @@ public class InvestmentService {
 
         // 원하는 만큼의 주식을 살 수 없다면 false 리턴
         if(userSeedMoney < currentPrice * quantity) {
-            return false;
+            throw new InsufficientPointException("보유 금액보다 주문량이 많습니다.");
         }
-        else {
-            // 구매 가격만큼 유저의 시드머니를 감소시킴
-            user.setSeedMoney(userSeedMoney - (currentPrice * quantity));
-            
-            // 유저의 보유 종목을 추가함
-            if(!user.getCompanies().containsKey(companyId)) {
-                user.addCompany(companyId);
-            }
-
-            UsersStock usersStock = user.getCompanies().get(companyId);
-            
-            // 유저가 보유한 종목의 보유 수량과 값을 업데이트
-            double newQuantity = usersStock.getQuantity() + quantity;
-            double newTotalPrice = usersStock.getTotalPrice() + (currentPrice * quantity);
-
-            usersStock.renewalStock((newTotalPrice / newQuantity), newQuantity, newTotalPrice);
-            channelRepository.updateChannel(findChannel);
-            return true;
+        // 구매 가격만큼 유저의 시드머니를 감소시킴
+        user.setSeedMoney(userSeedMoney - (currentPrice * quantity));
+        
+        // 첫 구매라면 유저의 보유 종목에 추가함
+        if(!user.getCompanies().containsKey(companyId)) {
+            user.addCompany(companyId);
         }
+
+        UsersStock usersStock = user.getCompanies().get(companyId);
+        
+        // 유저가 보유한 종목의 보유 수량과 값을 업데이트
+        double newQuantity = usersStock.getQuantity() + quantity;
+        double newTotalPrice = usersStock.getTotalPrice() + (currentPrice * quantity);
+
+        usersStock.renewalStock((newTotalPrice / newQuantity), newQuantity, newTotalPrice);
+        channelRepository.updateChannel(findChannel);
     }
 
     /**
      * 비즈니스 로직
      * 종목 판매
      */
-    public boolean sellStock(String channelId, TradeRequest request) {
+    public void sellStock(String channelId, TradeRequest request) {
         Long userId = request.getUserId();
         Long companyId = request.getCompanyId();
         double requestQuantity = request.getQuantity();
@@ -88,20 +87,18 @@ public class InvestmentService {
 
         // 매도 수량이 보유 수량보다 많다면 false 리턴
         if(requestQuantity > quantity) {
-            return false;
+            throw new SellOverHoldStockException("매도 수량이 보유 수량보다 많습니다");
+        }
+        
+        // (종목 가격 - 평균 구매 가격) * 매도 수량 = 시드머니 변동값
+        user.setSeedMoney(userSeedMoney + (currentPrice * requestQuantity));
+        if(quantity == (requestQuantity)) {
+            usersStock.renewalStock(0.0, 0.0, 0.0);
         }
         else {
-            // (종목 가격 - 평균 구매 가격) * 매도 수량 = 시드머니 변동값
-            user.setSeedMoney(userSeedMoney + (currentPrice * requestQuantity));
-            if(quantity == (requestQuantity)) {
-                usersStock.renewalStock(0.0, 0.0, 0.0);
-            }
-            else {
-                usersStock.renewalStock(averagePrice, quantity - requestQuantity, totalPrice-(averagePrice * requestQuantity));
-            }
-            channelRepository.updateChannel(findChannel);
-            return true;
+            usersStock.renewalStock(averagePrice, quantity - requestQuantity, totalPrice-(averagePrice * requestQuantity));
         }
+        channelRepository.updateChannel(findChannel);
     }
 
 
