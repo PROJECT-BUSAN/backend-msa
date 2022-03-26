@@ -1,11 +1,14 @@
 package project.investmentservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import project.investmentservice.enums.ClientMessageType;
 import project.investmentservice.enums.ServerMessageType;
 import project.investmentservice.service.InvestmentService;
+import project.investmentservice.utils.CustomJsonMapper;
 import project.investmentservice.utils.HttpApiController;
 import project.investmentservice.domain.*;
 import project.investmentservice.pubsub.RedisPublisher;
@@ -98,29 +101,13 @@ public class ChannelMessageController {
     }
 
 //    @MessageMapping("/game/trade")
-//    public void tradeMessage(TradeMessage tradeMessage) {
-//        TradeClientMessageType messageType = tradeMessage.getType();
-//        switch (messageType) {
-//            case BUY:
-//                boolean flag = investmentService.purchaseStock(tradeMessage);
-//                if(flag) {
-//
-//                }
-//                else {
-//
-//                }
-//            case SELL:
-//
-//        }
-//    }
-
     public void gameStart(Channel channel) {
         String channelId = channel.getId();
         List<Long> allUsers = channel.getAllUsers();
 
-//        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/point/bulk";
+        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/point/bulk";
 //
-//        AllUserPointDeduction deduction = new AllUserPointDeduction(
+//        AllUserPointUpdate deduction = new AllUserPointUpdate(
 //                allUsers,
 //                channel.getEntryFee()
 //        );
@@ -197,11 +184,12 @@ public class ChannelMessageController {
             }
         }
 
-
-
-
         // 게임에 참여한 유저가 가지고 있는 주식 전체 강제 매도
-        channelService.sellAllStock(closeValue, channel);
+        try {
+            channelService.sellAllStock(closeValue, channel);
+        } catch (Exception e) {
+            System.out.println("====\nError in sellAllStock\n====");
+        }
 
 
         // 게임 진행에 사용된 기업의 이름, 시작날짜, 종료 날짜를 반환한다.
@@ -213,11 +201,30 @@ public class ChannelMessageController {
                     cid,
                     company.getStock_name(),
                     stockLists.get(k).get(0).getDate(),
-                    stockLists.get(k).get(59).getDate(),
-                    "게임이 종료됩니다."
+                    stockLists.get(k).get(59).getDate()
             );
             stockResults.add(stockResult);
             k++;
+        }
+
+        // 등수대로 포인트 차등 획득
+        
+        // 5명 참여, 입장료는 1인당 1,000 포인트
+        // 5,000을 차등 부여
+        // 1, 2, 3, 4, 5등
+        // 1, 2, 3등만 부여한다고 가정?
+        // 1등 2500, 2등 1500, 3등 1000(본전)
+        // 나누는 기준을 정해야 함
+        
+        AllUserPointUpdate updatePointByUser = new AllUserPointUpdate(
+//                allUsers,
+                
+        );
+        ResponseEntity<String> stringResponseEntity = httpApiController.postRequest(profileServiceUrl, updatePointByUser);
+        Object obj = CustomJsonMapper.jsonParse(stringResponseEntity.getBody(), ResponseEntity.class);
+        ResponseEntity response = ResponseEntity.class.cast(obj);
+        if (!response.getStatusCode().equals(HttpStatus.OK) ) {
+            System.out.println("포인트 획득과정에서 문제가 발생했습니다.");
         }
 
         StockGameEndMessage stockGameEndMessage = new StockGameEndMessage(
@@ -226,6 +233,7 @@ public class ChannelMessageController {
                 stockResults,
                 channel.gameResult()
         );
+        
         redisPublisher.publish(
                 channelRepository.getTopic(channelId),
                 stockGameEndMessage
@@ -233,5 +241,4 @@ public class ChannelMessageController {
 
         channelService.deleteChannel(channel);
     }
-
 }

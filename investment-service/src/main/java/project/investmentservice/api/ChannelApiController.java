@@ -29,7 +29,6 @@ import static project.investmentservice.enums.HttpReturnType.FAIL;
 public class ChannelApiController {
 
     private final ChannelService channelService;
-    private final AuthenticateService authService;
     private final HttpApiController httpApiController;
     
     /**
@@ -68,7 +67,10 @@ public class ChannelApiController {
      */
     @PostMapping("/channel")
     public CreateChannelResponse createChannel(@RequestBody @Valid CreateChannelRequest request) {
-        Channel channel = channelService.createChannel(request.getName(), request.getLimitOfParticipants(), request.getEntryFee(), request.getUserId(), request.getUsername());
+        Long userId = request.getUserId();
+        String username = request.getUsername();
+        AuthenticateService.LoginCheck(userId, username);
+        Channel channel = channelService.createChannel(request.getName(), request.getLimitOfParticipants(), request.getEntryFee(), userId, username);
         return new CreateChannelResponse(channel.getId(), channel.getChannelNum(), channel.getChannelName());
     }
 
@@ -86,7 +88,7 @@ public class ChannelApiController {
     public EnterChannelResponse enterChannel(@PathVariable("channelId") String channelId, @RequestBody @Valid EnterChannelRequest request) {
         Long userId = request.getUserId();
         String username = request.getUsername();
-        authService.LoginCheck(userId, username);
+        AuthenticateService.LoginCheck(userId, username);
         
         ChannelServiceReturnType result = channelService.enterChannel(channelId, userId, username);
         if(result == SUCCESS) {

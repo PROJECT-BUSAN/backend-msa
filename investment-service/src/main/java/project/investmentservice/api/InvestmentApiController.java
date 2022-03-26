@@ -32,7 +32,6 @@ public class InvestmentApiController {
 
     /**
      * 주식 구매 API
-     * 
      * @param channelId
      * @param request
      * @return
@@ -40,33 +39,25 @@ public class InvestmentApiController {
     @PostMapping("/purchase/{channelId}")
     public ResponseEntity<TradeResponse> purchaseStockV1(@PathVariable("channelId") String channelId, @RequestBody @Valid TradeRequest request) {
         Long userId = request.getUserId();
-        boolean flag = investmentService.purchaseStock(channelId, request);
+        
+        investmentService.purchaseStock(channelId, request);
+        
         User user = channelService.findUserById(channelId, userId);
-        if(!flag) {
-            TradeResponse response = new TradeResponse(FAIL, "보유 금액보다 주문량이 많습니다.", user);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-        else {
-            TradeResponse response = new TradeResponse(SUCCESS, "주문에 성공하였습니다.", user);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+        return new ResponseEntity<>(
+                new TradeResponse(SUCCESS, "주문에 성공하였습니다.", user), 
+                HttpStatus.OK);
     }
 
     // 주식 판매
     @PostMapping("/sell/{channelId}")
     public ResponseEntity<TradeResponse> sellStock(@PathVariable("channelId") String channelId, @RequestBody @Valid TradeRequest request) {
         Long userId = request.getUserId();
-        Long companyId = request.getCompanyId();
-        boolean flag = investmentService.sellStock(channelId, request);
+        
+        investmentService.sellStock(channelId, request);
+        
         User user = channelService.findUserById(channelId, userId);
-
-        if(!flag) {
-            TradeResponse response = new TradeResponse(FAIL, "보유량보다 판매량이 많습니다.", user);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-        else {
-            TradeResponse response = new TradeResponse(SUCCESS, "판매에 성공했습니다.", user);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+        return new ResponseEntity<>(
+                new TradeResponse(SUCCESS, "판매에 성공했습니다.", user), 
+                HttpStatus.OK);
     }
 }

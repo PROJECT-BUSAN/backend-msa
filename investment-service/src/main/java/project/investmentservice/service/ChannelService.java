@@ -86,8 +86,7 @@ public class ChannelService {
 //        String profileServiceUrl = "http://172.30.1.11:8081/api/v1/profile/";
 
         /**
-         * 입장할 때 유저 프로필의 point를 차감한다.
-         * 만약 입장료보다 point를 적게 가지고 있을 시 참여 불가능.
+         * 만약 입장료보다 point 를 적게 가지고 있을 시 참여 불가능.
          */
 //        profileServiceUrl += (userId + "/point");
 //        
@@ -104,8 +103,9 @@ public class ChannelService {
             return POINTLACK;
         }
         if(findChannel.getLimitOfParticipants() > findChannel.getUsers().size()) {
-            //channel을 생성할때의 제한 인원이 현재 channel에 있는 인원보다 클때
-            //userPoint는 게임이 시작할때 차감하는걸로
+            // channel 제한 인원이 현재 입장된 유저의 수보다 클 때 입장 가능
+            // userPoint 는 게임이 시작할때 차감한다.
+            // 채널에 유저 입장.
             findChannel.getUsers().put(userId, new User(userPoint, username));
             channelRepository.updateChannel(findChannel);
             return SUCCESS;
@@ -179,9 +179,12 @@ public class ChannelService {
         for(Long userKey : users.keySet()) {
             User user = users.get(userKey);
             double userSeedMoney = user.getSeedMoney();
+            if (user.getCompanies().size() == 0) {
+                continue;
+            }
             for(Long companyKey : user.getCompanies().keySet()) {
                 UsersStock usersStock = user.getCompanies().get(companyKey);
-                if(usersStock.getQuantity() == 0L) continue;
+                if(usersStock.getQuantity() == 0) continue;
                 double sellPrice = closeValue.get(companyKey);
                 userSeedMoney += (sellPrice * usersStock.getQuantity());
             }

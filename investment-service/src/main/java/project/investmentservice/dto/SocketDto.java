@@ -18,7 +18,6 @@ public class SocketDto {
         private String stockName;
         private String startDate;
         private String endDate;
-        private String message;
     }
 
     /**
@@ -105,13 +104,14 @@ public class SocketDto {
     }
 
     @Data
-    public static class AllUserPointDeduction{
+    @NoArgsConstructor
+    public static class AllUserPointUpdate {
         private List<Long> userIds;
-        private double fee;
+        private List<Double> fees;
 
-        public AllUserPointDeduction(List<Long> userIds, double fee) {
+        public AllUserPointUpdate(List<Long> userIds, List<Double> fees) {
             this.userIds = userIds;
-            this.fee = fee;
+            this.fees = fees;
         }
     }
 }
