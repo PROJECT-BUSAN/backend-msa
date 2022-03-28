@@ -9,6 +9,7 @@ import project.investmentservice.enums.ChannelServiceReturnType;
 import project.investmentservice.enums.HttpReturnType;
 import project.investmentservice.service.AuthenticateService;
 import project.investmentservice.service.ChannelService;
+import project.investmentservice.service.CompanyService;
 import project.investmentservice.utils.HttpApiController;
 
 import javax.validation.Valid;
@@ -29,6 +30,7 @@ import static project.investmentservice.enums.HttpReturnType.FAIL;
 public class ChannelApiController {
 
     private final ChannelService channelService;
+    private final CompanyService companyService;
     private final HttpApiController httpApiController;
     
     /**
@@ -70,9 +72,13 @@ public class ChannelApiController {
         Long userId = request.getUserId();
         String username = request.getUsername();
         AuthenticateService.LoginCheck(userId, username);
-        Channel channel = channelService.createChannel(request.getName(), request.getLimitOfParticipants(), request.getEntryFee(), userId, username);
-        return new CreateChannelResponse(channel.getId(), channel.getChannelNum(), channel.getChannelName());
+        
+        HashSet<Long> companyIds = companyService.selectInGameCompany(3);
+        Channel channel = channelService.createChannel(request.getName(), request.getLimitOfParticipants(),
+        request.getEntryFee(), userId, username, companyIds);
+        return new CreateChannelResponse(channel.getId(), channel.getChannelNum(), channel.getChannelName(), userId);
     }
+    
 
     
     /**
@@ -99,6 +105,9 @@ public class ChannelApiController {
         }
         else if(result == FULLCHANNEL) {
             return new EnterChannelResponse(FAIL, "채널에 인원이 가득찼습니다.", userId, username);
+        }
+        else if (result == ALREADYIN) {
+            return new EnterChannelResponse(FAIL, "이미 방에 입장된 상태입니다.", userId, username);
         }
         else {
             return new EnterChannelResponse(FAIL, "Server Error 500.", userId, username);

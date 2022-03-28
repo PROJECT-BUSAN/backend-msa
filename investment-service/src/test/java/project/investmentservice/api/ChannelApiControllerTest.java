@@ -28,6 +28,7 @@ import project.investmentservice.dto.ChannelDto.CreateChannelRequest;
 import project.investmentservice.dto.ChannelDto.EnterChannelRequest;
 import project.investmentservice.service.ChannelService;
 
+import java.util.HashSet;
 
 
 @Transactional
@@ -36,7 +37,7 @@ import project.investmentservice.service.ChannelService;
 @AutoConfigureMockMvc
 public class ChannelApiControllerTest {
 
-    @Autowired 
+    @Autowired
     private MockMvc mockMvc;
 
     @Autowired
@@ -59,7 +60,7 @@ public class ChannelApiControllerTest {
     public void 모든채널반환API() throws Exception {
         //given
         CreateChannelRequest createChannelRequest = createChannel();
-        
+
         //when
         ResultActions resultActions = mockMvc.perform(get("/api/v1/investment/channel"));
 
@@ -73,7 +74,7 @@ public class ChannelApiControllerTest {
     public void 채널생성API() throws Exception {
         //given
         CreateChannelRequest createChannelRequest = createChannel();
-        
+
         //when
         ResultActions resultActions = mockMvc.perform(post("/api/v1/investment/channel")
                 .contentType(APPLICATION_JSON)
@@ -130,11 +131,15 @@ public class ChannelApiControllerTest {
         System.out.println("result3 = " + result3);
     }
 
-    
+
     private Channel createChannelByService(String name, Long userId){
-        return channelService.createChannel(name, 10, 100, userId, "admin");
+        HashSet<Long> companyIds = new HashSet<>();
+        companyIds.add(1L);
+        companyIds.add(2L);
+
+        return channelService.createChannel(name, 10, 100, userId, "admin", companyIds);
     }
-    
+
     private CreateChannelRequest createChannel(){
         CreateChannelRequest createChannelRequest = new CreateChannelRequest();
         createChannelRequest.setName("newRoom");
@@ -144,6 +149,6 @@ public class ChannelApiControllerTest {
         createChannelRequest.setLimitOfParticipants(10);
         return createChannelRequest;
     }
-    
+
 }
 
