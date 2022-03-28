@@ -3,11 +3,14 @@ package project.investmentservice.domain;
 import lombok.Getter;
 import lombok.Setter;
 import project.investmentservice.dto.SocketDto.GameResult;
+import project.investmentservice.enums.ChannelState;
 import project.investmentservice.enums.UserReadyType;
 
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static project.investmentservice.enums.ChannelState.*;
 
 @Getter
 @Setter
@@ -21,12 +24,16 @@ public class Channel implements Serializable {
     private int LimitOfParticipants;
     private double entryFee;    // 참가비
     private Map<Long, User> users = new HashMap<>();
-    private Map<Long, Double> CurrentPriceByCompany;
+    private Map<Long, Double> CurrentPriceByCompany = new HashMap<>();
     private double pointPsum;   // 참가비 모음
     private Long hostId;
     private String hostName;
+    private ChannelState channelState;
+    private HashSet<Long> companyIds;
 
-    public static Channel create(String channelName, Long channelNum, int LimitOfParticipants, double entryFee, Long hostId, String hostname) {
+    public static Channel create(String channelName, Long channelNum, int LimitOfParticipants,
+                                 double entryFee, Long hostId, String hostname, HashSet<Long> companyIds) {
+
         // 채널 정보 생성 + host 추가
         Channel channel = new Channel();
         channel.id = UUID.randomUUID().toString();
@@ -36,6 +43,8 @@ public class Channel implements Serializable {
         channel.entryFee = entryFee;
         channel.hostId = hostId;
         channel.hostName = hostname;
+        channel.channelState = WAITING;
+        channel.companyIds = companyIds;
         channel.CurrentPriceByCompany = new HashMap<>();
 
         User user = new User(entryFee, hostname);
@@ -47,10 +56,10 @@ public class Channel implements Serializable {
 
     public List<GameResult> gameResult() {
         List<GameResult> results = new ArrayList<>();
-        
-        for(Long userKey : users.keySet()) {
+
+        for (Long userKey : users.keySet()) {
             User user = users.get(userKey);
-            double userProfitRate =  user.getSeedMoney()/entryFee;
+            double userProfitRate = user.getSeedMoney() / entryFee;
             GameResult gameResult = new GameResult(
                     user.getName(),
                     userKey,
@@ -67,7 +76,7 @@ public class Channel implements Serializable {
     public List<Long> getAllUsers() {
         List<Long> results = new ArrayList<>();
 
-        for(Long userKey : users.keySet()) {
+        for (Long userKey : users.keySet()) {
             results.add(userKey);
         }
         return results;
@@ -79,9 +88,10 @@ public class Channel implements Serializable {
 
     public void setCurrentPriceByCompany(Long companyId, double price) {
         this.CurrentPriceByCompany.put(companyId, price);
+        Double aDouble = CurrentPriceByCompany.get(companyId);
     }
 
     public Double getCurrentPriceByCompany(Long companyId) {
-        return CurrentPriceByCompany.get(companyId);
+        return this.CurrentPriceByCompany.get(companyId);
     }
 }

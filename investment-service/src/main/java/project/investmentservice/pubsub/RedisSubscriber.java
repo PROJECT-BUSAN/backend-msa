@@ -47,7 +47,7 @@ public class RedisSubscriber implements MessageListener {
             }
             switch (type) {
                 case STOCK:
-                    serverMessage = objectMapper.readValue(publishMessage, StockInfoMessage.class);
+                    serverMessage = objectMapper.readValue(publishMessage, StockInfoMessages.class);
                     break;
                 case RENEWAL:
                 case START:
@@ -56,6 +56,9 @@ public class RedisSubscriber implements MessageListener {
                     break;
                 case CLOSE:
                     serverMessage = objectMapper.readValue(publishMessage, StockGameEndMessage.class);
+                    break;
+                case INIT:
+                    serverMessage = objectMapper.readValue(publishMessage, GameInitMessage.class);
                     break;
             }
             // Websocket 구독자에게 채팅 메시지 Send

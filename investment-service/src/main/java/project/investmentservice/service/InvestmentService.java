@@ -17,7 +17,7 @@ import project.investmentservice.repository.ChannelRepository;
 @RequiredArgsConstructor
 @Service
 public class InvestmentService {
-    
+
     private final ChannelRepository channelRepository;
     /**
      * 비즈니스 로직
@@ -32,30 +32,38 @@ public class InvestmentService {
         Channel findChannel = channelRepository.findChannelById(channelId);
         User user = findChannel.getUsers().get(userId);
         double currentPrice = findChannel.getCurrentPriceByCompany(companyId);
-
+        System.out.println("currentPrice = " + currentPrice);
         // 현재 유저의 시드머니
         double userSeedMoney = user.getSeedMoney();
+        System.out.println("userSeedMoney = " + userSeedMoney);
 
         // 원하는 만큼의 주식을 살 수 없다면 false 리턴
         if(userSeedMoney < currentPrice * quantity) {
             throw new InsufficientPointException("보유 금액보다 주문량이 많습니다.");
         }
-        // 구매 가격만큼 유저의 시드머니를 감소시킴
+
+        // 구매 가격만큼 유저의 시드머니를 감소시킴 - 문제
         user.setSeedMoney(userSeedMoney - (currentPrice * quantity));
-        
+        System.out.println("(userSeedMoney - (currentPrice * quantity) = " + (userSeedMoney - (currentPrice * quantity)));
+
         // 첫 구매라면 유저의 보유 종목에 추가함
         if(!user.getCompanies().containsKey(companyId)) {
             user.addCompany(companyId);
         }
 
+
         UsersStock usersStock = user.getCompanies().get(companyId);
-        
+        System.out.println("usersStock.getTotalPrice() = " + usersStock.getTotalPrice());
+
         // 유저가 보유한 종목의 보유 수량과 값을 업데이트
         double newQuantity = usersStock.getQuantity() + quantity;
+
         double newTotalPrice = usersStock.getTotalPrice() + (currentPrice * quantity);
 
         usersStock.renewalStock((newTotalPrice / newQuantity), newQuantity, newTotalPrice);
+
         channelRepository.updateChannel(findChannel);
+
     }
 
     /**
@@ -76,7 +84,7 @@ public class InvestmentService {
         // 현재 유저의 시드머니, 평균 매수 가격
         double userSeedMoney = user.getSeedMoney();
         double averagePrice = user.getCompanies().get(companyId).getAveragePrice();
-        
+
         // 현재 유저가 매도하려는 종목
         UsersStock usersStock = user.getCompanies().get(companyId);
 
@@ -89,7 +97,7 @@ public class InvestmentService {
         if(requestQuantity > quantity) {
             throw new SellOverHoldStockException("매도 수량이 보유 수량보다 많습니다");
         }
-        
+
         // (종목 가격 - 평균 구매 가격) * 매도 수량 = 시드머니 변동값
         user.setSeedMoney(userSeedMoney + (currentPrice * requestQuantity));
         if(quantity == (requestQuantity)) {

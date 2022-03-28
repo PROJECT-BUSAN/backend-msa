@@ -9,16 +9,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import project.investmentservice.enums.ChannelServiceReturnType;
+import project.investmentservice.enums.ChannelState;
 import project.investmentservice.utils.HttpApiController;
 import project.investmentservice.domain.Channel;
 import project.investmentservice.domain.User;
 import project.investmentservice.domain.UsersStock;
 import project.investmentservice.repository.ChannelRepository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import static project.investmentservice.enums.ChannelServiceReturnType.*;
+import static project.investmentservice.enums.ChannelState.*;
 import static project.investmentservice.enums.UserReadyType.CANCEL;
 import static project.investmentservice.enums.UserReadyType.READY;
 
@@ -34,10 +37,11 @@ public class ChannelService {
      * 비즈니스 로직
      * Channel 추가
      */
-    public Channel createChannel(String channelName, int LimitOfParticipants, double entryFee, Long hostUserId, String hostname) {
+    public Channel createChannel(String channelName, int LimitOfParticipants, double entryFee,
+                                 Long hostUserId, String hostname, HashSet<Long> companyIds) {
 
         //채널 객체 생성
-        Channel channel = Channel.create(channelName, channelNum++, LimitOfParticipants, entryFee, hostUserId, hostname);
+        Channel channel = Channel.create(channelName, channelNum++, LimitOfParticipants, entryFee, hostUserId, hostname, companyIds);
 
         //채널 저장
         channelRepository.createChannel(channel);
@@ -70,8 +74,8 @@ public class ChannelService {
 
         return channelRepository.findAllChannel();
     }
-    
-    
+
+
     /**
      * 비즈니스 로직
      * Channel 입장
@@ -79,9 +83,14 @@ public class ChannelService {
     public ChannelServiceReturnType enterChannel(String channelId, Long userId, String username) {
         //user_id로 user의 현재 point 정보를 불러오는 로직 필요. 이값을 여기서는 이값을 매개변수로 임시로 선언
         Channel findChannel = findOneChannel(channelId);
+
+        if (findChannel.getChannelState() == STARTED) {
+            throw new RuntimeException("이미 실행한 방에 입장하려는 경우 에러");
+        }
+
         List<Long> allUsers = findChannel.getAllUsers();
-        double userPoint = -1000000.0;
-                
+        double userPoint = 1000000.0;
+
 //        String profileServiceUrl = "http://profile-service:8080/api/v1/profile/";
 //        String profileServiceUrl = "http://172.30.1.11:8081/api/v1/profile/";
 
@@ -100,9 +109,13 @@ public class ChannelService {
 //        }
 
         if (userPoint < findChannel.getEntryFee()) {
+            // 포인트 부족
             return POINTLACK;
         }
-        if(findChannel.getLimitOfParticipants() > findChannel.getUsers().size()) {
+        if(findChannel.getLimitOfParticipants() <= findChannel.getUsers().size()) {
+            // 인원 가득참.
+            return FULLCHANNEL;
+        } else {
             // channel 제한 인원이 현재 입장된 유저의 수보다 클 때 입장 가능
             // userPoint 는 게임이 시작할때 차감한다.
             // 채널에 유저 입장.
@@ -110,10 +123,10 @@ public class ChannelService {
             channelRepository.updateChannel(findChannel);
             return SUCCESS;
         }
-        else {
-            // 인원 가득참.
-            return FULLCHANNEL;
-        }
+//        else if (findChannel.getUsers().get(userId) != null) {
+//            // 이미 방에 참여한 상태
+//            return ALREADYIN;
+//        }
     }
 
     @Data
@@ -121,7 +134,7 @@ public class ChannelService {
     static class PointDTO {
         double userPoint;
     }
-    
+
 
     /**
      * 비즈니스 로직
@@ -134,12 +147,17 @@ public class ChannelService {
         return findChannel;
     }
 
+    public void updateChannel(Channel channel) {
+        channelRepository.updateChannel(channel);
+    }
+
     /**
      * 비즈니스 로직
      * Channel READY Set
      */
     public Channel setReady(String channelId, Long userId) {
         Channel findChannel = findOneChannel(channelId);
+        System.out.println("findChannel.User = " + findChannel.getUsers().get(userId));
         findChannel.getUsers().get(userId).setReadyType(READY);
         channelRepository.updateChannel(findChannel);
         return findChannel;
@@ -169,24 +187,28 @@ public class ChannelService {
         return true;
     }
 
-    
+
     /**
      *    게임이 종료되면 모든 유저가 가지고 있는 주식이 종가에 매도된다.
      */
     public void sellAllStock(Map<Long, Double> closeValue, Channel nowChannel) {
         Map<Long, User> users = nowChannel.getUsers();
+        System.out.println("users.size() = " + users.size());
 
         for(Long userKey : users.keySet()) {
             User user = users.get(userKey);
+            System.out.println("user.getName() = " + user.getName());
             double userSeedMoney = user.getSeedMoney();
-            if (user.getCompanies().size() == 0) {
+            if (user.getCompanies().isEmpty()) {
                 continue;
             }
             for(Long companyKey : user.getCompanies().keySet()) {
                 UsersStock usersStock = user.getCompanies().get(companyKey);
                 if(usersStock.getQuantity() == 0) continue;
                 double sellPrice = closeValue.get(companyKey);
+                System.out.println("sellPrice = " + sellPrice);
                 userSeedMoney += (sellPrice * usersStock.getQuantity());
+                System.out.println("userSeedMoney = " + userSeedMoney);
             }
             user.setSeedMoney(userSeedMoney);
         }
