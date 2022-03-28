@@ -113,7 +113,7 @@ def generate_access_token(user):
     access_token_payload = {
         'user_id': user.id,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(
-            days=0, minutes=60
+            days=1, minutes=0
         ),
         'iat': datetime.datetime.utcnow(),
     }
