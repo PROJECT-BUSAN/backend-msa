@@ -1,15 +1,15 @@
 FROM python:3.9.0
 
-COPY ./ /home/crawling
+RUN apt-get upgrade && pip3 install --upgrade pip
 
 WORKDIR /home/crawling
 
-RUN apt-get upgrade && pip3 install --upgrade pip
+ADD ./requirements.txt /home/crawling/requirements.txt
 
 RUN pip install -r requirements.txt
 
-RUN pip install gunicorn
+COPY ./ /home/crawling
 
-RUN pip install mysqlclient
+RUN pip install gunicorn && pip install mysqlclient
 
 EXPOSE 8001
