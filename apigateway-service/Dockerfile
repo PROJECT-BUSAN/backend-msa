@@ -1,15 +1,16 @@
 FROM python:3.9.0
 
-COPY ./ /home/apigateway
+RUN apt-get upgrade && \
+    pip3 install --upgrade pip
 
 WORKDIR /home/apigateway
 
-RUN apt-get upgrade && pip3 install --upgrade pip
+ADD ./requirements.txt /home/apigateway/requirements.txt
 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt && \
+    pip install gunicorn && \
+    pip install mysqlclient
 
-RUN pip install gunicorn
-
-# RUN pip install mysqlclient
+COPY ./ /home/apigateway
 
 EXPOSE 8000

@@ -29,15 +29,14 @@ class Gateway(APIView):
             return Response('No Reserved API. Please Register API Host and Path you are Using', status=status.HTTP_400_BAD_REQUEST)
         
         apimodel = apimodel.first()
-        valid, msg = apimodel.check_auth_perm(request)
+        valid, user = apimodel.check_auth_perm(request)
         if not valid:
-            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+            return Response(user.id, status=status.HTTP_400_BAD_REQUEST)
         
-        if msg is not '':
-            userid = msg
-            request.data['userId'] = userid
-            request.data['username'] = "adsf"
-        
+        if user is not '':
+            request.data['userId'] = user.id
+            request.data['username'] = user.username
+
         request = {
             "method": request.method,
             "data": request.data,

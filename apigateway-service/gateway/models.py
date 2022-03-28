@@ -43,7 +43,7 @@ class Api(models.Model):
 
             if User.objects.filter(pk=user.id).exists():
                 if self.has_permission(user):
-                    return True, user.id
+                    return True, user
                 else:
                     return False, 'permission not allowed'
             else:
@@ -58,7 +58,7 @@ class Api(models.Model):
 
             if User.objects.filter(pk=user.id).exists():
                 if self.has_permission(user, request.method):
-                    return True, user.id
+                    return True, user
                 else:
                     return False, 'permission not allowed'
             else:
