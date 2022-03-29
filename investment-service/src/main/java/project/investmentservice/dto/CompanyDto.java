@@ -19,6 +19,4 @@ public class CompanyDto {
             this.stock_code = company.getStock_code();
         }
     }
-
-
 }

@@ -33,6 +33,7 @@ public class ChannelDto {
         private String id;
         private Long channelNum;
         private String channelName;
+        private Long hostId;
     }
 
     @Data
@@ -52,5 +53,4 @@ public class ChannelDto {
     public static class AllChannelResponse {
         private List<Channel> channels;
     }
-
 }

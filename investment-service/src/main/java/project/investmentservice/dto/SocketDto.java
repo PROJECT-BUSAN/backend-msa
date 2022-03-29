@@ -5,8 +5,10 @@ import project.investmentservice.domain.User;
 import project.investmentservice.enums.ClientMessageType;
 import project.investmentservice.enums.ServerMessageType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 public class SocketDto {
@@ -20,10 +22,28 @@ public class SocketDto {
         private String endDate;
     }
 
+    @Getter
+    @NoArgsConstructor
+    public static class StockInfoMessages extends PublishMessage {
+        private List<StockInfoMessage> stockInfoMessageList;
+
+        public StockInfoMessages(ServerMessageType type, String channelId) {
+            super(type, channelId);
+            stockInfoMessageList = new ArrayList<>();
+        }
+
+        public void addStockInfoMessage(StockInfoMessage sm) {
+            stockInfoMessageList.add(sm);
+        }
+    }
+
+
+
     /**
      * 10초에 한 번씩 주가 정보 전송에 쓰이는 객체
      */
     @Getter
+    @NoArgsConstructor
     public static class StockInfoMessage extends PublishMessage {
 
         private String date;
@@ -32,9 +52,9 @@ public class SocketDto {
         private double high;
         private double low;
         private int volume;
-        private Long company_id;
+        private Long companyId;
 
-        public StockInfoMessage(ServerMessageType type, String channelId, String date, double close, double open, double high, double low, int volume, Long company_id) {
+        public StockInfoMessage(ServerMessageType type, String channelId, String date, double close, double open, double high, double low, int volume, Long companyId) {
             super(type, channelId);
             this.date = date;
             this.close = close;
@@ -42,7 +62,7 @@ public class SocketDto {
             this.high = high;
             this.low = low;
             this.volume = volume;
-            this.company_id = company_id;
+            this.companyId = companyId;
         }
     }
 
@@ -68,6 +88,17 @@ public class SocketDto {
             this.users = users;
         }
     }
+
+    @Getter
+    public static class GameInitMessage extends PublishMessage {
+        private List<Long> companyIds;
+
+        public GameInitMessage(ServerMessageType type, String channelId, Set<Long> companyIds) {
+            super(type, channelId);
+            this.companyIds = new ArrayList<>(companyIds);
+        }
+    }
+
 
     @Getter
     @AllArgsConstructor
