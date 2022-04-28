@@ -1,4 +1,4 @@
-# **PROJECT 모의투자 게임 :money:**
+# **PROJECT 모의투자 게임 💸**
 
 
 ## **:bulb: The purpose of a project**
