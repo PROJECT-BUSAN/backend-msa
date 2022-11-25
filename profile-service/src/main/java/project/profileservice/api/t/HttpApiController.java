@@ -1,4 +1,4 @@
-package project.profileservice.api;
+package project.profileservice.api.t;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
