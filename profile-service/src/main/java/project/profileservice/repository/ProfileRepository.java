@@ -1,6 +1,5 @@
 package project.profileservice.repository;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import project.profileservice.domain.Profile;
@@ -34,7 +33,7 @@ public class ProfileRepository {
         Profile profile = findOne(user_id);
         em.remove(profile);
     }
-    
+
     /**
      * 조회 시 사용하지 말 것
      * 사용처 : remove, Test

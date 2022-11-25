@@ -1,4 +1,4 @@
-package project.profileservice.api;
+package project.profileservice.api.t;
 
 
 import io.swagger.annotations.ApiOperation;
@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.profileservice.domain.Badge;
 import project.profileservice.service.BadgeService;
-import project.profileservice.domain.dto.UpdateBadgeDto;
+import project.profileservice.domain.UpdateBadgeDto;
 
 import java.util.List;
 import java.util.stream.Collectors;

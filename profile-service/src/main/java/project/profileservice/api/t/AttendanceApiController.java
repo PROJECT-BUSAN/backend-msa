@@ -1,4 +1,4 @@
-package project.profileservice.api;
+package project.profileservice.api.t;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;

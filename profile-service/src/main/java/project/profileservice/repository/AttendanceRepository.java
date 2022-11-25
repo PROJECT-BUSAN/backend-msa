@@ -3,7 +3,6 @@ package project.profileservice.repository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import project.profileservice.domain.Attendance;
-import project.profileservice.domain.Profile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
